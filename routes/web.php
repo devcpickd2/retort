@@ -14,7 +14,8 @@ use App\Http\Controllers\{
     PlantController,
     ProduksiController,
     GmpController,
-    PvdcController
+    PvdcController,
+    MagnetTrapController,
 };
 
 Route::get('/', function () {
@@ -98,3 +99,5 @@ Route::get('/pvdc/export-pdf', [PvdcController::class, 'exportPdf'])->name('pvdc
 Route::resource('pvdc', PvdcController::class)->parameters([
     'pvdc' => 'uuid'
 ]);
+
+Route::resource('checklistmagnettrap', MagnetTrapController::class);

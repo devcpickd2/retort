@@ -71,6 +71,20 @@ $formActive = $formSuhuActive || $formGmpActive;
     </div>
 </div>
 </li>
+<li class="nav-item">
+    <a class="nav-link {{ $formActive ? '' : 'collapsed' }}" href="#"
+    data-bs-toggle="collapse" data-bs-target="#collapseFormQC" aria-expanded="{{ $formActive ? 'true' : 'false' }}" aria-controls="collapseFormQC">
+    <i class="fas fa-clipboard-list"></i>
+    <span>MEAT PREPARATION</span>
+</a>
+<div id="collapseFormQC" class="collapse {{ $formActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
+        <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('checklistmagnettrap.index') }}">Checklist Cleaning Magnet Trap</a>
+    </div>
+</div>
+</li>
+
 
 <!-- Cooking -->
 @php
