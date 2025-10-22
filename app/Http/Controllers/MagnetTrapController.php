@@ -6,6 +6,7 @@ use App\Models\MagnetTrapModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Produk;
+use Illuminate\Support\Facades\Auth;
 
 
 class MagnetTrapController extends Controller
@@ -146,6 +147,77 @@ class MagnetTrapController extends Controller
 
         return redirect()->route('checklistmagnettrap.index')
                          ->with('success', 'Data berhasil dihapus.');
+    }
+
+    /**
+     * Menampilkan halaman verifikasi untuk SPV.
+     */
+    public function showVerificationPage(Request $request)
+    {
+        // 1. Mulai query builder
+        $query = MagnetTrapModel::query();
+
+        // 2. Terapkan filter pencarian jika ada
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            
+            // Ganti 'nama_produk' dan 'kode_batch' dengan nama kolom yang sesuai di database Anda
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('nama_produk', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('kode_batch', 'like', '%' . $searchTerm . '%');
+                // Tambahkan ->orWhere() lain jika ingin mencari di kolom lain
+            });
+        }
+
+        // 3. Terapkan filter tanggal awal (start_date) jika ada
+        if ($request->filled('start_date')) {
+            // Ganti 'created_at' dengan nama kolom tanggal Anda (misal: 'tanggal_inspeksi')
+            $query->whereDate('created_at', '>=', $request->input('start_date'));
+        }
+
+        // 4. Terapkan filter tanggal akhir (end_date) jika ada
+        if ($request->filled('end_date')) {
+            // Ganti 'created_at' dengan nama kolom tanggal Anda (misal: 'tanggal_inspeksi')
+            $query->whereDate('created_at', '<=', $request->input('end_date'));
+        }
+
+        // 5. Eksekusi query dengan urutan terbaru, paginasi, dan tambahkan parameter filter ke link paginasi
+        $data = $query->latest() // Mengurutkan dari yang terbaru (sama seperti sebelumnya)
+                       ->paginate(10) // Paginasi data
+                       ->appends($request->all()); // <-- Ini penting agar filter tetap aktif saat pindah halaman
+
+        // 6. Kirim data ke view
+        return view('magnet_trap.verification', compact('data'));
+    }
+
+    /**
+     * Handle the SPV verification update.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $uuid
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function verify(Request $request, $uuid)
+    {
+        $request->validate([
+            'status_spv' => 'required|in:1,2',
+            'catatan_spv' => 'nullable|string|max:1000',
+        ]);
+
+        // Cari record berdasarkan kolom 'uuid'
+        $magnetTrap = MagnetTrapModel::where('uuid', $uuid)->firstOrFail();
+
+        $magnetTrap->status_spv = $request->status_spv;
+        
+        // Hanya simpan catatan jika statusnya adalah 'Revision', jika tidak, kosongkan.
+        $magnetTrap->catatan_spv = ($request->status_spv == 2) ? $request->catatan_spv : null;
+
+        $magnetTrap->verified_by_spv_uuid = Auth::id(); // Asumsi user yang login adalah SPV
+        $magnetTrap->verified_at_spv = now();
+
+        $magnetTrap->save();
+
+        return redirect()->back()->with('success', 'Data berhasil diverifikasi.');
     }
 }
 

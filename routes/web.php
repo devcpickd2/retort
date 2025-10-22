@@ -100,4 +100,6 @@ Route::resource('pvdc', PvdcController::class)->parameters([
     'pvdc' => 'uuid'
 ]);
 
+Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'showVerificationPage'])->name('checklistmagnettrap.verification');
+Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
 Route::resource('checklistmagnettrap', MagnetTrapController::class);
