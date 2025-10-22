@@ -127,16 +127,33 @@ $collapseVerifShow = $suhuActive || $gmpActive ;
 </a>
 <div id="collapseVerif" class="collapse {{ $collapseVerifShow ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
     <div class="bg-dark py-2 collapse-inner rounded">
-     <!-- <a class="collapse-item {{ $suhuActive ? 'active' : '' }}" href="{{ route('suhu.verification') }}">
-        Pemeriksaan Suhu Ruang
-    </a> -->
-    <a class="collapse-item {{ $gmpActive ? 'active' : '' }}" href="{{ route('gmp.verification') }}">
-        GMP Karyawan
-    </a>
-</div>
+        <!-- <a class="collapse-item {{ $suhuActive ? 'active' : '' }}" href="{{ route('suhu.verification') }}">
+            Pemeriksaan Suhu Ruang
+        </a> -->
+        <a class="collapse-item {{ $gmpActive ? 'active' : '' }}" href="{{ route('gmp.verification') }}">
+            GMP Karyawan
+        </a>
+    </div>
 </div>
 </li>
-
+<li class="nav-item">
+    <a class="nav-link {{ $collapseVerifShow ? '' : 'collapsed' }}" href="#"
+    data-bs-toggle="collapse" data-bs-target="#collapseVerif"
+    aria-expanded="{{ $collapseVerifShow ? 'true' : 'false' }}" aria-controls="collapseVerif">
+    <i class="fas fa-clipboard-list"></i>
+    <span>MEAT PREPARATION</span>
+</a>
+<div id="collapseVerif" class="collapse {{ $collapseVerifShow ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <!-- <a class="collapse-item {{ $suhuActive ? 'active' : '' }}" href="{{ route('suhu.verification') }}">
+            Pemeriksaan Suhu Ruang
+        </a> -->
+        <a class="collapse-item {{ $gmpActive ? 'active' : '' }}" href="{{ route('checklistmagnettrap.verification') }}">
+            Checklist Cleaning Magnet Trap
+        </a>
+    </div>
+</div>
+</li>
 @php
 $PvdcActive = request()->routeIs('pvdc.verification');
 
