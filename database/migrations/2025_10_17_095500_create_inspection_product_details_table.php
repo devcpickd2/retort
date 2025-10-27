@@ -1,6 +1,6 @@
 <?php
 
-// database/migrations/xxxx_xx_xx_xxxxxx_create_inspection_product_details_table.php
+// database/migrations/2025_10_17_095500_create_inspection_product_details_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,16 +11,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inspection_product_details', function (Blueprint $table) {
-            $table->id(); // Primary Key auto-increment
-            $table->uuid()->unique(); // UUID terpisah
+            $table->id();
+            $table->uuid()->unique(); 
 
-            // Relasi menggunakan foreign key `id` (integer)
             $table->foreignId('raw_material_inspection_id')->constrained()->onDelete('cascade');
             
             $table->string('kode_batch');
             $table->date('tanggal_produksi');
             $table->date('exp');
             $table->decimal('jumlah', 10, 2);
+            
+            // KOLOM BARU YANG DIMINTA
+            $table->decimal('jumlah_sampel', 10, 2)->default(0);
+            $table->decimal('jumlah_reject', 10, 2)->default(0);
 
             $table->timestamps();
         });
