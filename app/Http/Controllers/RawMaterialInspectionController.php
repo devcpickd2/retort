@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class RawMaterialInspectionController extends Controller
 {
@@ -271,5 +272,82 @@ class RawMaterialInspectionController extends Controller
             DB::rollBack();
             return back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
+    }
+
+    // ===================================================================
+    // TAMBAHKAN DUA FUNGSI BARU DI BAWAH INI
+    // ===================================================================
+
+    /**
+     * Menampilkan halaman verifikasi untuk SPV.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function showVerificationPage(Request $request)
+    {
+        // 1. Mulai query builder
+        $query = RawMaterialInspection::query();
+
+        // 2. Terapkan filter tanggal awal (start_date)
+        if ($request->filled('start_date')) {
+            // Menggunakan kolom tanggal 'setup_kedatangan'
+            $query->whereDate('setup_kedatangan', '>=', $request->input('start_date'));
+        }
+
+        // 3. Terapkan filter tanggal akhir (end_date)
+        if ($request->filled('end_date')) {
+            // Menggunakan kolom tanggal 'setup_kedatangan'
+            $query->whereDate('setup_kedatangan', '<=', $request->input('end_date'));
+        }
+
+        // 4. Terapkan filter pencarian jika ada
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            
+            // Menggunakan kolom 'bahan_baku' dan 'supplier'
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('bahan_baku', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('supplier', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        // 5. Eksekusi query dengan urutan terbaru, paginasi, dan tambahkan parameter filter
+        $data = $query->latest() // Mengurutkan dari yang terbaru
+                       ->paginate(10)
+                       ->withQueryString(); // <-- Penting agar filter tetap aktif saat pindah halaman
+
+        // 6. Kirim data ke view verifikasi yang baru
+        return view('raw_material.verification', compact('data'));
+    }
+
+    /**
+     * Handle the SPV verification update.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $uuid
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function verify(Request $request, $uuid)
+    {
+        $request->validate([
+            'status_spv' => 'required|in:1,2', // 1 = Verified, 2 = Revision
+            'catatan_spv' => 'nullable|string|max:1000',
+        ]);
+
+        // Cari record berdasarkan kolom 'uuid'
+        $inspection = RawMaterialInspection::where('uuid', $uuid)->firstOrFail();
+
+        $inspection->status_spv = $request->status_spv;
+        
+        // Hanya simpan catatan jika statusnya adalah 'Revision', jika tidak, kosongkan.
+        $inspection->catatan_spv = ($request->status_spv == 2) ? $request->catatan_spv : null;
+
+        $inspection->verified_by_spv_uuid = Auth::id(); // Asumsi user yang login adalah SPV
+        $inspection->verified_at_spv = now();
+
+        $inspection->save();
+
+        return redirect()->back()->with('success', 'Data berhasil diverifikasi.');
     }
 }
