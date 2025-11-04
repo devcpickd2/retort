@@ -95,6 +95,10 @@ $formActive = $formSuhuActive || $formGmpActive;
         <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
         <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('inspections.index') }}">Pemeriksaan Input Bahan Baku</a>
     </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
+        <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('packaging-inspections.index') }}">Pemeriksaan Packaging</a>
+    </div>
 </div>
 </li>
 
@@ -177,6 +181,10 @@ $collapseVerifShow = $suhuActive || $gmpActive ;
     <div class="bg-dark py-2 collapse-inner rounded">
         <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
         <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('inspections.verification') }}">Pemeriksaan Input Bahan Baku</a>
+    </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
+        <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('packaging-inspections.verification') }}">Pemeriksaan Packaging</a>
     </div>
 </div>
 </li>

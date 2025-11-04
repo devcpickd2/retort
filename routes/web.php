@@ -17,6 +17,7 @@ use App\Http\Controllers\{
     PvdcController,
     MagnetTrapController,
     RawMaterialInspectionController,
+    PackagingInspectionController,
 };
 
 Route::get('/', function () {
@@ -110,3 +111,10 @@ Route::get('/inspections/verification', [RawMaterialInspectionController::class,
 Route::put('/inspections/verify/{uuid}', [RawMaterialInspectionController::class, 'verify'])
      ->name('inspections.verify');
 Route::resource('inspections', RawMaterialInspectionController::class);
+// RUTE BARU: Menampilkan halaman daftar verifikasi Packaging
+Route::get('packaging-inspections/verification', [PackagingInspectionController::class, 'showVerificationList'])
+         ->name('packaging-inspections.verification');
+         
+// RUTE BARU: Memproses modal verifikasi Packaging
+Route::put('packaging-inspections/verify/{inspection}', [PackagingInspectionController::class, 'verify'])->name('packaging-inspections.verify');
+Route::resource('packaging-inspections', PackagingInspectionController::class);
