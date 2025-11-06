@@ -18,6 +18,7 @@ use App\Http\Controllers\{
     MagnetTrapController,
     RawMaterialInspectionController,
     PackagingInspectionController,
+    PemeriksaanRetainController,
 };
 
 Route::get('/', function () {
@@ -118,3 +119,10 @@ Route::get('packaging-inspections/verification', [PackagingInspectionController:
 // RUTE BARU: Memproses modal verifikasi Packaging
 Route::put('packaging-inspections/verify/{inspection}', [PackagingInspectionController::class, 'verify'])->name('packaging-inspections.verify');
 Route::resource('packaging-inspections', PackagingInspectionController::class);
+
+Route::get('pemeriksaan-retain/verification', [PemeriksaanRetainController::class, 'showVerificationPage'])
+     ->name('pemeriksaan_retain.verification');
+Route::put('pemeriksaan-retain/{pemeriksaanRetain}/verify', [PemeriksaanRetainController::class, 'submitVerification'])
+     ->name('pemeriksaan_retain.verify');
+Route::resource('pemeriksaan-retain', PemeriksaanRetainController::class)
+     ->names('pemeriksaan_retain');

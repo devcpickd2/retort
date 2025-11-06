@@ -2,10 +2,8 @@
 $type_user = auth()->user()->type_user;
 @endphp
 
-<!-- Sidebar -->
 <ul class="navbar-nav sidebar sidebar-dark" id="accordionSidebar">
 
-    <!-- Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
         <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
         <div class="sidebar-brand-text mx-3">E-Retort</div>
@@ -13,7 +11,6 @@ $type_user = auth()->user()->type_user;
 
     <hr class="sidebar-divider my-0">
 
-    <!-- Dashboard -->
     <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('dashboard') }}">
             <i class="fas fa-home"></i>
@@ -23,11 +20,10 @@ $type_user = auth()->user()->type_user;
 
     <hr class="sidebar-divider">
 
-    <!-- Master Data -->
     @if($type_user == 0)
     <div class="sidebar-heading">Master Data</div>
     @php
-    $masterActive = request()->routeIs('departemen.*') || request()->routeIs('plant.*') || request()->routeIs('produk.*') || request()->routeIs('produksi.*') || request()->routeIs('user.*');
+    $masterActive = request()->routeIs('departemen.*') || request()->routeIs('plant.*') || request()->routeIs('produk.*') || request()->routeIs('produksi.*') || request()->routeIs('user.*') || request()->routeIs('mesin.*');
     @endphp
     <li class="nav-item">
         <a class="nav-link {{ $masterActive ? '' : 'collapsed' }}" href="#"
@@ -48,16 +44,25 @@ $type_user = auth()->user()->type_user;
 </li>
 @endif
 
-<!-- Form QC -->
 @if(in_array($type_user, [0,1,4,8]))
 <div class="sidebar-heading">Form QC</div>
 @php
+// Logika active untuk Suhu & Kebersihan
 $formSuhuActive = request()->routeIs('suhu.index') || request()->routeIs('suhu.create') || request()->routeIs('suhu.edit');
 $formGmpActive = request()->routeIs('gmp.index') || request()->routeIs('gmp.create') || request()->routeIs('gmp.edit');
-
 $formActive = $formSuhuActive || $formGmpActive;
+
+// Logika active untuk Meat Prep
+$meatPrepActive = request()->routeIs('checklistmagnettrap.*');
+
+// Logika active untuk Warehouse
+$warehouseActive = request()->routeIs('inspections.*') || request()->routeIs('packaging-inspections.*');
+
+// Logika active untuk Cikande
+$cikandeActive = request()->routeIs('pemeriksaan_retain.*');
 @endphp
 
+{{-- 1. Suhu & Kebersihan --}}
 <li class="nav-item">
     <a class="nav-link {{ $formActive ? '' : 'collapsed' }}" href="#"
     data-bs-toggle="collapse" data-bs-target="#collapseFormQC" aria-expanded="{{ $formActive ? 'true' : 'false' }}" aria-controls="collapseFormQC">
@@ -66,48 +71,60 @@ $formActive = $formSuhuActive || $formGmpActive;
 </a>
 <div id="collapseFormQC" class="collapse {{ $formActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
     <div class="bg-dark py-2 collapse-inner rounded">
-        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
         <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('gmp.index') }}">GMP Karyawan</a>
     </div>
 </div>
 </li>
+
+{{-- 2. MEAT PREPARATION --}}
 <li class="nav-item">
-    <a class="nav-link {{ $formActive ? '' : 'collapsed' }}" href="#"
-    data-bs-toggle="collapse" data-bs-target="#collapseFormQC" aria-expanded="{{ $formActive ? 'true' : 'false' }}" aria-controls="collapseFormQC">
+    <a class="nav-link {{ $meatPrepActive ? '' : 'collapsed' }}" href="#"
+    data-bs-toggle="collapse" data-bs-target="#collapseMeatPrep" aria-expanded="{{ $meatPrepActive ? 'true' : 'false' }}" aria-controls="collapseMeatPrep">
     <i class="fas fa-clipboard-list"></i>
     <span>MEAT PREPARATION</span>
 </a>
-<div id="collapseFormQC" class="collapse {{ $formActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+<div id="collapseMeatPrep" class="collapse {{ $meatPrepActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
     <div class="bg-dark py-2 collapse-inner rounded">
-        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
-        <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('checklistmagnettrap.index') }}">Checklist Cleaning Magnet Trap</a>
+        <a class="collapse-item {{ request()->routeIs('checklistmagnettrap.index') ? 'active' : '' }}" href="{{ route('checklistmagnettrap.index') }}">Checklist Cleaning Magnet Trap</a>
     </div>
 </div>
 </li>
+
+{{-- 3. Warehouse --}}
 <li class="nav-item">
-    <a class="nav-link {{ $formActive ? '' : 'collapsed' }}" href="#"
-    data-bs-toggle="collapse" data-bs-target="#collapseFormQC" aria-expanded="{{ $formActive ? 'true' : 'false' }}" aria-controls="collapseFormQC">
+    <a class="nav-link {{ $warehouseActive ? '' : 'collapsed' }}" href="#"
+    data-bs-toggle="collapse" data-bs-target="#collapseWarehouse" aria-expanded="{{ $warehouseActive ? 'true' : 'false' }}" aria-controls="collapseWarehouse">
     <i class="fas fa-clipboard-list"></i>
     <span>Warehouse</span>
 </a>
-<div id="collapseFormQC" class="collapse {{ $formActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+<div id="collapseWarehouse" class="collapse {{ $warehouseActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
     <div class="bg-dark py-2 collapse-inner rounded">
-        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
-        <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('inspections.index') }}">Pemeriksaan Input Bahan Baku</a>
+        <a class="collapse-item {{ request()->routeIs('inspections.index') ? 'active' : '' }}" href="{{ route('inspections.index') }}">Pemeriksaan Input Bahan Baku</a>
     </div>
     <div class="bg-dark py-2 collapse-inner rounded">
-        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
-        <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('packaging-inspections.index') }}">Pemeriksaan Packaging</a>
+        <a class="collapse-item {{ request()->routeIs('packaging-inspections.index') ? 'active' : '' }}" href="{{ route('packaging-inspections.index') }}">Pemeriksaan Packaging</a>
     </div>
 </div>
 </li>
 
+{{-- 4. Cikande Form --}}
+<li class="nav-item">
+    <a class="nav-link {{ $cikandeActive ? '' : 'collapsed' }}" href="#"
+    data-bs-toggle="collapse" data-bs-target="#collapseCikande" aria-expanded="{{ $cikandeActive ? 'true' : 'false' }}" aria-controls="collapseCikande">
+    <i class="fas fa-clipboard-list"></i>
+    <span>Cikande Form</span>
+</a>
+<div id="collapseCikande" class="collapse {{ $cikandeActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+    <div class="bg-dark py-2 collapse-inner rounded">
+        {{-- INI SUDAH BENAR, merujuk ke 'pemeriksaan_retain.*' --}}
+        <a class="collapse-item {{ request()->routeIs('pemeriksaan_retain.*') ? 'active' : '' }}" href="{{ route('pemeriksaan_retain.index') }}">Pemeriksaan Retain Sampel</a>
+    </div>
+</div>
+</li>
 
-<!-- Cooking -->
 @php
 // aktif untuk form cooking
 $formPvdcActive = request()->routeIs('pvdc.index') || request()->routeIs('pvdc.create') || request()->routeIs('pvdc.edit');
-
 $formActiveStuffing = $formPvdcActive ;
 @endphp
 
@@ -118,7 +135,7 @@ $formActiveStuffing = $formPvdcActive ;
     <i class="fas fa-utensils"></i>
     <span>Stuffing</span>
 </a>
-<div id="collapseStuffing" class="collapse {{ $formActiveStuffing ? 'show' : '' }}">
+<div id="collapseStuffing" class="collapse {{ $formActiveStuffing ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
     <div class="bg-dark py-2 collapse-inner rounded">
         <a class="collapse-item {{ $formPvdcActive ? 'active' : '' }}" href="{{ route('pvdc.index') }}">Data No. Lot PVDC</a>
     </div>
@@ -127,14 +144,31 @@ $formActiveStuffing = $formPvdcActive ;
 
 @endif
 
-<!-- Verif SPV -->
 @if(in_array($type_user, [0,2]))
 <div class="sidebar-heading">Verification SPV</div>
 @php
+// Logika active untuk Verif Suhu & GMP
 $suhuActive = request()->routeIs('suhu.verification');
 $gmpActive = request()->routeIs('gmp.verification');
 $collapseVerifShow = $suhuActive || $gmpActive ;
+
+// Logika active untuk Verif Meat Prep
+$verifMeatPrepActive = request()->routeIs('checklistmagnettrap.verification');
+
+// Logika active untuk Verif Warehouse
+$verifWarehouseActive = request()->routeIs('inspections.verification') || request()->routeIs('packaging-inspections.verification');
+
+// ==========================================================
+// == PERUBAHAN 1: Menambahkan logika 'active' untuk Verif Cikande ==
+// ==========================================================
+$verifCikandeActive = request()->routeIs('pemeriksaan_retain.verification');
+
+// Logika active untuk Verif Stuffing
+$PvdcActive = request()->routeIs('pvdc.verification');
+$collapseVerifStuffing = $PvdcActive ;
 @endphp
+
+{{-- 1. Verif Suhu & Kebersihan --}}
 <li class="nav-item">
     <a class="nav-link {{ $collapseVerifShow ? '' : 'collapsed' }}" href="#"
     data-bs-toggle="collapse" data-bs-target="#collapseVerif"
@@ -144,56 +178,68 @@ $collapseVerifShow = $suhuActive || $gmpActive ;
 </a>
 <div id="collapseVerif" class="collapse {{ $collapseVerifShow ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
     <div class="bg-dark py-2 collapse-inner rounded">
-        <!-- <a class="collapse-item {{ $suhuActive ? 'active' : '' }}" href="{{ route('suhu.verification') }}">
-            Pemeriksaan Suhu Ruang
-        </a> -->
         <a class="collapse-item {{ $gmpActive ? 'active' : '' }}" href="{{ route('gmp.verification') }}">
             GMP Karyawan
         </a>
     </div>
 </div>
 </li>
+
+{{-- 2. Verif MEAT PREPARATION --}}
 <li class="nav-item">
-    <a class="nav-link {{ $collapseVerifShow ? '' : 'collapsed' }}" href="#"
-    data-bs-toggle="collapse" data-bs-target="#collapseVerif"
-    aria-expanded="{{ $collapseVerifShow ? 'true' : 'false' }}" aria-controls="collapseVerif">
+    <a class="nav-link {{ $verifMeatPrepActive ? '' : 'collapsed' }}" href="#"
+    data-bs-toggle="collapse" data-bs-target="#collapseVerifMeatPrep"
+    aria-expanded="{{ $verifMeatPrepActive ? 'true' : 'false' }}" aria-controls="collapseVerifMeatPrep">
     <i class="fas fa-clipboard-list"></i>
     <span>MEAT PREPARATION</span>
 </a>
-<div id="collapseVerif" class="collapse {{ $collapseVerifShow ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+<div id="collapseVerifMeatPrep" class="collapse {{ $verifMeatPrepActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
     <div class="bg-dark py-2 collapse-inner rounded">
-        <!-- <a class="collapse-item {{ $suhuActive ? 'active' : '' }}" href="{{ route('suhu.verification') }}">
-            Pemeriksaan Suhu Ruang
-        </a> -->
-        <a class="collapse-item {{ $gmpActive ? 'active' : '' }}" href="{{ route('checklistmagnettrap.verification') }}">
+        <a class="collapse-item {{ $verifMeatPrepActive ? 'active' : '' }}" href="{{ route('checklistmagnettrap.verification') }}">
             Checklist Cleaning Magnet Trap
         </a>
     </div>
 </div>
 </li>
+
+{{-- 3. Verif Warehouse --}}
 <li class="nav-item">
-    <a class="nav-link {{ $formActive ? '' : 'collapsed' }}" href="#"
-    data-bs-toggle="collapse" data-bs-target="#collapseFormQC" aria-expanded="{{ $formActive ? 'true' : 'false' }}" aria-controls="collapseFormQC">
+    <a class="nav-link {{ $verifWarehouseActive ? '' : 'collapsed' }}" href="#"
+    data-bs-toggle="collapse" data-bs-target="#collapseVerifWarehouse" aria-expanded="{{ $verifWarehouseActive ? 'true' : 'false' }}" aria-controls="collapseVerifWarehouse">
     <i class="fas fa-clipboard-list"></i>
     <span>Warehouse</span>
 </a>
-<div id="collapseFormQC" class="collapse {{ $formActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+<div id="collapseVerifWarehouse" class="collapse {{ $verifWarehouseActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
     <div class="bg-dark py-2 collapse-inner rounded">
-        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
-        <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('inspections.verification') }}">Pemeriksaan Input Bahan Baku</a>
+        <a class="collapse-item {{ request()->routeIs('inspections.verification') ? 'active' : '' }}" href="{{ route('inspections.verification') }}">Pemeriksaan Input Bahan Baku</a>
     </div>
     <div class="bg-dark py-2 collapse-inner rounded">
-        <!-- <a class="collapse-item {{ $formSuhuActive ? 'active' : '' }}" href="{{ route('suhu.index') }}">Pemeriksaan Suhu Ruang</a> -->
-        <a class="collapse-item {{ $formGmpActive ? 'active' : '' }}" href="{{ route('packaging-inspections.verification') }}">Pemeriksaan Packaging</a>
+        <a class="collapse-item {{ request()->routeIs('packaging-inspections.verification') ? 'active' : '' }}" href="{{ route('packaging-inspections.verification') }}">Pemeriksaan Packaging</a>
     </div>
 </div>
 </li>
 
-@php
-$PvdcActive = request()->routeIs('pvdc.verification');
+{{-- ========================================================== --}}
+{{-- == PERUBAHAN 2: Menambahkan Blok Menu Verif Cikande      == --}}
+{{-- ========================================================== --}}
+<li class="nav-item">
+    <a class="nav-link {{ $verifCikandeActive ? '' : 'collapsed' }}" href="#"
+    data-bs-toggle="collapse" data-bs-target="#collapseVerifCikande" aria-expanded="{{ $verifCikandeActive ? 'true' : 'false' }}" aria-controls="collapseVerifCikande">
+    <i class="fas fa-clipboard-list"></i>
+    <span>Cikande</span>
+</a>
+<div id="collapseVerifCikande" class="collapse {{ $verifCikandeActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('pemeriksaan_retain.verification') ? 'active' : '' }}" href="{{ route('pemeriksaan_retain.verification') }}">Verifikasi Retain Sampel</a>
+    </div>
+</div>
+</li>
+{{-- ========================================================== --}}
+{{-- == AKHIR PERUBAHAN                                      == --}}
+{{-- ========================================================== --}}
 
-$collapseVerifStuffing = $PvdcActive ;
-@endphp
+
+{{-- 4. Verif Stuffing (Sekarang menjadi #5) --}}
 <li class="nav-item">
     <a class="nav-link {{ $collapseVerifStuffing ? '' : 'collapsed' }}" href="#"
     data-bs-toggle="collapse" data-bs-target="#collapseVerifStuff"
@@ -214,15 +260,13 @@ $collapseVerifStuffing = $PvdcActive ;
 
 <hr class="sidebar-divider d-none d-md-block">
 
-<!-- Sidebar Toggle -->
 <div class="text-center d-none d-md-inline">
     <button class="rounded-circle border-0" id="sidebarToggle"></button>
 </div>
 
-
 </ul>
 
-<!-- Sidebar CSS Merah -->
+{{-- Style dan Script tetap sama --}}
 <style>
     #accordionSidebar {
         width: 220px;
@@ -290,7 +334,6 @@ $collapseVerifStuffing = $PvdcActive ;
     transition: transform 0.3s;
 }
 </style>
-<!-- Sidebar JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // Toggle sidebar
