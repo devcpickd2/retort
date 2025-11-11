@@ -19,6 +19,7 @@ use App\Http\Controllers\{
     RawMaterialInspectionController,
     PackagingInspectionController,
     PemeriksaanRetainController,
+    LoadingProdukController,
 };
 
 Route::get('/', function () {
@@ -126,3 +127,8 @@ Route::put('pemeriksaan-retain/{pemeriksaanRetain}/verify', [PemeriksaanRetainCo
      ->name('pemeriksaan_retain.verify');
 Route::resource('pemeriksaan-retain', PemeriksaanRetainController::class)
      ->names('pemeriksaan_retain');
+Route::get('loading-produks/verification', [LoadingProdukController::class, 'showVerification'])
+     ->name('loading-produks.verification');
+Route::put('loading-produks/{uuid}/verify', [LoadingProdukController::class, 'verify'])
+     ->name('loading-produks.verify');
+Route::resource('loading-produks', LoadingProdukController::class);

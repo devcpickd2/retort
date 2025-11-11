@@ -104,6 +104,9 @@ $cikandeActive = request()->routeIs('pemeriksaan_retain.*');
     <div class="bg-dark py-2 collapse-inner rounded">
         <a class="collapse-item {{ request()->routeIs('packaging-inspections.index') ? 'active' : '' }}" href="{{ route('packaging-inspections.index') }}">Pemeriksaan Packaging</a>
     </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('packaging-inspections.index') ? 'active' : '' }}" href="{{ route('loading-produks.index') }}">Pemeriksaan Loading-Unloading Produk</a>
+    </div>
 </div>
 </li>
 
@@ -215,6 +218,9 @@ $collapseVerifStuffing = $PvdcActive ;
     </div>
     <div class="bg-dark py-2 collapse-inner rounded">
         <a class="collapse-item {{ request()->routeIs('packaging-inspections.verification') ? 'active' : '' }}" href="{{ route('packaging-inspections.verification') }}">Pemeriksaan Packaging</a>
+    </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('packaging-inspections.verification') ? 'active' : '' }}" href="{{ route('loading-produks.verification') }}">Pemeriksaan Loading-Unloading Produk</a>
     </div>
 </div>
 </li>
