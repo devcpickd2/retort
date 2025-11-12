@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Support\Facades\Auth;
 
 class MagnetTrapModel extends Model
 {
-    use HasFactory, SoftDeletes, HasUuids;
+    use HasFactory, SoftDeletes;
     /**
      * The table associated with the model.
      *
@@ -33,6 +33,7 @@ class MagnetTrapModel extends Model
         'keterangan',
         'produksi_id',
         'engineer_id',
+        'created_by',
         'status_spv',
         'catatan_spv',
         'verified_by_spv_uuid',

@@ -63,7 +63,7 @@ class MagnetTrapController extends Controller
      */
     public function store(Request $request)
     {
-        // 2. Lakukan validasi seperti biasa
+        
         $validatedData = $request->validate([
             'nama_produk' => 'required',
             'kode_batch' => 'required|string|max:255',
@@ -75,10 +75,14 @@ class MagnetTrapController extends Controller
             'engineer_id' => 'required|integer',
         ]);
 
-        // 3. Tambahkan UUID ke dalam data yang akan disimpan
+        // 3. Tambahkan UUID untuk record ini
         $validatedData['uuid'] = (string) Str::uuid();
 
-        // 4. Simpan semua data ke database
+        // 4. Tambahkan UUID user yang sedang login sebagai 'created_by'
+        // Ini mengasumsikan Model User Anda punya kolom 'uuid'
+        $validatedData['created_by'] = Auth::user()->uuid;
+
+        // 5. Simpan semua data ke database
         MagnetTrapModel::create($validatedData);
 
         return redirect()->route('checklistmagnettrap.index')
