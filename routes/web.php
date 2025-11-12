@@ -20,6 +20,7 @@ use App\Http\Controllers\{
     PackagingInspectionController,
     PemeriksaanRetainController,
     LoadingProdukController,
+    DispositionController,
 };
 
 Route::get('/', function () {
@@ -132,3 +133,9 @@ Route::get('loading-produks/verification', [LoadingProdukController::class, 'sho
 Route::put('loading-produks/{uuid}/verify', [LoadingProdukController::class, 'verify'])
      ->name('loading-produks.verify');
 Route::resource('loading-produks', LoadingProdukController::class);
+Route::get('dispositions-verification', [DispositionController::class, 'verification'])
+         ->name('dispositions.verification');
+         
+    Route::put('dispositions-verify/{disposition:uuid}', [DispositionController::class, 'verify'])
+         ->name('dispositions.verify');
+Route::resource('dispositions', DispositionController::class); 
