@@ -22,6 +22,7 @@ use App\Http\Controllers\{
     LoadingProdukController,
     DispositionController,
     BeritaAcaraController,
+    PemeriksaanKekuatanMagnetTrapController,
 };
 
 Route::get('/', function () {
@@ -147,3 +148,12 @@ Route::prefix('berita-acara-verification')->name('berita-acara.')->group(functio
     Route::post('{beritaAcara}/verify-spv', [BeritaAcaraController::class, 'verifySpv'])
          ->name('verify.spv'); });
 Route::resource('berita-acara', BeritaAcaraController::class);
+Route::prefix('pemeriksaan-kekuatan-magnet-trap-verification')->name('pemeriksaan-kekuatan-magnet-trap.')->group(function () {
+    Route::get('spv', [PemeriksaanKekuatanMagnetTrapController::class, 'verificationSpv'])
+    ->name('verification.spv');
+    
+    // {pemeriksaanKekuatanMagnetTrap} harus cocok dengan variabel di method controller
+    Route::post('{pemeriksaanKekuatanMagnetTrap}/verify-spv', [PemeriksaanKekuatanMagnetTrapController::class, 'verifySpv'])
+    ->name('verify.spv');
+});
+Route::resource('pemeriksaan-kekuatan-magnet-trap', PemeriksaanKekuatanMagnetTrapController::class);

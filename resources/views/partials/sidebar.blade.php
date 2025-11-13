@@ -133,6 +133,11 @@ $cikandeActive = request()->routeIs('pemeriksaan_retain.*');
             Berita Acara
         </a>
     </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('pemeriksaan-kekuatan-magnet-trap.*') ? 'active' : '' }}" href="{{ route('pemeriksaan-kekuatan-magnet-trap.index') }}">
+            Pemeriksaan Kekuatan Magnet Trap
+        </a>
+    </div>
 </div>
 </li>
 
@@ -252,10 +257,15 @@ $collapseVerifStuffing = $PvdcActive ;
         <a class="collapse-item {{ request()->routeIs('dispositions-verification') ? 'active' : '' }}" href="{{ route('dispositions.verification') }}">Verifikasi Disposisi Produk dan Prosedur</a>
     </div>
     <div class="bg-dark py-2 collapse-inner rounded">
-        <a class="collapse-item {{ request()->routeIs('berita-acara.verification.spv') ? 'active' : '' }}" href="{{ route('berita-acara.verification.spv') }}">
-            Verifikasi Berita Acara
-        </a>
-    </div>
+        <a class="collapse-item {{ request()->routeIs('berita-acara.verification.spv') ? 'active' : '' }}" href="{{ route('berita-acara.verification.spv') }}">
+            Verifikasi Berita Acara
+        </a>
+    </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('pemeriksaan-kekuatan-magnet-trap.verification.spv') ? 'active' : '' }}" href="{{ route('pemeriksaan-kekuatan-magnet-trap.verification.spv') }}">
+            Verifikasi Pemeriksaan Kekuatan Magnet Trap
+        </a>
+    </div>
 </div>
 </li>
 {{-- ========================================================== --}}
