@@ -21,6 +21,7 @@ use App\Http\Controllers\{
     PemeriksaanRetainController,
     LoadingProdukController,
     DispositionController,
+    BeritaAcaraController,
 };
 
 Route::get('/', function () {
@@ -139,3 +140,10 @@ Route::get('dispositions-verification', [DispositionController::class, 'verifica
     Route::put('dispositions-verify/{disposition:uuid}', [DispositionController::class, 'verify'])
          ->name('dispositions.verify');
 Route::resource('dispositions', DispositionController::class); 
+
+Route::prefix('berita-acara-verification')->name('berita-acara.')->group(function () {
+    Route::get('qc-supervisor', [BeritaAcaraController::class, 'verificationSpv'])
+         ->name('verification.spv');
+    Route::post('{beritaAcara}/verify-spv', [BeritaAcaraController::class, 'verifySpv'])
+         ->name('verify.spv'); });
+Route::resource('berita-acara', BeritaAcaraController::class);

@@ -128,6 +128,11 @@ $cikandeActive = request()->routeIs('pemeriksaan_retain.*');
             Disposisi Produk dan Prosedur
         </a>
     </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('berita-acara.*') ? 'active' : '' }}" href="{{ route('berita-acara.index') }}">
+            Berita Acara
+        </a>
+    </div>
 </div>
 </li>
 
@@ -246,6 +251,11 @@ $collapseVerifStuffing = $PvdcActive ;
     </div><div class="bg-dark py-2 collapse-inner rounded">
         <a class="collapse-item {{ request()->routeIs('dispositions-verification') ? 'active' : '' }}" href="{{ route('dispositions.verification') }}">Verifikasi Disposisi Produk dan Prosedur</a>
     </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('berita-acara.verification.spv') ? 'active' : '' }}" href="{{ route('berita-acara.verification.spv') }}">
+            Verifikasi Berita Acara
+        </a>
+    </div>
 </div>
 </li>
 {{-- ========================================================== --}}
