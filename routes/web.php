@@ -23,6 +23,7 @@ use App\Http\Controllers\{
     DispositionController,
     BeritaAcaraController,
     PemeriksaanKekuatanMagnetTrapController,
+    PenyimpanganKualitasController,
 };
 
 Route::get('/', function () {
@@ -157,3 +158,18 @@ Route::prefix('pemeriksaan-kekuatan-magnet-trap-verification')->name('pemeriksaa
     ->name('verify.spv');
 });
 Route::resource('pemeriksaan-kekuatan-magnet-trap', PemeriksaanKekuatanMagnetTrapController::class);
+Route::prefix('penyimpangan-kualitas-verification')->name('penyimpangan-kualitas.')->group(function () {
+    
+    // Rute untuk "Diketahui Oleh"
+    Route::get('diketahui', [PenyimpanganKualitasController::class, 'verificationDiketahui'])
+         ->name('verification.diketahui');
+    Route::post('{penyimpanganKualitas}/verify-diketahui', [PenyimpanganKualitasController::class, 'verifyDiketahui'])
+         ->name('verify.diketahui');
+
+    // Rute untuk "Disetujui Oleh"
+    Route::get('disetujui', [PenyimpanganKualitasController::class, 'verificationDisetujui'])
+         ->name('verification.disetujui');
+    Route::post('{penyimpanganKualitas}/verify-disetujui', [PenyimpanganKualitasController::class, 'verifyDisetujui'])
+         ->name('verify.disetujui');
+});
+Route::resource('penyimpangan-kualitas', PenyimpanganKualitasController::class)->parameters(['penyimpangan-kualitas' => 'penyimpanganKualitas']);

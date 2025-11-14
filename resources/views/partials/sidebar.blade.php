@@ -138,6 +138,11 @@ $cikandeActive = request()->routeIs('pemeriksaan_retain.*');
             Pemeriksaan Kekuatan Magnet Trap
         </a>
     </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('penyimpangan-kualitas.*') ? 'active' : '' }}" href="{{ route('penyimpangan-kualitas.index') }}">
+            Berita Acara Internal Penyimpangan Kualitas
+        </a>
+    </div>
 </div>
 </li>
 
@@ -264,6 +269,16 @@ $collapseVerifStuffing = $PvdcActive ;
     <div class="bg-dark py-2 collapse-inner rounded">
         <a class="collapse-item {{ request()->routeIs('pemeriksaan-kekuatan-magnet-trap.verification.spv') ? 'active' : '' }}" href="{{ route('pemeriksaan-kekuatan-magnet-trap.verification.spv') }}">
             Verifikasi Pemeriksaan Kekuatan Magnet Trap
+        </a>
+    </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('penyimpangan-kualitas.verification.diketahui') ? 'active' : '' }}" href="{{ route('penyimpangan-kualitas.verification.diketahui') }}">
+            Verifikasi Penyimpangan (Diketahui)
+        </a>
+    </div>
+    <div class="bg-dark py-2 collapse-inner rounded">
+        <a class="collapse-item {{ request()->routeIs('penyimpangan-kualitas.verification.disetujui') ? 'active' : '' }}" href="{{ route('penyimpangan-kualitas.verification.disetujui') }}">
+            Verifikasi Penyimpangan (Disetujui)
         </a>
     </div>
 </div>

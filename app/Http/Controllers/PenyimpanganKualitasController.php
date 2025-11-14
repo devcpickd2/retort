@@ -1,0 +1,213 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PenyimpanganKualitas;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
+
+class PenyimpanganKualitasController extends Controller
+{
+    /**
+     * Menampilkan daftar data dengan filter.
+     */
+    public function index(Request $request)
+    {
+        $query = PenyimpanganKualitas::with('creator', 'verifierDiketahui', 'verifierDisetujui')->latest();
+
+        // Filter Tanggal
+        if ($request->filled('start_date')) {
+            $query->where('tanggal', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->where('tanggal', '<=', $request->end_date);
+        }
+
+        // Filter Pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor', 'like', "%{$search}%")
+                    ->orWhere('ditujukan_untuk', 'like', "%{$search}%")
+                    ->orWhere('nama_produk', 'like', "%{$search}%")
+                    ->orWhere('lot_kode', 'like', "%{$search}%");
+            });
+        }
+
+        $penyimpanganKualitasItems = $query->paginate(15)->appends($request->query());
+
+        return view('penyimpangan-kualitas.index', compact('penyimpanganKualitasItems'));
+    }
+
+    /**
+     * Menampilkan form create.
+     */
+    public function create()
+    {
+        return view('penyimpangan-kualitas.create');
+    }
+
+    /**
+     * Menyimpan data baru.
+     */
+    public function store(Request $request)
+    {
+        // Tambahkan validasi di sini jika perlu
+        $validatedData = $request->all();
+        $validatedData['created_by'] = Auth::user()->uuid;
+
+        PenyimpanganKualitas::create($validatedData);
+
+        return redirect()->route('penyimpangan-kualitas.index')
+                         ->with('success', 'Laporan Penyimpangan Kualitas berhasil dibuat.');
+    }
+
+    /**
+     * Menampilkan detail data.
+     */
+    public function show(PenyimpanganKualitas $penyimpanganKualitas)
+    {
+        return view('penyimpangan-kualitas.show', compact('penyimpanganKualitas'));
+    }
+
+    /**
+     * Menampilkan form edit.
+     */
+    public function edit(PenyimpanganKualitas $penyimpanganKualitas)
+    {
+        return view('penyimpangan-kualitas.edit', compact('penyimpanganKualitas'));
+    }
+
+    /**
+     * Update data.
+     */
+    public function update(Request $request, PenyimpanganKualitas $penyimpanganKualitas)
+    {
+        // Tambahkan validasi di sini jika perlu
+        $validatedData = $request->all();
+        $penyimpanganKualitas->update($validatedData);
+
+        return redirect()->route('penyimpangan-kualitas.index')
+                         ->with('success', 'Laporan Penyimpangan Kualitas berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus data (Soft Delete).
+     */
+    public function destroy(PenyimpanganKualitas $penyimpanganKualitas)
+    {
+        $penyimpanganKualitas->delete();
+        return redirect()->route('penyimpangan-kualitas.index')
+                         ->with('success', 'Laporan Penyimpangan Kualitas berhasil dihapus.');
+    }
+
+    // --- METODE VERIFIKASI (TAHAP 1: DIKETAHUI) ---
+
+    public function verificationDiketahui(Request $request)
+    {
+        $query = PenyimpanganKualitas::query()->latest(); // Menampilkan semua data
+
+        if ($request->filled('start_date')) {
+            $query->where('tanggal', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->where('tanggal', '<=', $request->end_date);
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor', 'like', "%{$search}%")
+                    ->orWhere('nama_produk', 'like', "%{$search}%")
+                    ->orWhere('lot_kode', 'like', "%{$search}%");
+            });
+        }
+
+        $penyimpanganKualitasItems = $query->with('creator', 'verifierDiketahui')
+            ->paginate(15)
+            ->appends($request->query());
+
+        return view('penyimpangan-kualitas.verification-diketahui', compact('penyimpanganKualitasItems'));
+    }
+
+    public function verifyDiketahui(Request $request, PenyimpanganKualitas $penyimpanganKualitas)
+    {
+        $validatedData = $request->validate([
+            'status_diketahui' => ['required', Rule::in([1, 2])],
+            'catatan_diketahui' => ['nullable', 'required_if:status_diketahui,2', 'string'],
+        ]);
+
+        try {
+            $penyimpanganKualitas->status_diketahui = $validatedData['status_diketahui'];
+            $penyimpanganKualitas->catatan_diketahui = $validatedData['catatan_diketahui'];
+            $penyimpanganKualitas->diketahui_by = Auth::user()->uuid;
+            $penyimpanganKualitas->diketahui_at = now();
+            $penyimpanganKualitas->save();
+
+            $message = $validatedData['status_diketahui'] == 1 ? 'Data berhasil diverifikasi.' : 'Data ditandai untuk revisi.';
+            return redirect()->route('penyimpangan-kualitas.verification.diketahui')->with('success', $message);
+        } catch (\Exception $e) {
+            Log::error('Error verifikasi (Diketahui): ' . $e->getMessage());
+            return redirect()->route('penyimpangan-kualitas.verification.diketahui')->with('error', 'Terjadi kesalahan.');
+        }
+    }
+
+    // --- METODE VERIFIKASI (TAHAP 2: DISETUJUI) ---
+
+    public function verificationDisetujui(Request $request)
+    {
+        // Menampilkan data yang sudah "Diketahui" (status 1) atau "Disetujui" (status 1)
+        $query = PenyimpanganKualitas::query()
+                    ->whereIn('status_diketahui', [1, 2]) // Hanya tampilkan jika sudah diproses tahap 1
+                    ->latest(); 
+
+        if ($request->filled('start_date')) {
+            $query->where('tanggal', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->where('tanggal', '<=', $request->end_date);
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nomor', 'like', "%{$search}%")
+                    ->orWhere('nama_produk', 'like', "%{$search}%")
+                    ->orWhere('lot_kode', 'like', "%{$search}%");
+            });
+        }
+
+        $penyimpanganKualitasItems = $query->with('creator', 'verifierDiketahui', 'verifierDisetujui')
+            ->paginate(15)
+            ->appends($request->query());
+
+        return view('penyimpangan-kualitas.verification-disetujui', compact('penyimpanganKualitasItems'));
+    }
+
+    public function verifyDisetujui(Request $request, PenyimpanganKualitas $penyimpanganKualitas)
+    {
+        // Pastikan sudah lolos tahap 1
+        if ($penyimpanganKualitas->status_diketahui != 1) {
+             return redirect()->route('penyimpangan-kualitas.verification.disetujui')->with('error', 'Data ini belum lolos verifikasi tahap 1 (Diketahui).');
+        }
+
+        $validatedData = $request->validate([
+            'status_disetujui' => ['required', Rule::in([1, 2])],
+            'catatan_disetujui' => ['nullable', 'required_if:status_disetujui,2', 'string'],
+        ]);
+
+        try {
+            $penyimpanganKualitas->status_disetujui = $validatedData['status_disetujui'];
+            $penyimpanganKualitas->catatan_disetujui = $validatedData['catatan_disetujui'];
+            $penyimpanganKualitas->disetujui_by = Auth::user()->uuid;
+            $penyimpanganKualitas->disetujui_at = now();
+            $penyimpanganKualitas->save();
+
+            $message = $validatedData['status_disetujui'] == 1 ? 'Data berhasil disetujui.' : 'Data ditandai untuk revisi.';
+            return redirect()->route('penyimpangan-kualitas.verification.disetujui')->with('success', $message);
+        } catch (\Exception $e) {
+            Log::error('Error verifikasi (Disetujui): ' . $e->getMessage());
+            return redirect()->route('penyimpangan-kualitas.verification.disetujui')->with('error', 'Terjadi kesalahan.');
+        }
+    }
+}
