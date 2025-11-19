@@ -12,7 +12,7 @@
             font-family: 'Poppins', sans-serif;
         }
         body {
-            background: linear-gradient(rgba(180, 30, 30, 0.6), rgba(180, 30, 30, 0.6)), url('images/rtt.png');
+            background: linear-gradient(rgba(180, 30, 30, 0.6), rgba(180, 30, 30, 0.6)), url('images/rtt2.png');
             background-size: cover;
             background-position: center;
         }

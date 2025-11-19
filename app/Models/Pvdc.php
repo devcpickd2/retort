@@ -18,7 +18,7 @@ class Pvdc extends Model
     protected $keyType   = 'string';
 
     protected $fillable = [
-        'date', 'plant', 'shift', 'nama_produk', 'tgl_kedatangan', 'tgl_expired', 'data_pvdc', 'catatan', 
+        'date', 'plant', 'shift', 'nama_produk', 'nama_supplier', 'tgl_kedatangan', 'tgl_expired', 'data_pvdc', 'catatan', 
         'username', 'username_updated',  'nama_spv', 'status_spv', 'catatan_spv', 'tgl_update_spv'
     ];
 

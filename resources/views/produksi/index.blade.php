@@ -39,7 +39,7 @@
                     @php
                         $no = ($produksi->currentPage() - 1) * $produksi->perPage() + 1;
                     @endphp
-                    @forelse ($produksi as $dep)
+                    @forelse ($produksi as $dep) 
                     <tr>
                         <td class="text-center">{{ $no++ }}</td>
                         <td>{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}</td>
