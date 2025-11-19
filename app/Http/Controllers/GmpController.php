@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Gmp;
 use App\Models\Produksi;
 use App\Models\User;
+use App\Models\Area_hygiene;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 // excel
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -18,53 +20,45 @@ class GmpController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth'); // pastikan hanya user login
+        $this->middleware('auth');
     }
 
     public function index(Request $request)
     {
         $search     = $request->input('search');
-        $start_date = $request->input('start_date');
-        $end_date   = $request->input('end_date');
-        $userPlant  = Auth::user()->plant; // plant UUID user login
+        $date = $request->input('date');
+        $userPlant  = Auth::user()->plant; 
 
-        $data = Gmp::where('plant', $userPlant) // filter sesuai plant user login
+        $data = Gmp::where('plant', $userPlant) 
         ->when($search, function ($query) use ($search) {
             $query->where('username', 'like', "%{$search}%")
-            ->orWhere('mp_chamber', 'like', "%{$search}%")
-            ->orWhere('karantina_packing', 'like', "%{$search}%")
-            ->orWhere('filling_susun', 'like', "%{$search}%")
-            ->orWhere('sampling_fg', 'like', "%{$search}%");
+            ->orWhere('pemeriksaan', 'like', "%{$search}%");
         })
-        ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
-            $query->whereBetween('date', [$start_date, $end_date]);
+        ->when($date, function ($query) use ($date) {
+            $query->whereDate('date', $date);
         })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.gmp.index', compact('data', 'search', 'start_date', 'end_date'));
+        return view('form.gmp.index', compact('data', 'search', 'date'));
     }
 
     public function create()
     {
         $userPlant = Auth::user()->plant;
+        $areas = Area_hygiene::orderBy('area', 'asc')->get();
 
-        $karyawanMp  = Produksi::where('area', 'MP - CHAMBER - SANITASI')
-        ->where('plant', $userPlant)
-        ->pluck('nama_karyawan')->toArray();
-        $karyawanKarantina = Produksi::where('area', 'KARANTINA - PACKING')
-        ->where('plant', $userPlant)
-        ->pluck('nama_karyawan')->toArray();
-        $karyawanFilling = Produksi::where('area', 'FILLING - SUSUN')
-        ->where('plant', $userPlant)
-        ->pluck('nama_karyawan')->toArray();
-        $karyawanSampling = Produksi::where('area', 'SAMPLING FG')
-        ->where('plant', $userPlant)
-        ->pluck('nama_karyawan')->toArray();
+        $karyawanByArea = [];
+        foreach ($areas as $area) {
+            $karyawanByArea[$area->area] = Produksi::where('area', $area->area)
+            ->where('plant', $userPlant)
+            ->pluck('nama_karyawan')
+            ->toArray();
+        }
 
-        return view('form.gmp.create', compact('karyawanMp', 'karyawanKarantina', 'karyawanFilling', 'karyawanSampling'));
+        return view('form.gmp.create', compact('areas', 'karyawanByArea'));
     }
 
     public function store(Request $request)
@@ -75,26 +69,75 @@ class GmpController extends Controller
 
         $user = Auth::user();
 
-        $data = $request->only(['date']);
-        $data['username'] = $user->username;
-        $data['plant']    = $user->plant;
-        $data['nama_produksi'] = session()->has('selected_produksi')
-        ? User::where('uuid', session('selected_produksi'))->first()->name
-        : null;
-        $data['status_produksi'] = "1";
-        $data['status_spv']      = "0";
+        $data = [
+            'date' => $request->date,
+            'username' => $user->username,
+            'plant' => $user->plant,
+            'nama_produksi' => session()->has('selected_produksi')
+            ? User::where('uuid', session('selected_produksi'))->first()->name
+            : null,
+            'status_produksi' => "1",
+            'status_spv' => "0",
+            // Catatan tidak terlihat di form, tapi tetap dipertahankan jika ada
+            'catatan' => $request->input('catatan'), 
+        ];
 
-        $areas = ['mp_chamber', 'karantina_packing', 'filling_susun', 'sampling_fg'];
-        foreach ($areas as $area) {
-            $data[$area] = $request->input($area, []);
+        $pemeriksaanData = [];
+
+        // 1. Ambil semua SLUG AREA yang valid
+        $areaSlugs = Area_hygiene::orderBy('area', 'asc')->get()->map(function ($area) {
+            return Str::slug($area->area, '_');
+        })->toArray();
+
+// Ambil semua key dari request yang bentuknya array (berarti tiap area)
+        foreach ($request->all() as $key => $value) {
+            if (is_array($value)) {
+        // Ambil nama area dari key (slug dibalik ke bentuk asli)
+                $areaName = str_replace('_', ' ', Str::title($key));
+
+                foreach ($value as $row) {
+                    $pemeriksaanData[] = [
+                        'area' => $areaName,
+                        'nama_karyawan' => $row['nama_karyawan'] ?? '',
+                        'pukul' => now()->format('H:i'),
+
+                // Semua checkbox
+                        'anting' => $row['anting'] ?? 0,
+                        'kalung' => $row['kalung'] ?? 0,
+                        'cincin' => $row['cincin'] ?? 0,
+                        'jam_tangan' => $row['jam_tangan'] ?? 0,
+                        'peniti' => $row['peniti'] ?? 0,
+                        'bros' => $row['bros'] ?? 0,
+                        'payet' => $row['payet'] ?? 0,
+                        'softlens' => $row['softlens'] ?? 0,
+                        'eyelashes' => $row['eyelashes'] ?? 0,
+                        'seragam' => $row['seragam'] ?? 0,
+                        'boot' => $row['boot'] ?? 0,
+                        'masker' => $row['masker'] ?? 0,
+                        'ciput_hairnet' => $row['ciput_hairnet'] ?? 0,
+                        'kuku' => $row['kuku'] ?? 0,
+                        'parfum' => $row['parfum'] ?? 0,
+                        'make_up' => $row['make_up'] ?? 0,
+                        'diare' => $row['diare'] ?? 0,
+                        'demam' => $row['demam'] ?? 0,
+                        'luka_bakar' => $row['luka_bakar'] ?? 0,
+                        'batuk' => $row['batuk'] ?? 0,
+                        'radang' => $row['radang'] ?? 0,
+                        'influenza' => $row['influenza'] ?? 0,
+                        'sakit_mata' => $row['sakit_mata'] ?? 0,
+
+                        'keterangan' => $row['keterangan'] ?? null,
+                    ];
+                }
+            }
         }
 
-        $gmp = Gmp::create($data);
+        $data['pemeriksaan'] = json_encode($pemeriksaanData);
 
+        $gmp = Gmp::create($data);
         $gmp->update(['tgl_update_produksi' => Carbon::parse($gmp->created_at)->addHour()]);
 
-        return redirect()->route('gmp.index')
-        ->with('success', 'Data GMP Karyawan berhasil disimpan');
+        return redirect()->route('gmp.index')->with('success', 'Data GMP berhasil disimpan.');
     }
 
     public function edit(string $uuid)
@@ -102,25 +145,26 @@ class GmpController extends Controller
         $userPlant = Auth::user()->plant;
 
         $gmp = Gmp::where('uuid', $uuid)
-        ->where('plant', $userPlant) 
+        ->where('plant', $userPlant)
         ->firstOrFail();
 
-        $karyawanMp  = Produksi::where('area', 'MP - CHAMBER - SANITASI')
-        ->where('plant', $userPlant)
-        ->pluck('nama_karyawan')->toArray();
-        $karyawanKarantina = Produksi::where('area', 'KARANTINA - PACKING')
-        ->where('plant', $userPlant)
-        ->pluck('nama_karyawan')->toArray();
-        $karyawanFilling = Produksi::where('area', 'FILLING - SUSUN')
-        ->where('plant', $userPlant)
-        ->pluck('nama_karyawan')->toArray();
-        $karyawanSampling = Produksi::where('area', 'SAMPLING FG')
-        ->where('plant', $userPlant)
-        ->pluck('nama_karyawan')->toArray();
+        $areas = Area_hygiene::orderBy('area', 'asc')->get();
 
-        return view('form.gmp.edit', compact('gmp', 'karyawanMp', 'karyawanKarantina', 'karyawanFilling', 'karyawanSampling'));
+        $karyawanByArea = [];
+        foreach ($areas as $area) {
+            $karyawanByArea[$area->area] = Produksi::where('area', $area->area)
+            ->where('plant', $userPlant)
+            ->pluck('nama_karyawan')
+            ->toArray();
+        }
+
+        // TODO: Anda perlu memproses $gmp->pemeriksaan (JSON) di view 'form.gmp.edit' untuk menampilkan data yang sudah tersimpan
+        return view('form.gmp.edit', compact('gmp', 'areas', 'karyawanByArea'));
     }
 
+    /**
+     * PERBAIKAN DITERAPKAN DI SINI: Hanya memproses data yang sesuai dengan SLUG AREA.
+     */
     public function update(Request $request, string $uuid)
     {
         $userPlant = Auth::user()->plant;
@@ -133,50 +177,96 @@ class GmpController extends Controller
             'date' => 'required|date',
         ]);
 
-        $data = $request->only(['date']);
-        $data['username_updated'] = Auth::user()->username;
-        $data['plant'] = $userPlant;
-        $data['nama_produksi'] = session()->has('selected_produksi')
-        ? User::where('uuid', session('selected_produksi'))->first()->name
-        : null;
+        $data = [
+            'date' => $request->date,
+            'username_updated' => Auth::user()->username,
+            'plant' => $userPlant,
+            'nama_produksi' => session()->has('selected_produksi')
+            ? User::where('uuid', session('selected_produksi'))->first()->name
+            : null,
+            // Catatan tidak terlihat di form, tapi tetap dipertahankan jika ada
+            'catatan' => $request->input('catatan'),
+        ];
 
-        $areas = ['mp_chamber', 'karantina_packing', 'filling_susun', 'sampling_fg'];
-        foreach ($areas as $area) {
-            $data[$area] = $request->input($area, []);
+        $pemeriksaanData = [];
+
+        // 1. Ambil semua SLUG AREA yang valid
+        $areaSlugs = Area_hygiene::orderBy('area', 'asc')->get()->map(function ($area) {
+            return Str::slug($area->area, '_');
+        })->toArray();
+
+        // 2. Loop hanya pada input request yang namanya sesuai dengan SLUG AREA
+        foreach ($areaSlugs as $slug) {
+            // Periksa apakah request memiliki field dengan slug ini dan merupakan array
+            if ($request->has($slug) && is_array($request->input($slug))) {
+                $value = $request->input($slug); // Data array pemeriksaan untuk area ini
+                $areaName = str_replace('_', ' ', Str::title($slug));
+
+                foreach ($value as $row) {
+                    $pemeriksaanData[] = [
+                        'area' => $areaName,
+                        'nama_karyawan' => $row['nama_karyawan'] ?? '',
+                        'pukul' => now()->format('H:i'),
+
+                        // 23 Checkbox dari Blade
+                        'anting' => $row['anting'] ?? 0,
+                        'kalung' => $row['kalung'] ?? 0,
+                        'cincin' => $row['cincin'] ?? 0,
+                        'jam_tangan' => $row['jam_tangan'] ?? 0,
+                        'peniti' => $row['peniti'] ?? 0,
+                        'bros' => $row['bros'] ?? 0,
+                        'payet' => $row['payet'] ?? 0,
+                        'softlens' => $row['softlens'] ?? 0,
+                        'eyelashes' => $row['eyelashes'] ?? 0,
+                        'seragam' => $row['seragam'] ?? 0,
+                        'boot' => $row['boot'] ?? 0,
+                        'masker' => $row['masker'] ?? 0,
+                        'ciput_hairnet' => $row['ciput_hairnet'] ?? 0,
+                        'kuku' => $row['kuku'] ?? 0,
+                        'parfum' => $row['parfum'] ?? 0,
+                        'make_up' => $row['make_up'] ?? 0,
+                        'diare' => $row['diare'] ?? 0,
+                        'demam' => $row['demam'] ?? 0,
+                        'luka_bakar' => $row['luka_bakar'] ?? 0,
+                        'batuk' => $row['batuk'] ?? 0,
+                        'radang' => $row['radang'] ?? 0,
+                        'influenza' => $row['influenza'] ?? 0,
+                        'sakit_mata' => $row['sakit_mata'] ?? 0,
+
+                        'keterangan' => $row['keterangan'] ?? null,
+                    ];
+                }
+            }
         }
 
-        $gmp->update($data);
+        $data['pemeriksaan'] = json_encode($pemeriksaanData);
 
+        $gmp->update($data);
         $gmp->update(['tgl_update_produksi' => Carbon::parse($gmp->updated_at)->addHour()]);
 
-        return redirect()->route('gmp.index')
-        ->with('success', 'Data GMP Karyawan berhasil diperbarui');
+        return redirect()->route('gmp.index')->with('success', 'Data GMP berhasil diperbarui.');
     }
 
     public function verification(Request $request)
     {
         $search     = $request->input('search');
-        $start_date = $request->input('start_date');
-        $end_date   = $request->input('end_date');
+        $date = $request->input('date');
         $userPlant  = Auth::user()->plant;
 
         $data = Gmp::where('plant', $userPlant)
         ->when($search, function ($query) use ($search) {
             $query->where('username', 'like', "%{$search}%")
-            ->orWhere('mp_chamber', 'like', "%{$search}%")
-            ->orWhere('karantina_packing', 'like', "%{$search}%")
-            ->orWhere('filling_susun', 'like', "%{$search}%")
-            ->orWhere('sampling_fg', 'like', "%{$search}%");
+            ->orWhere('pemeriksaan', 'like', "%{$search}%");
         })
-        ->when($start_date && $end_date, function ($query) use ($start_date, $end_date) {
-            $query->whereBetween('date', [$start_date, $end_date]);
+        ->when($date, function ($query) use ($date) {
+            $query->whereDate('date', $date);
         })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.gmp.verification', compact('data', 'search', 'start_date', 'end_date'));
+        return view('form.gmp.verification', compact('data', 'search', 'date'));
     }
 
     public function updateVerification(Request $request, $uuid)
@@ -195,6 +285,7 @@ class GmpController extends Controller
         $gmp->status_spv = $request->status_spv;
         $gmp->catatan_spv = $request->catatan_spv;
         $gmp->nama_spv = Auth::user()->username;
+        $gmp->tgl_update_spv = now();
         $gmp->save();
 
         return redirect()->route('gmp.verification')

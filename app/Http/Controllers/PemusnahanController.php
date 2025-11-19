@@ -1,0 +1,196 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Pemusnahan;
+use App\Models\Produk;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class PemusnahanController extends Controller
+{
+    public function index(Request $request)
+    {
+        $search     = $request->input('search');
+        $date       = $request->input('date');
+        $userPlant  = Auth::user()->plant;
+
+        $data = Pemusnahan::query()
+        ->where('plant', $userPlant)
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                ->orWhere('nama_produk', 'like', "%{$search}%")
+                ->orWhere('kode_produksi', 'like', "%{$search}%");
+            });
+        })
+        ->when($date, function ($query) use ($date) {
+            $query->whereDate('date', $date);
+        })
+        ->orderBy('date', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->paginate(10)
+        ->appends($request->all());
+
+        return view('form.pemusnahan.index', compact('data', 'search', 'date'));
+    }
+
+    public function create()
+    {
+        $userPlant = Auth::user()->plant;
+        $produks = Produk::where('plant', $userPlant)->get();
+
+        return view('form.pemusnahan.create', compact('produks'));
+    }
+
+    public function store(Request $request)
+    {
+        $username   = Auth::user()->username ?? 'User RTM';
+        $userPlant  = Auth::user()->plant;
+
+        $request->validate([
+            'date'                   => 'required|date',
+            'nama_produk'            => 'required|string',
+            'kode_produksi'          => 'required|string',
+            'expired_date'           => 'required',
+            'analisa'                => 'nullable|string',
+            'keterangan'             => 'nullable|string',
+        ]);
+
+        $data = $request->only([
+            'date', 'nama_produk', 'kode_produksi', 'expired_date',
+            'analisa', 'keterangan'
+        ]);
+
+    // Tambahan default
+        $data['username']            = $username;
+        $data['plant']               = $userPlant;
+        $data['status_spv']          = "0";
+
+        Pemusnahan::create($data);
+
+        return redirect()->route('pemusnahan.index')->with('success', 'Pemusnahan Barang / Produk disimpan');
+    }
+
+    public function update(string $uuid)
+    {
+        $pemusnahan = Pemusnahan::where('uuid', $uuid)->firstOrFail();
+        $userPlant = Auth::user()->plant;
+        $produks = Produk::where('plant', $userPlant)->get();
+
+        return view('form.pemusnahan.update', compact('pemusnahan', 'produks'));
+    }
+
+    public function update_qc(Request $request, string $uuid)
+    {
+        $pemusnahan = Pemusnahan::where('uuid', $uuid)->firstOrFail();
+        $username_updated = Auth::user()->username ?? 'User QC';
+
+        $request->validate([
+            'date'                   => 'required|date',
+            'nama_produk'            => 'required|string',
+            'kode_produksi'          => 'required|string',
+            'expired_date'           => 'required',
+            'analisa'                => 'nullable|string',
+            'keterangan'             => 'nullable|string',
+        ]);
+
+        $data = $request->only([
+            'date', 'nama_produk', 'kode_produksi', 'expired_date',
+            'analisa', 'keterangan'
+        ]);
+
+        $data['username_updated'] = $username_updated;
+
+        $pemusnahan->update($data);
+
+        return redirect()->route('pemusnahan.index')->with('success', 'Data Pemusnahan Barang / Produk berhasil diperbarui');
+    }
+
+    public function edit(string $uuid)
+    {
+        $pemusnahan = Pemusnahan::where('uuid', $uuid)->firstOrFail();
+        $userPlant = Auth::user()->plant;
+        $produks = Produk::where('plant', $userPlant)->get();
+
+        return view('form.pemusnahan.edit', compact('pemusnahan', 'produks'));
+    }
+
+    public function edit_spv(Request $request, string $uuid)
+    {
+        $pemusnahan = Pemusnahan::where('uuid', $uuid)->firstOrFail();
+
+        $request->validate([
+            'date'                   => 'required|date',
+            'nama_produk'            => 'required|string',
+            'kode_produksi'          => 'required|string',
+            'expired_date'           => 'required',
+            'analisa'                => 'nullable|string',
+            'keterangan'             => 'nullable|string',
+        ]);
+
+        $data = $request->only([
+            'date', 'nama_produk', 'kode_produksi', 'expired_date',
+            'analisa', 'keterangan'
+        ]);
+
+        $pemusnahan->update($data);
+
+        return redirect()->route('pemusnahan.verification')->with('success', 'Data Pemusnahan Barang / Produk berhasil diperbarui');
+    }
+
+    public function verification(Request $request)
+    {
+        $search     = $request->input('search');
+        $date       = $request->input('date');
+        $userPlant  = Auth::user()->plant;
+
+        $data = Pemusnahan::query()
+        ->where('plant', $userPlant)
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                ->orWhere('nama_produk', 'like', "%{$search}%")
+                ->orWhere('kode_produksi', 'like', "%{$search}%");
+            });
+        })
+        ->when($date, function ($query) use ($date) {
+            $query->whereDate('date', $date);
+        })
+        ->orderBy('date', 'desc')
+        ->orderBy('created_at', 'desc')
+        ->paginate(10)
+        ->appends($request->all());
+
+        return view('form.pemusnahan.verification', compact('data', 'search', 'date'));
+    }
+
+    public function updateVerification(Request $request, $uuid)
+    {
+        $request->validate([
+            'status_spv'  => 'required|in:1,2',
+            'catatan_spv' => 'nullable|string|max:255',
+        ]);
+
+        $pemusnahan = Pemusnahan::where('uuid', $uuid)->firstOrFail();
+
+        $pemusnahan->update([
+            'status_spv'      => $request->status_spv,
+            'catatan_spv'     => $request->catatan_spv,
+            'nama_spv'        => Auth::user()->username,
+            'tgl_update_spv'  => now(),
+        ]);
+
+        return redirect()->route('pemusnahan.verification')
+        ->with('success', 'Status Verifikasi Pemusnahan Barang / Produk berhasil diperbarui.');
+    }
+
+    public function destroy($uuid)
+    {
+        $pemusnahan = Pemusnahan::where('uuid', $uuid)->firstOrFail();
+        $pemusnahan->delete();
+
+        return redirect()->route('pemusnahan.verification')
+        ->with('success', 'Pemusnahan Barang / Produk berhasil dihapus');
+    }
+}

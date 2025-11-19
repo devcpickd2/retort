@@ -20,10 +20,11 @@ return new class extends Migration
             $table->string('plant');
             $table->string('shift');
             $table->string('nama_produk');
+            $table->string('nama_supplier');
             $table->date('tgl_kedatangan');
             $table->date('tgl_expired');
             $table->longText('data_pvdc');
-            $table->string('catatan');
+            $table->string('catatan')->nullable();
             $table->string('nama_spv')->nullable();
             $table->string('status_spv')->nullable();
             $table->string('catatan_spv')->nullable();

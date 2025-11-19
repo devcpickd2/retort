@@ -43,33 +43,31 @@
 
                         <div class="mb-3">
                             <label for="area" class="form-label">Area</label>
-                            <select
-                            name="area"
-                            id="area"
-                            class="form-control @error('area') is-invalid @enderror">
-                            <option value="">-- Pilih Area --</option>
-                            <option value="MP - CHAMBER - SANITASI" {{ old('area', $produksi->area) == 'MP - CHAMBER - SANITASI' ? 'selected' : '' }}>MP - CHAMBER - SANITASI</option>
-                            <option value="KARANTINA - PACKING" {{ old('area', $produksi->area) == 'KARANTINA - PACKING' ? 'selected' : '' }}>KARANTINA - PACKING</option>
-                            <option value="FILLING - SUSUN" {{ old('area', $produksi->area) == 'FILLING - SUSUN' ? 'selected' : '' }}>FILLING - SUSUN</option>
-                            <option value="SAMPLING FG" {{ old('area', $produksi->area) == 'SAMPLING FG' ? 'selected' : '' }}>SAMPLING FG</option>
-                        </select>
-                        @error('area')
-                        <div class="invalid-feedback">
-                            {{ $message }}
+                            <select name="area" class="form-control selectpicker" data-live-search="true" required>
+                                <option value="">-- Pilih Area --</option>
+                                @foreach($areas as $area_hygiene)
+                                <option value="{{ $area_hygiene->area }}" {{ $produksi->area==$area_hygiene->area?"selected":"" }}>
+                                    {{ $area_hygiene->area }}
+                                </option>
+                                @endforeach
+                            </select>
+                            @error('area')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
-                        @enderror
-                    </div>
 
-                    <div class="d-flex justify-content-between">
-                        <button type="submit" class="btn btn-primary">💾 Update</button>
-                        <a href="{{ route('produksi.index') }}" class="btn btn-secondary">⬅ Kembali</a>
-                    </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">💾 Update</button>
+                            <a href="{{ route('produksi.index') }}" class="btn btn-secondary">⬅ Kembali</a>
+                        </div>
 
-                </form>
+                    </form>
+                </div>
             </div>
-        </div>
 
+        </div>
     </div>
-</div>
 </div>
 @endsection

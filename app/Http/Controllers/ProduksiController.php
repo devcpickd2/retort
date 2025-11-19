@@ -4,40 +4,43 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Produksi;
-use Illuminate\Support\Facades\Auth; // gunakan Auth untuk ambil user login
+use App\Models\Area_hygiene;
+use Illuminate\Support\Facades\Auth; 
 
 class ProduksiController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth'); // pastikan hanya user login
+        $this->middleware('auth');
     }
 
-    // Menampilkan semua data produksi sesuai plant user login
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $userPlantUuid = Auth::user()->plant; // UUID plant user login
+        $userPlantUuid = Auth::user()->plant; 
 
-        $produksi = Produksi::where('plant', $userPlantUuid) // filter sesuai plant
-            ->when($search, function($query, $search) {
-                $query->where('nama_karyawan', 'like', "%{$search}%")
-                      ->orWhere('area', 'like', "%{$search}%");
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->withQueryString();
+        $produksi = Produksi::where('plant', $userPlantUuid)
+        ->when($search, function($query, $search) {
+            $query->where('nama_karyawan', 'like', "%{$search}%")
+            ->orWhere('area', 'like', "%{$search}%");
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10)
+        ->withQueryString();
 
         return view('produksi.index', compact('produksi'));
     }
 
-    // Tampilkan form tambah produksi
     public function create()
     {
-        return view('produksi.create');
+        $userPlant = Auth::user()->plant;
+        $areas  = Area_hygiene::where('plant', $userPlant)
+        ->orderBy('area')
+        ->get();
+
+        return view('produksi.create', compact('areas'));
     }
 
-    // Simpan data baru ke database
     public function store(Request $request)
     {
         $request->validate([
@@ -45,31 +48,34 @@ class ProduksiController extends Controller
             'area' => 'required|string|max:255'
         ]);
 
-        $user = Auth::user(); // ambil data user login
+        $user = Auth::user(); 
 
         Produksi::create([
-            'username' => $user->username,   // username dari user login
-            'plant' => $user->plant,         // plant UUID dari user login
+            'username' => $user->username,  
+            'plant' => $user->plant,     
             'nama_karyawan' => $request->nama_karyawan,
             'area' => $request->area
         ]);
 
-        return redirect()->route('produksi.index')->with('success', 'Produksi berhasil ditambahkan');
+        return redirect()->route('produksi.index')
+        ->with('success', 'Produksi berhasil ditambahkan');
     }
 
-    // Tampilkan form edit
     public function edit($uuid)
     {
         $userPlantUuid = Auth::user()->plant;
 
         $produksi = Produksi::where('uuid', $uuid)
-                            ->where('plant', $userPlantUuid) // hanya edit produksi sesuai plant
-                            ->firstOrFail();
+        ->where('plant', $userPlantUuid)
+        ->firstOrFail();
 
-        return view('produksi.edit', compact('produksi'));
+        $areas  = Area_hygiene::where('plant', $userPlantUuid)
+        ->orderBy('area')
+        ->get();
+
+        return view('produksi.edit', compact('produksi', 'areas'));
     }
 
-    // Update data produksi
     public function update(Request $request, $uuid)
     {
         $request->validate([
@@ -80,25 +86,25 @@ class ProduksiController extends Controller
         $userPlantUuid = Auth::user()->plant;
 
         $produksi = Produksi::where('uuid', $uuid)
-                            ->where('plant', $userPlantUuid)
-                            ->firstOrFail();
+        ->where('plant', $userPlantUuid)
+        ->firstOrFail();
 
         $produksi->update([
             'nama_karyawan' => $request->nama_karyawan,
             'area' => $request->area
         ]);
 
-        return redirect()->route('produksi.index')->with('success', 'Produksi berhasil diupdate');
+        return redirect()->route('produksi.index')
+        ->with('success', 'Produksi berhasil diupdate');
     }
 
-    // Hapus data produksi
     public function destroy($uuid)
     {
         $userPlantUuid = Auth::user()->plant;
 
         $produksi = Produksi::where('uuid', $uuid)
-                            ->where('plant', $userPlantUuid)
-                            ->firstOrFail();
+        ->where('plant', $userPlantUuid)
+        ->firstOrFail();
 
         $produksi->delete();
 

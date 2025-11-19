@@ -25,30 +25,41 @@
                 <h3><i class="bi bi-list-check"></i> Data GMP Karyawan</h3>
             </div>
 
-            {{-- Filter dan Search --}}
-            <form method="GET" action="{{ route('gmp.verification') }}" class="row g-2 mb-3">
-                <div class="col-md-3">
-                    <input type="date" name="start_date" class="form-control"
-                    value="{{ request('start_date') }}" placeholder="Tanggal awal">
+            {{-- Filter dan Live Search --}}
+            <form id="filterForm" method="GET" action="{{ route('gmp.verification') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
+
+                <div class="input-group" style="max-width: 220px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-calendar-date text-muted"></i>
+                    </span>
+                    <input type="date" name="date" id="filter_date" class="form-control border-start-0"
+                    value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
-                <div class="col-md-3">
-                    <input type="date" name="end_date" class="form-control"
-                    value="{{ request('end_date') }}" placeholder="Tanggal akhir">
-                </div>
-                <div class="col-md-3">
-                    <input type="text" name="search" class="form-control"
-                    value="{{ request('search') }}" placeholder="Cari Nama...">
-                </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-funnel"></i> Filter
-                    </button>
-                    <a href="{{ route('gmp.verification') }}" class="btn btn-secondary w-100">
-                        <i class="bi bi-x-circle"></i> Reset
-                    </a>
-                </div>
+
+              <!--   <div class="input-group flex-grow-1" style="max-width: 350px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="search" id="search" class="form-control border-start-0"
+                    value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
+                </div> -->
             </form>
 
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const search = document.getElementById('search');
+                    const date = document.getElementById('filter_date');
+                    const form = document.getElementById('filterForm');
+                    let timer;
+
+                    search.addEventListener('input', () => {
+                        clearTimeout(timer);
+                        timer = setTimeout(() => form.submit(), 500);
+                    });
+
+                    date.addEventListener('change', () => form.submit());
+                });
+            </script>
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
                 <table class="table table-striped table-bordered align-middle">
@@ -60,6 +71,7 @@
                             <th>KARANTINA - PACKING</th>
                             <th>FILLING - SUSUN</th>
                             <th>SAMPLING FG</th>
+                            <th>QC</th>
                             <th>Produksi</th>
                             <th>SPV</th>
                             <th>Verification</th>
@@ -161,8 +173,8 @@
                                         @endforeach
                                     </small>
                                 </td>
-                                
-                                <td>{{ $dep->nama_produksi }}</td>
+                                <td class="text-center align-middle">{{ $dep->username }}</td>
+                                <td class="text-center align-middle">{{ $dep->nama_produksi }}</td>
                                 <td class="text-center align-middle">
                                     @if ($dep->status_spv == 0)
                                     <span class="fw-bold text-secondary">Created</span>

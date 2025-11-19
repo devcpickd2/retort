@@ -10,5 +10,5 @@ class Mesin extends Model
 {
     use HasFactory, HasUuid;
     
-    protected $fillable = ['nama_mesin', 'username', 'plant', 'uuid'];
+    protected $fillable = ['nama_mesin', 'jenis_mesin', 'username', 'plant', 'uuid'];
 }

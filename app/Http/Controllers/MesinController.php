@@ -21,7 +21,8 @@ class MesinController extends Controller
 
         $mesin = Mesin::where('plant', $userPlantUuid)
         ->when($search, function($query, $search) {
-            $query->where('nama_mesin', 'like', "%{$search}%");
+            $query->where('nama_mesin', 'like', "%{$search}%")
+            ->orWhere('jenis_mesin', 'like', "%{$search}%");
         })
         ->orderBy('created_at', 'desc')
         ->paginate(10)
@@ -40,15 +41,17 @@ class MesinController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_mesin' => 'required|string|max:255'
+            'nama_mesin' => 'required|string|max:255',
+            'jenis_mesin' => 'required|string|max:255'
         ]);
 
-        $user = Auth::user(); // ambil user login
+        $user = Auth::user(); 
 
         Mesin::create([
-            'username' => $user->username,  // username dari user login
-            'plant' => $user->plant,        // UUID plant dari user login
-            'nama_mesin' => $request->nama_mesin
+            'username' => $user->username,  
+            'plant' => $user->plant,     
+            'nama_mesin' => $request->nama_mesin,
+            'jenis_mesin' => $request->jenis_mesin
         ]);
 
         return redirect()->route('mesin.index')->with('success', 'Mesin berhasil ditambahkan');
@@ -70,7 +73,8 @@ class MesinController extends Controller
     public function update(Request $request, $uuid)
     {
         $request->validate([
-            'nama_mesin' => 'required|string|max:255'
+            'nama_mesin' => 'required|string|max:255',
+            'jenis_mesin' => 'required|string|max:255'
         ]);
 
         $userPlantUuid = Auth::user()->plant;
@@ -80,7 +84,8 @@ class MesinController extends Controller
         ->firstOrFail();
 
         $mesin->update([
-            'nama_mesin' => $request->nama_mesin
+            'nama_mesin' => $request->nama_mesin,
+            'jenis_mesin' => $request->jenis_mesin
         ]);
 
         return redirect()->route('mesin.index')->with('success', 'Mesin berhasil diupdate');

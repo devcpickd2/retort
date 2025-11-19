@@ -14,25 +14,26 @@ return new class extends Migration
     public function up()
     {
         Schema::create('gmps', function (Blueprint $table) {
-           $table->id();
-           $table->uuid('uuid')->unique(); 
-           $table->date('date');
-           $table->string('username');
-           $table->string('username_updated');
-           $table->string('plant');
-           $table->longText('mp_chamber');
-           $table->longText('karantina_packing');
-           $table->longText('filling_susun');
-           $table->longText('sampling_fg');
-           $table->string('nama_produksi')->nullable();
-           $table->string('status_produksi')->nullable();
-           $table->timestamp('tgl_update_produksi')->nullable();
-           $table->string('nama_spv')->nullable();
-           $table->string('status_spv')->nullable();
-           $table->string('catatan_spv')->nullable();
-           $table->timestamp('tgl_update_spv')->nullable();
-           $table->timestamps();
-       });
+         $table->id();
+         $table->uuid('uuid')->unique(); 
+         $table->date('date');
+         $table->string('username');
+         $table->string('username_updated');
+         $table->string('plant');
+         $table->longText('mp_chamber');
+         $table->longText('karantina_packing');
+         $table->longText('filling_susun');
+         $table->longText('sampling_fg');
+         $table->longText('pemeriksaan')->nullable();
+         $table->string('nama_produksi')->nullable();
+         $table->string('status_produksi')->nullable();
+         $table->timestamp('tgl_update_produksi')->nullable();
+         $table->string('nama_spv')->nullable();
+         $table->string('status_spv')->nullable();
+         $table->string('catatan_spv')->nullable();
+         $table->timestamp('tgl_update_spv')->nullable();
+         $table->timestamps();
+     });
     }
 
     /**

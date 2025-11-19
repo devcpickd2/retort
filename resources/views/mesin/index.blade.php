@@ -28,43 +28,47 @@
             <table class="table table-striped table-bordered align-middle">
                 <thead class="table-primary text-center">
                     <tr>
+                        <th>No</th>
                         <th style="width: 20%;">Date</th>
                         <th>Nama Mesin</th>
+                        <th>Jenis Mesin</th>
                         <th style="width: 20%;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($mesin as $dep)
-                    <tr>
-                        <td>{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}</td>
-                        <td>{{ $dep->nama_mesin }}</td>
-                        <td class="text-center">
-                            <a href="{{ route('mesin.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
-                                <i class="bi bi-pencil"></i> Edit
-                            </a>
-                            <form action="{{ route('mesin.destroy', $dep->uuid) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm"
-                                onclick="return confirm('Yakin ingin menghapus?')">
-                                <i class="bi bi-trash"></i> Hapus
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="3" class="text-center">Belum ada data mesin.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        {{-- Pagination pakai Bootstrap 5 --}}
-        <div class="d-flex justify-content-end">
-            {{ $mesin->links('pagination::bootstrap-5') }}
-        </div>
+                   @php $no = ($mesin->currentPage() - 1) * $mesin->perPage() + 1; @endphp
+                   @forelse ($mesin as $dep)
+                   <tr>
+                    <td class="text-center align-middle">{{ $no++ }}</td>
+                    <td class="align-middle">{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}</td>
+                    <td class="text-center align-middle">{{ $dep->nama_mesin }}</td>
+                    <td class="align-middle">{{ $dep->jenis_mesin }}</td>
+                    <td class="text-center">
+                        <a href="{{ route('mesin.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <form action="{{ route('mesin.destroy', $dep->uuid) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Yakin ingin menghapus?')">
+                            <i class="bi bi-trash"></i> Hapus
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="5" class="text-center">Belum ada data mesin.</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+    {{-- Pagination pakai Bootstrap 5 --}}
+    <div class="d-flex justify-content-end">
+        {{ $mesin->links('pagination::bootstrap-5') }}
     </div>
+</div>
 </div>
 </div>
 

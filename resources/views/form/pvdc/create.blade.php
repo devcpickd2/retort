@@ -45,12 +45,21 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Tanggal Kedatangan PVDC</label>
-                                <input type="date" id="tgl_kedatangan" name="tgl_kedatangan" class="form-control" required>
+                                <label class="form-label">Nama Supplier</label>
+                                <select id="nama_supplier" name="nama_supplier" class="form-control selectpicker" data-live-search="true" required>
+                                    <option value="">-- Pilih Supplier --</option>
+                                    @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->nama_supplier }}">{{ $supplier->nama_supplier }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
                         <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Tanggal Kedatangan PVDC</label>
+                                <input type="date" id="tgl_kedatangan" name="tgl_kedatangan" class="form-control" required>
+                            </div>
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal Expired</label>
                                 <input type="date" id="tgl_expired" name="tgl_expired" class="form-control" required>
@@ -67,13 +76,6 @@
                     </div>
 
                     <div class="card-body table-responsive">
-                        <div class="alert alert-danger mt-2 py-2 px-3" style="font-size: 0.9rem;">
-                            <i class="bi bi-info-circle"></i>
-                            <strong>Catatan:</strong>
-                            <i class="bi bi-check-circle text-success"></i> Centang jika hasil <u>Oke</u>,
-                            kosongkan jika <u>Tidak Oke</u>.
-                        </div>
-
                         <table class="table table-bordered table-sm text-center align-middle" id="pvdcTable">
                             <thead class="table-light">
                                 <tr>
