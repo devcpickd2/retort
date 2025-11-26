@@ -396,14 +396,6 @@
                 </table>
             </div>
 
-            {{-- Pagination --}}
-            <div class="mt-3">
-                {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
-            </div>
-        </div>
-    </div>
-</div>
-
 {{-- Auto-hide alert setelah 3 detik --}}
 <script>
     setTimeout(() => {
