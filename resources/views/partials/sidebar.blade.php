@@ -75,7 +75,7 @@ $type_user = auth()->user()->type_user;
     @endif
 
     @php
-    $typeAllowed = in_array($type_user, [0,1,4,8]);
+    $typeAllowed = in_array($type_user, [0,1,2,4,8]);
 
     // jika ada perubahan form, bisa ditambahkan disini
     $meatRoutes = ['checklistmagnettrap.*', 'mincing.*', 'metal.*'];
