@@ -177,7 +177,7 @@ $type_user = auth()->user()->type_user;
             aria-controls="rollapseRetort">
 
             <i class="fas fa-industry"></i>
-            <span>retort</span>
+            <span>Retort</span>
         </a>
         <div id="rollapseRetort" class="collapse {{ $retortActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-dark py-2 collapse-inner rounded">
