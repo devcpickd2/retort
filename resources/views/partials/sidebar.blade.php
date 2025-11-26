@@ -77,48 +77,30 @@ $type_user = auth()->user()->type_user;
     @php
     $typeAllowed = in_array($type_user, [0,1,4,8]);
 
-    $formRoutes = ['gmp.*', 'suhu.*', 'sanitasi.*'];
-    $meatRoutes = ['checklistmagnettrap.*', 'metal.*'];
-    $warehouseRoutes = ['inspections.*', 'packaging-inspections.*', 'loading-produks.*'];
+    // jika ada perubahan form, bisa ditambahkan disini
+    $meatRoutes = ['checklistmagnettrap.*', 'mincing.*', 'metal.*'];
+    $stuffingRoutes = ['pvdc.*', 'labelisasi_pvdc.*', 'stuffing.*', 'wire.*'];
+    $retortRoutes = ['pemasakan.*', 'washing.*', 'chamber.*', 'pemusnahan.*'];
+    $packingRoutes = [ 'organoleptik.*','packing.*', 'prepacking.*', 'release_packing.*', 'sampling.*', 'karton.*',
+    'sampling_fg.*'];
+    $warehouseRoutes = ['inspections.*', 'packaging-inspections.*', 'loading-produks.*', 'klorin.*'];
     $cikandeRoutes = ['pemeriksaan_retain.*', 'dispositions.*', 'berita-acara.*', 'pemeriksaan-kekuatan-magnet-trap.*',
     'penyimpangan-kualitas.*'];
     $rteRoutes = ['retain_rte.*', 'release_packing_rte.*', 'pemasakan_rte.*'];
-    $stuffingRoutes = ['pvdc.*', 'labelisasi_pvdc.*', 'mincing.*', 'stuffing.*', 'sampel.*', 'organoleptik.*',
-    'klorin.*', 'packing.*', 'sampling.*', 'karton.*', 'timbangan.*', 'thermometer.*', 'chamber.*', 'wire.*',
-    'sampling_fg.*', 'pemasakan.*', 'prepacking.*', 'washing.*', 'pemusnahan.*', 'release_packing.*'];
+    $kebersihanRoutes = ['gmp.*', 'suhu.*', 'sanitasi.*'];
+    $umumRoutes = ['sampel.*', 'timbangan.*', 'thermometer.*'];
 
     // Aktivasi dropdown
-    $formActive = request()->routeIs($formRoutes);
     $meatPrepActive = request()->routeIs($meatRoutes);
+    $stuffingActive = request()->routeIs($stuffingRoutes);
+    $retortActive = request()->routeIs($retortRoutes);
+    $packingActive = request()->routeIs($packingRoutes);
     $warehouseActive = request()->routeIs($warehouseRoutes);
     $cikandeActive = request()->routeIs($cikandeRoutes);
-    $formActiveRTE = request()->routeIs($rteRoutes);
-    $formActiveStuffing = request()->routeIs($stuffingRoutes);
+    $rteActive = request()->routeIs($rteRoutes);
+    $kebersihanActive = request()->routeIs($kebersihanRoutes);
+    $umumActive = request()->routeIs($umumRoutes);
 
-    // Aktifkan masing-masing item
-    $packingActive = request()->routeIs(['packing.*', 'organoleptik.*', 'sampling.*', 'karton.*', 'prepacking.*',
-    'release_packing.*']);
-    $formMincingActive = request()->routeIs('mincing.*');
-    $formKlorinActive = request()->routeIs('klorin.*');
-    $formOrganoleptikActive = request()->routeIs('organoleptik.*');
-    $formPackingActive = request()->routeIs('packing.*');
-    $formSamplingActive = request()->routeIs('sampling.*');
-    $formKartonActive = request()->routeIs('karton.*');
-    $formPrepackingActive = request()->routeIs('prepacking.*');
-    $formReleasepackingActive = request()->routeIs('release_packing.*');
-
-    // Retort
-    $retortActive = request()->routeIs(['pemasakan.*','washing.*','chamber.*','pemusnahan.*']);
-    $formPemasakanActive = request()->routeIs('pemasakan.*');
-    $formWashingActive = request()->routeIs('washing.*');
-    $formChamberActive = request()->routeIs('chamber.*');
-    $formPemusnahanActive = request()->routeIs('pemusnahan.*');
-
-    // Umum
-    $UmumActive = request()->routeIs(['sampel.*','timbangan.*','thermometer.*']);
-    $formSampelActive = request()->routeIs('sampel.*');
-    $formTimbanganActive = request()->routeIs('timbangan.*');
-    $formThermometerActive = request()->routeIs('thermometer.*');
     @endphp
 
     @if($typeAllowed)
@@ -154,14 +136,14 @@ $type_user = auth()->user()->type_user;
 
     {{-- Stuffing --}}
     <li class="nav-item">
-        <a class="nav-link {{ $formActiveStuffing ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#UollapseStuffing" aria-expanded="{{ $formActiveStuffing ? 'true' : 'false' }}"
+        <a class="nav-link {{ $stuffingActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
+            data-bs-target="#UollapseStuffing" aria-expanded="{{ $stuffingActive ? 'true' : 'false' }}"
             aria-controls="UollapseStuffing">
 
             <i class="fas fa-dolly"></i>
             <span>Stuffing</span>
         </a>
-        <div id="UollapseStuffing" class="collapse {{ $formActiveStuffing ? 'show' : '' }}"
+        <div id="UollapseStuffing" class="collapse {{ $stuffingActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
             <div class="bg-dark py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('pvdc.*') ? 'active' : '' }}"
@@ -316,24 +298,24 @@ $type_user = auth()->user()->type_user;
 
     {{-- RTE --}}
     <li class="nav-item">
-        <a class="nav-link {{ $formActiveRTE ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#collapseRTE" aria-expanded="{{ $formActiveRTE ? 'true' : 'false' }}"
+        <a class="nav-link {{ $rteActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
+            data-bs-target="#collapseRTE" aria-expanded="{{ $rteActive ? 'true' : 'false' }}"
             aria-controls="collapseRTE">
             <i class="fas fa-clipboard-check"></i>
             <span>RTE</span>
         </a>
-        <div id="collapseRTE" class="collapse {{ $formActiveRTE ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+        <div id="collapseRTE" class="collapse {{ $rteActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('mincing.*') ? 'active' : '' }}"
-                    href="{{ route('mincing.index') }}">Pemeriksaan Mincing - Emulsifying - Aging
+                <a class="collapse-item {{ request()->routeIs('retain_rte.*') ? 'active' : '' }}"
+                    href="{{ route('retain_rte.index') }}">Pemeriksaan Sampel Retain RTE
                 </a>
-                <a class="collapse-item {{ request()->routeIs('checklistmagnettrap.*') ? 'active' : '' }}"
-                    href="{{ route('checklistmagnettrap.index') }}">
-                    Checklist Cleaning Magnet Trap
+                <a class="collapse-item {{ request()->routeIs('release_packing_rte.*') ? 'active' : '' }}"
+                    href="{{ route('release_packing_rte.index') }}">
+                    Data Release Packing RTE
                 </a>
-                <a class="collapse-item {{ request()->routeIs('metal.*') ? 'active' : '' }}"
-                    href="{{ route('metal.index') }}">
-                    Pengecekan Metal Detector
+                <a class="collapse-item {{ request()->routeIs('pemasakan_rte.*') ? 'active' : '' }}"
+                    href="{{ route('pemasakan_rte.index') }}">
+                    Pengecekan Pemasakan RTE
                 </a>
             </div>
         </div>
@@ -341,15 +323,16 @@ $type_user = auth()->user()->type_user;
 
     {{-- Suhu & Kebersihan --}}
     <li class="nav-item">
-        <a class="nav-link {{ $formActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#collapseFormQC" aria-expanded="{{ $formActive ? 'true' : 'false' }}"
+        <a class="nav-link {{ $kebersihanActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
+            data-bs-target="#collapseFormQC" aria-expanded="{{ $kebersihanActive ? 'true' : 'false' }}"
             aria-controls="collapseFormQC">
 
             <i class="fas fa-clipboard-list"></i>
             <span>Suhu & Kebersihan</span>
         </a>
 
-        <div id="collapseFormQC" class="collapse {{ $formActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+        <div id="collapseFormQC" class="collapse {{ $kebersihanActive ? 'show' : '' }}"
+            data-bs-parent="#accordionSidebar">
 
             <div class="bg-dark py-2 collapse-inner rounded">
 
@@ -373,14 +356,14 @@ $type_user = auth()->user()->type_user;
 
     {{-- Umum --}}
     <li class="nav-item">
-        <a class="nav-link {{ $UmumActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#Uollapseumum" aria-expanded="{{ $UmumActive ? 'true' : 'false' }}"
+        <a class="nav-link {{ $umumActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
+            data-bs-target="#Uollapseumum" aria-expanded="{{ $umumActive ? 'true' : 'false' }}"
             aria-controls="Uollapseumum">
 
             <i class="fas fa-cogs"></i>
             <span>Umum</span>
         </a>
-        <div id="Uollapseumum" class="collapse {{ $UmumActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
+        <div id="Uollapseumum" class="collapse {{ $umumActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
             <div class="bg-dark py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('sampel.*') ? 'active' : '' }}"
                     href="{{ route('sampel.index') }}">Pengambilan Sampel</a>
@@ -725,7 +708,6 @@ $type_user = auth()->user()->type_user;
 
     #accordionSidebar .collapse-inner .collapse-item:hover {
         background: rgba(255, 255, 255, 0.15);
-        padding-left: 26px;
     }
 
     /* Active Item */
