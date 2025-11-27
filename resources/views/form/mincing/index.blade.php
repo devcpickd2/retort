@@ -22,9 +22,11 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Pemeriksaan Mincing - Emulsifying - Aging</h3>
-                <a href="{{ route('mincing.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
-                </a>
+                @can('can access add button')
+                    <a href="{{ route('mincing.create') }}" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Tambah
+                    </a>
+                @endcan
             </div>
 
             {{-- Filter dan Live Search --}}
@@ -292,22 +294,22 @@
                                     @endif
                                 </td>
                                 <td class="text-center align-middle">
-                                    @can('access verification button')
+                                    @can('can access verification button')
                                     <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm mb-1" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
                                         <i class="bi bi-shield-check me-1"></i> Verifikasi
                                     </button>
                                     @endcan
-                                    @can('access edit button')
+                                    @can('can access edit button')
                                         <a href="{{ route('mincing.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1 mb-1">
                                             <i class="bi bi-pencil-square"></i> Edit Data
                                         </a>
                                     @endcan
-                                    @can('access update button')
+                                    @can('can access update button')
                                         <a href="{{ route('mincing.update.form', $dep->uuid) }}" class="btn btn-info btn-sm me-1 mb-1">
                                             <i class="bi bi-pencil"></i> Update
                                         </a>
                                     @endcan
-                                    @can('access delete button')
+                                    @can('can access delete button')
                                         <form action="{{ route('mincing.destroy', $dep->uuid) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
