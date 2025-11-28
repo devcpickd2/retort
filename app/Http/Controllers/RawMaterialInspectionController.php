@@ -22,7 +22,7 @@ class RawMaterialInspectionController extends Controller
     public function index(Request $request)
     {
         // Mulai query
-        $query = RawMaterialInspection::query();
+        $query = RawMaterialInspection::with('creator');
 
         // Terapkan filter tanggal awal (start_date)
         $query->when($request->filled('start_date'), function ($q) use ($request) {
@@ -112,10 +112,8 @@ class RawMaterialInspectionController extends Controller
                 $data['dokumen_coa_file'] = $request->file('dokumen_coa_file')->store('coa_docs', 'public');
             }
 
-            // Create Inspection
-            $inspection = RawMaterialInspection::create($data);
+            $inspection = RawMaterialInspection::create($data); 
 
-            // Create Product Details
             if ($request->has('details')) {
                 $inspection->productDetails()->createMany($request->details);
             }
@@ -133,7 +131,7 @@ class RawMaterialInspectionController extends Controller
     {
         // Load relasi productDetails agar bisa di-loop di view
         // $inspection sudah otomatis di-fetch berdasarkan 'uuid'
-        $inspection->load('productDetails');
+        $inspection->load('productDetails', 'creator');
         
         // Arahkan ke view baru untuk 'show'
         return view('raw_material.ShowRawMaterial', compact('inspection'));
@@ -144,7 +142,7 @@ class RawMaterialInspectionController extends Controller
         // Load relasi productDetails agar bisa di-loop di view
         // $inspection sudah otomatis di-fetch berdasarkan 'uuid'
         // berkat method getRouteKeyName() di model
-        $inspection->load('productDetails');
+        $inspection->load('productDetails', 'creator');
         
         return view('raw_material.EditRawMaterial', compact('inspection'));
     }
@@ -287,7 +285,7 @@ class RawMaterialInspectionController extends Controller
     public function showVerificationPage(Request $request)
     {
         // 1. Mulai query builder
-        $query = RawMaterialInspection::query();
+        $query = RawMaterialInspection::with('creator');
 
         // 2. Terapkan filter tanggal awal (start_date)
         if ($request->filled('start_date')) {

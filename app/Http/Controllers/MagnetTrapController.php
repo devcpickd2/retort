@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Produk;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MagnetTrapController extends Controller
 {
@@ -18,29 +19,32 @@ class MagnetTrapController extends Controller
      */
     public function index(Request $request)
     {
-    // Memulai query builder
-    $query = MagnetTrapModel::query();
+        // Eager load updater untuk performa
+        $query = MagnetTrapModel::query()->with('updater');
 
-    // 1. Filter berdasarkan pencarian nama produk
-    $query->when($request->search, function ($q, $search) {
-        // Ganti 'nama_produk' jika ingin mencari di kolom lain
-        return $q->where('nama_produk', 'like', "%{$search}%");
-    });
+        // 0. Filter Plant (Data Isolation)
+        // Menampilkan data hanya sesuai Plant user yang login
+        if (Auth::check() && !empty(Auth::user()->plant)) {
+            $query->where('plant_uuid', Auth::user()->plant);
+        }
 
-    // 2. Filter berdasarkan rentang tanggal (diambil dari kolom created_at)
-    if ($request->filled('start_date') && $request->filled('end_date')) {
-        $startDate = $request->start_date . ' 00:00:00';
-        $endDate = $request->end_date . ' 23:59:59';
-        // Ganti 'created_at' jika kolom tanggal Anda berbeda
-        $query->whereBetween('created_at', [$startDate, $endDate]);
-    }
+        // 1. Filter Pencarian
+        $query->when($request->search, function ($q, $search) {
+            return $q->where('nama_produk', 'like', "%{$search}%")
+                     ->orWhere('kode_batch', 'like', "%{$search}%");
+        });
 
-    // 3. Ambil data yang sudah difilter, urutkan dari yang terbaru, dan paginasi
-    // withQueryString() penting agar filter tetap aktif saat pindah halaman
-    $data = $query->latest()->paginate(10)->withQueryString();
+        // 2. Filter Tanggal
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = $request->start_date . ' 00:00:00';
+            $endDate = $request->end_date . ' 23:59:59';
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
 
-    // 4. Kirim data ke view
-    return view('magnet_trap.IndexMagnetTrap', compact('data'));
+        // 3. Get Data
+        $data = $query->latest()->paginate(10)->withQueryString();
+
+        return view('magnet_trap.IndexMagnetTrap', compact('data'));
     }
 
     /**
@@ -61,12 +65,11 @@ class MagnetTrapController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+public function store(Request $request)
     {
-        
         $validatedData = $request->validate([
             'nama_produk' => 'required',
-            'kode_batch' => 'required|string|max:255',
+            'kode_batch' => 'required|string|max:10', // Max 10 sesuai request
             'pukul' => 'required',
             'jumlah_temuan' => 'required|integer|min:0',
             'status' => 'required|in:v,x',
@@ -75,20 +78,24 @@ class MagnetTrapController extends Controller
             'engineer_id' => 'required|integer',
         ]);
 
-        // 3. Tambahkan UUID untuk record ini
+        $user = Auth::user();
+
+        // 1. Generate UUID Record
         $validatedData['uuid'] = (string) Str::uuid();
 
-        // 4. Tambahkan UUID user yang sedang login sebagai 'created_by'
-        // Ini mengasumsikan Model User Anda punya kolom 'uuid'
-        $validatedData['created_by'] = Auth::user()->uuid;
+        // 2. Set User & Plant Info
+        $validatedData['created_by'] = $user->uuid;
+        $validatedData['updated_by'] = $user->uuid; // Awal pembuatan, updated_by = created_by
+        
+        // Ambil plant dari user yg login (pastikan kolom 'plant' ada di tabel users)
+        $validatedData['plant_uuid'] = $user->plant; 
 
-        // 5. Simpan semua data ke database
+        // 3. Simpan
         MagnetTrapModel::create($validatedData);
 
         return redirect()->route('checklistmagnettrap.index')
                          ->with('success', 'Data berhasil ditambahkan.');
     }
-
     /**
      * Display the specified resource.
      *
@@ -124,7 +131,7 @@ class MagnetTrapController extends Controller
     {
          $request->validate([
             'nama_produk' => 'required',
-            'kode_batch' => 'required|string|max:255',
+            'kode_batch' => 'required|string|max:10',
             'pukul' => 'required',
             'jumlah_temuan' => 'required|integer|min:0',
             'status' => 'required|in:v,x',
@@ -133,7 +140,15 @@ class MagnetTrapController extends Controller
             'engineer_id' => 'required|integer',
         ]);
 
-        $checklistmagnettrap->update($request->all());
+        $dataToUpdate = $request->all();
+
+        // Update updated_by dengan user yang login sekarang
+        $dataToUpdate['updated_by'] = Auth::user()->uuid;
+
+        // Plant UUID biasanya TIDAK diupdate agar history asalnya tetap terjaga
+        // Kecuali ada requirement khusus untuk memindahkan data antar plant
+
+        $checklistmagnettrap->update($dataToUpdate);
 
         return redirect()->route('checklistmagnettrap.index')
                          ->with('success', 'Data berhasil diperbarui.');
@@ -222,6 +237,63 @@ class MagnetTrapController extends Controller
         $magnetTrap->save();
 
         return redirect()->back()->with('success', 'Data berhasil diverifikasi.');
+    }
+
+    /**
+     * Menampilkan view khusus UpdateMagnetTrap.blade.php
+     * Logic pengambilan datanya sama dengan edit() biasa.
+     */
+    public function showUpdateForm(MagnetTrapModel $checklistmagnettrap)
+    {
+        // Ambil data produk (sama seperti di method edit biasa)
+        $produks = Produk::orderBy('nama_produk', 'asc')->get();
+        
+        // Bedanya DISINI: Arahkan ke view 'UpdateMagnetTrap'
+        return view('magnet_trap.UpdateMagnetTrap', compact('checklistmagnettrap', 'produks'));
+    }
+
+    public function searchBatchMincing(Request $request)
+    {
+        $search = $request->get('q');
+
+        // Pastikan ada input pencarian
+        if($search){
+            // Ambil data dari tabel 'mincings' kolom 'kode_produksi'
+            // Mengambil 10 data teratas yang mirip agar query ringan
+            $data = DB::table('mincings')
+                        ->where('kode_produksi', 'like', '%' . $search . '%')
+                        ->limit(10)
+                        ->pluck('kode_produksi');
+            
+            return response()->json($data);
+        }
+        
+        return response()->json([]);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil ID/UUID yang dikirim dari checkbox "Check All"
+        $ids = $request->input('ids'); 
+
+        // Validasi jika tidak ada data yang dipilih
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'Pilih setidaknya satu data untuk diexport.');
+        }
+
+        // 2. Ambil data dari database berdasarkan UUID yang dipilih
+        // Kita urutkan berdasarkan created_at atau pukul agar rapi
+        $data = MagnetTrapModel::whereIn('uuid', $ids)
+                    ->orderBy('created_at', 'ASC')
+                    ->get();
+
+        // 3. Load View PDF
+        // setPaper('a4', 'landscape') agar tabel memanjang ke samping sesuai gambar
+        $pdf = Pdf::loadView('magnet_trap.export_pdf', compact('data'))
+                    ->setPaper('a4', 'landscape');
+
+        // 4. Stream (tampilkan di browser) atau Download
+        return $pdf->stream('Checklist-Cleaning-Magnet-Trap.pdf');
     }
 }
 
