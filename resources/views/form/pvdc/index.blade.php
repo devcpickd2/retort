@@ -14,9 +14,11 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Data No. Lot PVDC</h3>
+                @can('can access add button')
                 <a href="{{ route('pvdc.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
+                @endcan
             </div> 
 
             {{-- Filter dan Live Search --}}
@@ -185,15 +187,22 @@
                                 @endif
                             </td>
                             <td class="text-center align-middle">
+                                @can('can access verification button')
                                 <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
                                     <i class="bi bi-shield-check me-1"></i> Verifikasi
                                 </button>
+                                @endcan
+                                @can('can access edit button')
                                 <a href="{{ route('pvdc.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
+                                @endcan
+                                @can('can access update button')
                                 <a href="{{ route('pvdc.update.form', $dep->uuid) }}" class="btn btn-info btn-sm me-1">
                                     <i class="bi bi-pencil"></i> Update
                                 </a>
+                                @endcan
+                                @can('can access delete button')
                                 <form action="{{ route('pvdc.destroy', $dep->uuid) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
@@ -202,6 +211,7 @@
                                     <i class="bi bi-trash"></i> Hapus
                                 </button>
                             </form>
+                                @endcan
                             <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="verifyModalLabel{{ $dep->uuid }}" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-md">
                                     <form action="{{ route('pvdc.verification.update', $dep->uuid) }}" method="POST">

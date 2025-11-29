@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
 <style>
-    /* Style ini identik dengan halaman create untuk konsistensi visual */
+    /* Style dasar */
     body {
         background-color: #f8f9fa;
         font-family: 'Inter', sans-serif;
@@ -23,12 +23,19 @@
     .form-control, .form-select {
         border-radius: 8px;
     }
-    .select2-container .select2-selection--single {
-        height: calc(2.25rem + 2px);
-    }
+    
+    /* === PERBAIKAN CSS SELECT2 DI SINI === */
+    /* Memastikan tinggi Select2 sama dengan Input Bootstrap standar */
     .select2-container--bootstrap-5 .select2-selection {
+        min-height: calc(2.25rem + 2px) !important;
         border-radius: 8px !important;
+        align-items: center;
     }
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        margin-top: -2px;
+    }
+    /* ===================================== */
+
     .status-selector { display: flex; gap: 1rem; }
     .status-selector input[type="radio"] { opacity: 0; position: fixed; width: 0; }
     .status-selector label {
@@ -50,7 +57,7 @@
 
 {{-- Mendefinisikan bagian konten --}}
 @section('content')
-<div class="container py-4">
+<div class="container-fluid py-0">
     <div class="card shadow-sm">
         <div class="card-body">
             <h4 class="mb-1"><i class="bi bi-pencil-square"></i> Form Edit Temuan</h4>
@@ -68,15 +75,19 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="nama_produk" class="form-label">{{ __('Nama Produk') }}</label>
+                            
+                            {{-- Dropdown Select2 --}}
                             <select class="form-select select2 @error('nama_produk') is-invalid @enderror" id="nama_produk" name="nama_produk" required>
                                 <option></option> {{-- Placeholder for Select2 --}}
                                 @foreach($produks as $produk)
-                                    {{-- Populate with existing data --}}
-                                    <option value="{{ $produk->nama_produk }}" {{ (old('nama_produk', $checklistmagnettrap->nama_produk) == $produk->nama_produk) ? 'selected' : '' }}>
+                                    {{-- Logika Edit: Cek old input -> Cek database --}}
+                                    <option value="{{ $produk->nama_produk }}" 
+                                        {{ (old('nama_produk', $checklistmagnettrap->nama_produk) == $produk->nama_produk) ? 'selected' : '' }}>
                                         {{ $produk->nama_produk }}
                                     </option>
                                 @endforeach
                             </select>
+                            
                             @error('nama_produk')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -84,10 +95,29 @@
 
                         <div class="mb-3">
                             <label for="kode_batch" class="form-label">{{ __('Kode Batch') }}</label>
-                            <input id="kode_batch" type="text" class="form-control @error('kode_batch') is-invalid @enderror" name="kode_batch" value="{{ old('kode_batch', $checklistmagnettrap->kode_batch) }}" required autocomplete="kode_batch" placeholder="Sesuai data mincing">
+                            
+                            <input 
+                                id="kode_batch" 
+                                type="text" 
+                                class="form-control @error('kode_batch') is-invalid @enderror" 
+                                name="kode_batch" 
+                                value="{{ old('kode_batch', $checklistmagnettrap->kode_batch) }}" 
+                                required 
+                                autocomplete="off" 
+                                placeholder="Sesuai data mincing"
+                                maxlength="10" 
+                                list="batch_suggestions"
+                            >
+
+                            <datalist id="batch_suggestions"></datalist>
+
                             @error('kode_batch')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
+
+                            <small class="text-muted d-block mt-1" style="font-size: 0.8em;">
+                                *Otomatis kapital, max 10 karakter, tanpa spasi/simbol.
+                            </small>
                         </div>
                         
                         <div class="row">
@@ -186,12 +216,67 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    // Initialize Select2
     $(document).ready(function() {
+        
+        // --- 1. EXISTING: Konfigurasi Select2 Anda ---
         $('.select2').select2({
             theme: "bootstrap-5",
+            width: '100%', 
             placeholder: "Ketik untuk mencari produk...",
         });
+
+        // --- 2. BARU: Logic untuk Kode Batch ---
+        $('#kode_batch').on('input', function() {
+            let input = $(this);
+            let value = input.val();
+
+            // A. Auto Uppercase
+            value = value.toUpperCase();
+
+            // B. Hapus Karakter Terlarang (Spasi, $, %, #, *)
+            value = value.replace(/[\s$#%*]/g, '');
+
+            // C. Paksa Max 10 Karakter (Backup selain maxlength HTML)
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+
+            // Kembalikan nilai bersih ke input
+            input.val(value);
+
+            // D. Auto Suggestion (AJAX Call)
+            // Trigger hanya jika panjang >= 2 karakter
+            if (value.length >= 2) {
+                $.ajax({
+                    url: "{{ route('ajax.search.batch') }}", // Pastikan route ini ada di web.php
+                    type: "GET",
+                    data: { q: value },
+                    success: function(data) {
+                        let dataList = $('#batch_suggestions');
+                        dataList.empty(); // Bersihkan list lama
+                        
+                        $.each(data, function(key, item) {
+                            // Tambah opsi baru
+                            dataList.append('<option value="' + item + '">');
+                        });
+                    }
+                });
+            }
+        });
+
+        // E. Validasi Akhir saat kursor keluar (Blur)
+        // Mengecek apakah karakter kurang dari 10 (karena max sudah dihandle)
+        $('#kode_batch').on('blur', function() {
+            let value = $(this).val();
+            if(value.length > 0 && value.length < 10) {
+                // Tampilkan alert atau feedback visual
+                alert('Perhatian: Kode Batch harus terdiri dari 10 karakter!');
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+
     });
 </script>
 @endpush

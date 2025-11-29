@@ -56,7 +56,9 @@ use App\Http\Controllers\{
     Release_packingController,
     SuhuController,
     SanitasiController,
-    LookupController
+    LookupController,
+    PermissionController,
+    RoleController // Add RoleController
 };
 
 Route::get('/', function () {
@@ -69,6 +71,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::resource('user', UserController::class);
+    Route::prefix('access')->group(function () {
+        Route::resource('permissions', PermissionController::class);
+        Route::resource('roles', RoleController::class);
+        Route::get('roles/{role}/manage-access', [RoleController::class, 'manageAccess'])->name('roles.manageAccess');
+        Route::post('roles/{role}/manage-access', [RoleController::class, 'saveAccess'])->name('roles.saveAccess');
+    });
 });
 
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -182,9 +190,18 @@ Route::resource('pvdc', PvdcController::class)->parameters([
     'pvdc' => 'uuid'
 ]);
 
+Route::post('/checklist-magnet-trap/export-pdf', [MagnetTrapController::class, 'exportPdf'])->name('checklistmagnettrap.exportPdf');
+Route::get('/ajax/search-batch-mincing', [MagnetTrapController::class, 'searchBatchMincing'])->name('ajax.search.batch');
+Route::get('checklistmagnettrap/update-form/{checklistmagnettrap}', [MagnetTrapController::class, 'showUpdateForm'])
+    ->name('checklistmagnettrap.showUpdateForm');
 Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'showVerificationPage'])->name('checklistmagnettrap.verification');
 Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
 Route::resource('checklistmagnettrap', MagnetTrapController::class);
+
+Route::get('/inspections/export-pdf', [RawMaterialInspectionController::class, 'exportPdf'])
+    ->name('inspections.export_pdf');
+Route::get('/inspections/{inspection}/form-update', [RawMaterialInspectionController::class, 'showUpdateForm'])
+    ->name('inspections.form_update');
 Route::get('/inspections/verification', [RawMaterialInspectionController::class, 'showVerificationPage'])
     ->name('inspections.verification');
 
