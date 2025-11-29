@@ -61,6 +61,13 @@
         background-color: #fdfdfd;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
+
+    .select2-container .select2-selection--single .select2-selection__rendered {
+    padding-right: 30px !important; /* Tambahkan padding kanan */
+    white-space: nowrap; /* Mencegah teks turun ke bawah */
+    overflow: hidden; /* Sembunyikan jika masih terlalu panjang */
+    text-overflow: ellipsis; /* Beri titik-titik (...) jika kepanjangan */
+    }
 </style>
 @endpush
 
@@ -105,10 +112,10 @@
                                 @error('setup_kedatangan') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
                             </div>
                            
-                            <div class="col-md-6">
+                           <div class="col-12"> 
                                 <label for="bahan_baku" class="form-label">Bahan Baku</label>
                                 <select class="form-select select2 @error('bahan_baku') is-invalid @enderror" id="bahan_baku" name="bahan_baku" required>
-                                    <option></option> {{-- Placeholder untuk Select2 --}}
+                                    <option></option>
                                     <option value="Daging Ayam" {{ old('bahan_baku') == 'Daging Ayam' ? 'selected' : '' }}>Daging Ayam</option>
                                     <option value="Tepung Tapioka" {{ old('bahan_baku') == 'Tepung Tapioka' ? 'selected' : '' }}>Tepung Tapioka</option>
                                     <option value="Minyak Goreng" {{ old('bahan_baku') == 'Minyak Goreng' ? 'selected' : '' }}>Minyak Goreng</option>
@@ -319,7 +326,8 @@
             theme: "bootstrap-5", // Use the Bootstrap 5 theme
             placeholder: "Ketik untuk mencari...",
             allowClear: true,
-            dropdownAutoWidth: true
+            dropdownAutoWidth: true,
+            width: '49%'
         });
     });
 </script>

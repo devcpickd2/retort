@@ -12,9 +12,10 @@ use App\Models\User;
 
 class RawMaterialInspection extends Model
 {
-    // 3. HAPUS 'HasUuids' dari sini
-    use HasFactory, /* HasUuids, */ SoftDeletes;
+    use HasFactory, SoftDeletes;
 
+    // Karena Anda pakai guarded=['id'], maka kolom baru (plant_uuid, updated_by)
+    // otomatis bisa diisi (Mass Assignment aman selama id dijaga).
     protected $guarded = ['id'];
 
     protected $casts = [
@@ -28,27 +29,19 @@ class RawMaterialInspection extends Model
         'analisa_logo_halal' => 'boolean',
         'dokumen_halal_berlaku' => 'boolean',
     ];
-    /**
-     * 4. TAMBAHKAN method ini
-     * Ini akan otomatis mengisi kolom 'uuid' baru saat data dibuat.
-     */
+
     protected static function booted(): void
     {
         static::creating(function ($model) {
             if (empty($model->uuid)) {
                 $model->uuid = (string) Str::uuid();
             }
-           if (Auth::check() && empty($model->created_by_uuid)) {
-              $model->created_by_uuid = Auth::user()->uuid; // Auth::id() akan mengambil UUID user
+            if (Auth::check() && empty($model->created_by_uuid)) {
+                $model->created_by_uuid = Auth::user()->uuid;
             }
         });
-
     }
 
-    /**
-     * Mengubah binding route dari 'id' ke 'uuid'
-     * Ini akan membuat URL seperti /inspections/{uuid}/edit
-     */
     public function getRouteKeyName(): string
     {
         return 'uuid';
@@ -56,15 +49,19 @@ class RawMaterialInspection extends Model
 
     public function productDetails(): HasMany
     {
-        // PERUBAHAN DI SINI:
-        // Kita beritahu Eloquent foreign key di tabel anak adalah 'raw_material_inspection_uuid'
-        // dan local key (primary) di tabel ini adalah 'uuid'
         return $this->hasMany(InspectionProductDetail::class, 'raw_material_inspection_uuid', 'uuid');
     }
 
     public function creator(): BelongsTo
     {
-        // Sesuaikan 'User::class', 'created_by_uuid', dan 'uuid' jika perlu
         return $this->belongsTo(User::class, 'created_by_uuid', 'uuid');
+    }
+
+    /**
+     * TAMBAHAN BARU: Relasi ke User pengupdate
+     */
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'uuid');
     }
 }

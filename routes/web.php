@@ -185,6 +185,11 @@ Route::get('checklistmagnettrap/update-form/{checklistmagnettrap}', [MagnetTrapC
 Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'showVerificationPage'])->name('checklistmagnettrap.verification');
 Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
 Route::resource('checklistmagnettrap', MagnetTrapController::class);
+
+Route::get('/inspections/export-pdf', [RawMaterialInspectionController::class, 'exportPdf'])
+    ->name('inspections.export_pdf');
+Route::get('/inspections/{inspection}/form-update', [RawMaterialInspectionController::class, 'showUpdateForm'])
+    ->name('inspections.form_update');
 Route::get('/inspections/verification', [RawMaterialInspectionController::class, 'showVerificationPage'])
     ->name('inspections.verification');
 
