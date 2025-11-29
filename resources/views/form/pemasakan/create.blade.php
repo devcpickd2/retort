@@ -19,25 +19,32 @@
                         {{-- ====== Baris 1: Tanggal & Shift ====== --}}
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Tanggal</label>
+                                <label class="form-label">
+                                    Tanggal <span class="text-danger">*</span>
+                                </label>
                                 <input type="date" name="date" id="dateInput" class="form-control" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Shift</label>
+                                <label class="form-label">
+                                    Shift <span class="text-danger">*</span>
+                                </label>
                                 <select name="shift" id="shiftInput" class="form-control" required>
                                     <option value="">-- Pilih Shift --</option>
                                     <option value="1">Shift 1</option>
                                     <option value="2">Shift 2</option>
                                     <option value="3">Shift 3</option>
-                                </select> 
+                                </select>
                             </div>
                         </div>
 
                         {{-- ====== Baris 2: Produk & Chamber ====== --}}
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Nama Produk</label>
-                                <select name="nama_produk" class="form-control selectpicker" data-live-search="true" required>
+                                <label class="form-label">
+                                    Nama Produk <span class="text-danger">*</span>
+                                </label>
+                                <select name="nama_produk" class="form-control selectpicker" data-live-search="true"
+                                    required>
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach($produks as $produk)
                                     <option value="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</option>
@@ -45,43 +52,61 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">No. Chamber</label>
-                                <select name="no_chamber" class="form-control selectpicker" data-live-search="true" required>
+                                <label class="form-label">
+                                    Nomor Chamber <span class="text-danger">*</span>
+                                </label>
+                                <select name="no_chamber" class="form-control selectpicker" data-live-search="true"
+                                    required>
                                     <option value="">-- Pilih Chamber --</option>
                                     @foreach($list_chambers as $list_chamber)
-                                    <option value="{{ $list_chamber->nama_mesin }}">{{ $list_chamber->nama_mesin }}</option>
+                                    <option value="{{ $list_chamber->nama_mesin }}">{{ $list_chamber->nama_mesin }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
                         {{-- ====== Baris 3: Kode Produksi & Berat Produk ====== --}}
-                        <div class="row mb-3">
+                        <div class="row mb-3 batch-row">
+
                             <div class="col-md-6">
-                                <label class="form-label">Kode Produksi</label>
-                                <input type="text" name="kode_produksi" id="kode_produksi" class="form-control" maxlength="50" required>
-                                <small class="text-muted">Bisa lebih dari satu kode, pisahkan dengan tanda <strong>/</strong></small><br>
-                                <small id="kodeError" class="text-danger d-none"></small>
+                                <label class="form-label">Kode Produksi <span class="text-danger">*</span></label>
+                                <select name="kode_produksi[]" id="kode_produksi" class="form-control kode_produksi"
+                                    required>
+                                    <option value="">Pilih Varian Terlebih Dahulu</option>
+                                </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Berat Produk (gram)</label>
-                                <input type="number" name="berat_produk" id="berat_produk" class="form-control" step="0.1" required>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Jumlah Tray</label>
+                                <input type="number" name="jumlah_tray[]" class="form-control jumlah_tray" required>
+                                <small class="text-danger">Standar: 28 tray</small>
                             </div>
+
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-success w-100 addRow">
+                                    <i class="bi bi-plus-circle"></i> Tambah
+                                </button>
+                            </div>
+
                         </div>
+
+                        <!-- TEMPAT BARIS TAMBAHAN -->
+                        <div id="batchContainer"></div>
+
 
                         {{-- ====== Baris 4: Suhu Produk & Jumlah Tray ====== --}}
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Suhu Produk (°C)</label><br>
+                                <input type="number" name="suhu_produk" id="suhu_produk" class="form-control" step="0.1"
+                                    required>
                                 <small class="text-danger">Standar: 19 ± 1 °C</small>
-                                <input type="number" name="suhu_produk" id="suhu_produk" class="form-control" step="0.1" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Jumlah Tray</label><br>
-                                <small class="text-danger">Standar: 28 tray</small>
-                                <input type="text" name="jumlah_tray" id="jumlah_tray" class="form-control" required>
-                                <small class="text-muted">Bisa lebih dari satu jumlah, pisahkan dengan tanda <strong>+</strong></small><br>
-                                <small id="trayTotal" class="text-success fw-bold"></small><br>
+                                <label class="form-label">Berat Produk (gram)</label>
+                                <input type="number" name="berat_produk" id="berat_produk" class="form-control"
+                                    step="0.1" required>
                             </div>
                         </div>
                     </div>
@@ -108,7 +133,8 @@
                                         <td>Kg/cm²</td>
                                         <td>5 – 8</td>
                                         <td>
-                                            <input type="text" name="cooking[tekanan_angin]" id="tekanan_angin" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="text" name="cooking[tekanan_angin]" id="tekanan_angin"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -116,7 +142,8 @@
                                         <td>Kg/cm²</td>
                                         <td>6 - 9</td>
                                         <td>
-                                            <input type="text" name="cooking[tekanan_steam]" id="tekanan_steam" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="text" name="cooking[tekanan_steam]" id="tekanan_steam"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -124,7 +151,8 @@
                                         <td>Kg/cm²</td>
                                         <td>2 - 2.5</td>
                                         <td>
-                                            <input type="text" name="cooking[tekanan_air]" id="tekanan_air" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="text" name="cooking[tekanan_air]" id="tekanan_air"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -154,7 +182,8 @@
                                         <td>°C</td>
                                         <td>100 - 110</td>
                                         <td>
-                                            <input type="number" name="cooking[suhu_air_awal]" id="suhu_air_awal" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[suhu_air_awal]" id="suhu_air_awal"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -162,7 +191,8 @@
                                         <td>Mpa</td>
                                         <td>0.26</td>
                                         <td>
-                                            <input type="number" name="cooking[tekanan_awal]" id="tekanan_awal" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[tekanan_awal]" id="tekanan_awal"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -170,7 +200,8 @@
                                         <td>WIB</td>
                                         <td rowspan="2" class="text-center align-middle">1.5 - 2.5 menit</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_mulai_awal]" id="waktu_mulai_awal" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_mulai_awal]" id="waktu_mulai_awal"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
@@ -178,7 +209,9 @@
                                         <td>WIB</td>
                                         <!-- <td>1.5 - 2.5 menit</td> -->
                                         <td>
-                                            <input type="time" name="cooking[waktu_selesai_awal]" id="waktu_selesai_awal" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_selesai_awal]"
+                                                id="waktu_selesai_awal"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -210,7 +243,8 @@
                                         <td>121.2</td>
                                         <td>119</td>
                                         <td>
-                                            <input type="number" name="cooking[suhu_air_proses]" id="suhu_air_proses" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[suhu_air_proses]" id="suhu_air_proses"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -218,7 +252,8 @@
                                         <td>Mpa</td>
                                         <td colspan="2">0.26</td>
                                         <td>
-                                            <input type="number" name="cooking[tekanan_proses]" id="tekanan_proses" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[tekanan_proses]" id="tekanan_proses"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -226,7 +261,9 @@
                                         <td>WIB</td>
                                         <td colspan="2">8 - 10 menit</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_mulai_proses]" id="waktu_mulai_proses" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_mulai_proses]"
+                                                id="waktu_mulai_proses"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
@@ -234,7 +271,9 @@
                                         <td>WIB</td>
                                         <td colspan="2">8 - 10 menit</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_selesai_proses]" id="waktu_selesai_proses" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_selesai_proses]"
+                                                id="waktu_selesai_proses"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -265,29 +304,41 @@
                                         <td>°C</td>
                                         <td>121.2</td>
                                         <td>119</td>
-                                        <td><input type="number" name="cooking[suhu_air_sterilisasi][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[suhu_air_sterilisasi][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[suhu_air_sterilisasi][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[suhu_air_sterilisasi][]" class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[suhu_air_sterilisasi][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[suhu_air_sterilisasi][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[suhu_air_sterilisasi][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[suhu_air_sterilisasi][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Thermometer Retort</td>
                                         <td>°C</td>
                                         <td>121.2</td>
                                         <td>119</td>
-                                        <td><input type="number" name="cooking[thermometer_retort][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[thermometer_retort][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[thermometer_retort][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[thermometer_retort][]" class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[thermometer_retort][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[thermometer_retort][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[thermometer_retort][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[thermometer_retort][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Tekanan</td>
                                         <td>Mpa</td>
                                         <td colspan="2">0.26</td>
-                                        <td><input type="number" name="cooking[tekanan_sterilisasi][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[tekanan_sterilisasi][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[tekanan_sterilisasi][]" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="cooking[tekanan_sterilisasi][]" class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[tekanan_sterilisasi][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[tekanan_sterilisasi][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[tekanan_sterilisasi][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="cooking[tekanan_sterilisasi][]"
+                                                class="form-control form-control-sm text-center" step="0.01"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Waktu Mulai</td>
@@ -295,22 +346,28 @@
                                         <td rowspan="3" class="align-middle text-center">12 menit</td>
                                         <td rowspan="3" class="align-middle text-center">16 menit</td>
                                         <td colspan="4">
-                                            <input type="time" name="cooking[waktu_mulai_sterilisasi]" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_mulai_sterilisasi]"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Waktu Pengecekan</td>
                                         <td>WIB</td>
-                                        <td><input type="time" name="cooking[waktu_pengecekan_sterilisasi][]" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="time" name="cooking[waktu_pengecekan_sterilisasi][]" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="time" name="cooking[waktu_pengecekan_sterilisasi][]" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="time" name="cooking[waktu_pengecekan_sterilisasi][]" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="cooking[waktu_pengecekan_sterilisasi][]"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="cooking[waktu_pengecekan_sterilisasi][]"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="cooking[waktu_pengecekan_sterilisasi][]"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="cooking[waktu_pengecekan_sterilisasi][]"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Waktu Selesai</td>
                                         <td>WIB</td>
                                         <td colspan="4">
-                                            <input type="time" name="cooking[waktu_selesai_sterilisasi]" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_selesai_sterilisasi]"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -340,7 +397,9 @@
                                         <td>°C</td>
                                         <td>30 - 35</td>
                                         <td>
-                                            <input type="number" name="cooking[suhu_air_pendinginan_awal]" id="suhu_air_pendinginan_awal" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[suhu_air_pendinginan_awal]"
+                                                id="suhu_air_pendinginan_awal"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -348,7 +407,9 @@
                                         <td>Mpa</td>
                                         <td>0.26</td>
                                         <td>
-                                            <input type="number" name="cooking[tekanan_pendinginan_awal]" id="tekanan_pendinginan_awal" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[tekanan_pendinginan_awal]"
+                                                id="tekanan_pendinginan_awal"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -356,14 +417,18 @@
                                         <td>WIB</td>
                                         <td rowspan="2" class="text-center align-middle">3 - 6 menit</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_mulai_pendinginan_awal]" id="waktu_mulai_pendinginan_awal" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_mulai_pendinginan_awal]"
+                                                id="waktu_mulai_pendinginan_awal"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Waktu Selesai</td>
                                         <td>WIB</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_selesai_pendinginan_awal]" id="waktu_selesai_pendinginan_awal" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_selesai_pendinginan_awal]"
+                                                id="waktu_selesai_pendinginan_awal"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -393,7 +458,9 @@
                                         <td>°C</td>
                                         <td>50 ± 3</td>
                                         <td>
-                                            <input type="number" name="cooking[suhu_air_pendinginan]" id="suhu_air_pendinginan" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[suhu_air_pendinginan]"
+                                                id="suhu_air_pendinginan"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -401,7 +468,9 @@
                                         <td>Mpa</td>
                                         <td>0.26</td>
                                         <td>
-                                            <input type="number" name="cooking[tekanan_pendinginan]" id="tekanan_pendinginan" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[tekanan_pendinginan]"
+                                                id="tekanan_pendinginan"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -409,14 +478,18 @@
                                         <td>WIB</td>
                                         <td rowspan="2" class="text-center align-middle">5 menit</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_mulai_pendinginan]" id="waktu_mulai_pendinginan" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_mulai_pendinginan]"
+                                                id="waktu_mulai_pendinginan"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Waktu Selesai</td>
                                         <td>WIB</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_selesai_pendinginan]" id="waktu_selesai_pendinginan" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_selesai_pendinginan]"
+                                                id="waktu_selesai_pendinginan"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -446,7 +519,8 @@
                                         <td>°C</td>
                                         <td>36 - 42</td>
                                         <td>
-                                            <input type="number" name="cooking[suhu_air_akhir]" id="suhu_air_akhir" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[suhu_air_akhir]" id="suhu_air_akhir"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -454,7 +528,8 @@
                                         <td>Mpa</td>
                                         <td>0</td>
                                         <td>
-                                            <input type="number" name="cooking[tekanan_akhir]" id="tekanan_akhir" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[tekanan_akhir]" id="tekanan_akhir"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -462,14 +537,17 @@
                                         <td>WIB</td>
                                         <td rowspan="2" class="text-center align-middle">2 - 3 menit</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_mulai_akhir]" id="waktu_mulai_akhir" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_mulai_akhir]" id="waktu_mulai_akhir"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Waktu Selesai</td>
                                         <td>WIB</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_selesai_akhir]" id="waktu_selesai_akhir" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_selesai_akhir]"
+                                                id="waktu_selesai_akhir"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -501,14 +579,17 @@
                                         <td rowspan="2" class="text-center align-middle">32.5 - 38.5 menit</td>
                                         <td rowspan="2" class="text-center align-middle">36.5 - 42.5 menit</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_mulai_total]" id="waktu_mulai_total" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_mulai_total]" id="waktu_mulai_total"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Waktu Selesai</td>
                                         <td>WIB</td>
                                         <td>
-                                            <input type="time" name="cooking[waktu_selesai_total]" id="waktu_selesai_total" class="form-control form-control-sm text-center">
+                                            <input type="time" name="cooking[waktu_selesai_total]"
+                                                id="waktu_selesai_total"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -543,7 +624,9 @@
                                         <td>°C</td>
                                         <td colspan="2">48 ± 2</td>
                                         <td>
-                                            <input type="number" name="cooking[suhu_produk_akhir]" id="suhu_produk_akhir" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[suhu_produk_akhir]"
+                                                id="suhu_produk_akhir" class="form-control form-control-sm text-center"
+                                                step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -552,7 +635,8 @@
                                         <td>14 - 15</td>
                                         <td>9 - 10.5</td>
                                         <td>
-                                            <input type="number" name="cooking[panjang]" id="panjang" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[panjang]" id="panjang"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
@@ -561,47 +645,53 @@
                                         <td>14.0 - 14.5</td>
                                         <td>13.5 - 14.5</td>
                                         <td>
-                                            <input type="number" name="cooking[diameter]" id="diameter" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="cooking[diameter]" id="diameter"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Rasa Asin/Manis/Gurih</td>
                                         <td></td>
-                                        <td colspan="2">1 - 3</td> 
+                                        <td colspan="2">1 - 3</td>
                                         <td>
-                                            <input type="number" name="cooking[rasa]" id="rasa" class="form-control form-control-sm text-center">
+                                            <input type="number" name="cooking[rasa]" id="rasa"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Warna</td>
                                         <td></td>
-                                        <td colspan="2">1 - 3</td> 
+                                        <td colspan="2">1 - 3</td>
                                         <td>
-                                            <input type="number" name="cooking[warna]" id="warna" class="form-control form-control-sm text-center">
+                                            <input type="number" name="cooking[warna]" id="warna"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Aroma</td>
                                         <td></td>
-                                        <td colspan="2">1 - 3</td> 
+                                        <td colspan="2">1 - 3</td>
                                         <td>
-                                            <input type="number" name="cooking[aroma]" id="aroma" class="form-control form-control-sm text-center">
+                                            <input type="number" name="cooking[aroma]" id="aroma"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Texture</td>
                                         <td></td>
-                                        <td colspan="2">1 - 3</td> 
+                                        <td colspan="2">1 - 3</td>
                                         <td>
-                                            <input type="number" name="cooking[texture]" id="texture" class="form-control form-control-sm text-center">
+                                            <input type="number" name="cooking[texture]" id="texture"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Sobek Seal</td>
                                         <td></td>
-                                        <td colspan="2"></td> 
+                                        <td colspan="2"></td>
                                         <td>
-                                            <input type="number" name="cooking[sobek_seal]" id="sobek_seal" class="form-control form-control-sm text-center">
+                                            <input type="number" name="cooking[sobek_seal]" id="sobek_seal"
+                                                class="form-control form-control-sm text-center">
                                         </td>
                                     </tr>
 
@@ -630,7 +720,8 @@
                                         <td class="text-start">Total Reject</td>
                                         <td>Kg</td>
                                         <td>
-                                            <input type="number" name="total_reject" id="total_reject" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="total_reject" id="total_reject"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
 
@@ -643,37 +734,35 @@
                 <div class="card mb-4">
                     <div class="card-header bg-light"><strong>Catatan</strong></div>
                     <div class="card-body">
-                        <textarea name="catatan" class="form-control" rows="3" placeholder="Tambahkan catatan bila ada">{{ old('catatan', $data->catatan ?? '') }}</textarea>
+                        <textarea name="catatan" class="form-control" rows="3"
+                            placeholder="Tambahkan catatan bila ada">{{ old('catatan', $data->catatan ?? '') }}</textarea>
                     </div>
                 </div>
 
                 {{-- ===================== TOMBOL ===================== --}}
                 <div class="d-flex justify-content-between mt-3">
-                   <button type="submit" class="btn btn-success">
-                    <i class="bi bi-save"></i> Simpan
-                </button>
-                <a href="{{ route('pemasakan.index') }}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Kembali
-                </a>
-            </div>
-        </form>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Simpan
+                    </button>
+                    <a href="{{ route('pemasakan.index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Kembali
+                    </a>
+                </div>
+            </form>
 
-        <hr>
-        <div id="resultArea"></div>
+            <hr>
+            <div id="resultArea"></div>
+        </div>
     </div>
-</div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 <script>
-    $(document).ready(function(){
-        $('.selectpicker').selectpicker();
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
+    $(document).ready(function(){    
+
         const dateInput = document.getElementById("dateInput");
         const shiftInput = document.getElementById("shiftInput");
 
@@ -693,52 +782,90 @@
         } else {
             shiftInput.value = "3"; 
         }
+
+    const produkSelect = document.querySelector('select[name="nama_produk"]');
+    const allBatchSelect = document.querySelectorAll('.kode_produksi');
+
+    // Disable batch saat awal load (jika tidak ada old value)
+    if (!produkSelect.value) {
+        allBatchSelect.disabled = true;
+    }
+
+    produkSelect.addEventListener('change', function () {
+
+        let namaProduk = this.value;
+
+        document.querySelectorAll('.kode_produksi').forEach(select => {
+            select.disabled = true;
+            select.innerHTML = '<option value="">Pilih Varian Terlebih Dahulu</option>';
+        });
+
+        if (!namaProduk) return;
+
+        fetch(`/lookup/batch/${namaProduk}`)
+            .then(res => res.json())
+            .then(data => {
+
+                document.querySelectorAll('.kode_produksi').forEach(select => {
+                    select.innerHTML = '';
+
+                    if (data.length === 0) {
+                        select.innerHTML = '<option value="">Batch Tidak Ditemukan</option>';
+                        select.disabled = true;
+                        return;
+                    }
+
+                    select.disabled = false;
+                    select.innerHTML = '<option value="">-- Pilih Batch --</option>';
+
+                    data.forEach(batch => {
+                        select.innerHTML += `
+                            <option value="${batch.uuid}">${batch.kode_produksi}</option>
+                        `;
+                    });
+                });
+
+            });
     });
-</script>
-<script>
-// ==== VALIDASI KODE PRODUKSI (bisa lebih dari 1, pisahkan dengan /) ====
-    const kodeInput = document.getElementById('kode_produksi');
-    const kodeError = document.getElementById('kodeError');
 
-    kodeInput.addEventListener('input', function() {
-        let value = this.value.toUpperCase().replace(/\s+/g, '');
-        this.value = value;
-        kodeError.textContent = '';
-        kodeError.classList.add('d-none');
 
-        if (!value) return;
+        // TAMBAH ROW
+$(document).on('click', '.addRow', function () {
+    let row = `
+    <div class="row mb-3 batch-row">
 
-        const kodeList = value.split('/');
-        const bulanMap = { 'A':0,'B':1,'C':2,'D':3,'E':4,'F':5,'G':6,'H':7,'I':8,'J':9,'K':10,'L':11 };
+        <div class="col-md-6">
+            <label class="form-label">Kode Produksi <span class="text-danger">*</span></label>
+            <select name="kode_produksi[]" class="form-control kode_produksi" disabled required>
+                <option value="">Pilih Varian Terlebih Dahulu</option>
+            </select>
+        </div>
 
-        for (let kode of kodeList) {
-            if (kode.length !== 10) {
-                kodeError.textContent = "Setiap kode produksi harus terdiri dari 10 karakter.";
-                kodeError.classList.remove('d-none');
-                return false;
-            }
+        <div class="col-md-4">
+            <label class="form-label">Jumlah Tray</label>
+            <input type="number" name="jumlah_tray[]" class="form-control jumlah_tray" required>
+            <small class="text-danger">Standar: 28 tray</small>
+        </div>
 
-            const format = /^[A-Z0-9]+$/;
-            if (!format.test(kode)) {
-                kodeError.textContent = "Kode produksi hanya boleh huruf besar dan angka.";
-                kodeError.classList.remove('d-none');
-                return false;
-            }
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="button" class="btn btn-danger w-100 removeRow">
+                <i class="bi bi-trash"></i> Hapus
+            </button>
+        </div>
 
-            const bulanChar = kode.charAt(1);
-            if (!/^[A-L]$/.test(bulanChar)) {
-                kodeError.textContent = "Karakter ke-2 harus huruf bulan (A–L).";
-                kodeError.classList.remove('d-none');
-                return false;
-            }
+    </div>
+    `;
 
-            const hari = parseInt(kode.substr(2, 2), 10);
-            if (isNaN(hari) || hari < 1 || hari > 31) {
-                kodeError.textContent = "Karakter ke-3 dan ke-4 harus tanggal valid (01–31).";
-                kodeError.classList.remove('d-none');
-                return false;
-            }
-        }
+    $('#batchContainer').append(row);
+
+    // setelah append, panggil ulang fungsi untuk refresh opsi
+    produkSelect.dispatchEvent(new Event('change'));
+});
+
+
+    // HAPUS ROW
+    $(document).on('click', '.removeRow', function () {
+        $(this).closest('.batch-row').remove();
     });
 
 // ==== JUMLAH TRAY (bisa pisahkan dengan '+') ====
@@ -757,6 +884,7 @@
             trayTotal.textContent = '';
         }
     });
+});
 </script>
 
 @endsection

@@ -25,4 +25,10 @@ class Wire extends Model
     protected $casts = [
         'data_wire'  => 'array',
     ];
+
+    //relasi kode batch 
+    public function mincing()
+    {
+        return $this->belongsTo(Mincing::class);
+    }
 }

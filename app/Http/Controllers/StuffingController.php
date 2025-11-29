@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Stuffing;
+use App\Models\Mincing;
 use App\Models\Produk;
 use App\Models\Mesin;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class StuffingController extends Controller
         $date       = $request->input('date');
         $userPlant  = Auth::user()->plant;
         
-        $data = Stuffing::query()
+        $data = Stuffing::with('mincing')  
         ->where('plant', $userPlant) 
         ->when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {
@@ -41,18 +42,20 @@ class StuffingController extends Controller
     public function create()
     {
         $userPlant = Auth::user()->plant;
-
+        $batches = Mincing::latest()->take(2)->get();
         $produks = Produk::where('plant', $userPlant)->get();
         $mesins = Mesin::where('plant', $userPlant)
         ->where('jenis_mesin', 'Stuffing')
         ->orderBy('nama_mesin')
         ->get(['uuid', 'nama_mesin']);
 
-        return view('form.stuffing.create', compact('produks', 'mesins'));
+        return view('form.stuffing.create', compact('produks', 'mesins', 'batches'));
     }
 
     public function store(Request $request)
     {
+        // dd($request->all());
+
         $username   = Auth::user()->username ?? 'User RTM';
         $userPlant  = Auth::user()->plant;
 
@@ -66,7 +69,8 @@ class StuffingController extends Controller
             'date'        => 'required|date',
             'shift'       => 'required',
             'nama_produk' => 'required',
-            'kode_produksi'  => 'required',
+            'kode_produksi' => 'required|exists:mincings,uuid',
+            // 'kode_produksi'  => 'required',
             'exp_date'       => 'required|date',
             'kode_mesin'  => 'required|string',
             'jam_mulai'   => 'required',

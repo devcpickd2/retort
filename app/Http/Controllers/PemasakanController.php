@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pemasakan;
+use App\Models\Mincing;
 use App\Models\Produk;
 use App\Models\Mesin;
 use Illuminate\Http\Request;
@@ -40,12 +41,13 @@ class PemasakanController extends Controller
    {
     $userPlant = Auth::user()->plant;
     $produks = Produk::where('plant', $userPlant)->get();
+    $batches = Mincing::latest()->take(3)->get();
     $list_chambers = Mesin::where('plant', $userPlant)
     ->where('jenis_mesin', 'Chamber')
     ->orderBy('nama_mesin')
     ->get(['uuid', 'nama_mesin']);
 
-    return view('form.pemasakan.create', compact('produks', 'list_chambers'));
+    return view('form.pemasakan.create', compact('produks', 'list_chambers', 'batches'));
 }
 
 public function store(Request $request)

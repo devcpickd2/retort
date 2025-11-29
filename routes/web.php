@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -56,7 +55,8 @@ use App\Http\Controllers\{
     Pemasakan_rteController,
     Release_packingController,
     SuhuController,
-    SanitasiController
+    SanitasiController,
+    LookupController
 };
 
 Route::get('/', function () {
@@ -161,6 +161,10 @@ Route::resource('area_suhu', Area_suhuController::class)->parameters([
 Route::resource('area_sanitasi', Area_sanitasiController::class)->parameters([
     'area_sanitasi' => 'uuid'
 ]);
+
+
+// UMUM
+Route::get('/lookup/batch/{nama_produk}', [LookupController::class, 'getBatchByProduk']);
 
 // GMP
 Route::get('gmp/verification', [GmpController::class, 'verification'])->name('gmp.verification');
