@@ -32,6 +32,6 @@ class RolePermissionSeeder extends Seeder
 
         // Assign permission ke role
         $admin->givePermissionTo($permissions); // semua
-        $staff->givePermissionTo(['can access master data','can access control','can access form qc']); // hanya ini
+        $staff->givePermissionTo(['can access master data','can access form qc']); // hanya ini
     }
 }
