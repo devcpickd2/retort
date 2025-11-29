@@ -21,9 +21,11 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Verifikasi Timer Chamber</h3>
+                @can('can access add button')
                 <a href="{{ route('chamber.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
+                @endcan
             </div>
 
             {{-- Filter dan Live Search --}}

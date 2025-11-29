@@ -5,13 +5,12 @@
 @push('styles')
 {{-- Menambahkan link untuk Bootstrap Icons --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-{{-- 1. Include Select2 CSS --}}
+{{-- Select2 CSS --}}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{{-- Optional: Theme for Select2 to match Bootstrap 5 --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
 <style>
-    /* Mengubah font utama untuk tampilan yang lebih modern */
+    /* Mengubah font utama */
     body {
         background-color: #f8f9fa;
         font-family: 'Inter', sans-serif;
@@ -28,12 +27,16 @@
         border-radius: 8px;
     }
     
-    /* Ensure Select2 takes full width and height */
-    .select2-container .select2-selection--single {
-        height: calc(2.25rem + 2px); /* Match Bootstrap's input height */
-    }
+    /* PERBAIKAN CSS SELECT2 AGAR TINGGI SAMA DENGAN INPUT BOOTSTRAP */
     .select2-container--bootstrap-5 .select2-selection {
+        min-height: calc(2.25rem + 2px) !important;
         border-radius: 8px !important;
+        align-items: center; /* Menengahkan teks secara vertikal */
+    }
+    
+    /* Memastikan dropdown arrow berada di tengah */
+    .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+        margin-top: -2px; 
     }
 
     /* Kustomisasi Radio Button */
@@ -58,7 +61,7 @@
 
 {{-- Mendefinisikan bagian konten --}}
 @section('content')
-<div class="container py-4">
+<div class="container-fluid py-0">
     <div class="card shadow-sm">
         <div class="card-body">
             <h4 class="mb-1"><i class="bi bi-clipboard2-check"></i> Form Input Temuan</h4>
@@ -74,7 +77,10 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="nama_produk" class="form-label">{{ __('Nama Produk') }}</label>
-                            {{-- 2. Add class="select2" to the select element --}}
+                            
+                            {{-- PERBAIKAN: class "form-select" bisa konflik dengan Select2 di beberapa kasus, 
+                                 tapi dengan theme bootstrap-5 biasanya aman. 
+                                 Kuncinya ada di script javascript di bawah. --}}
                             <select class="form-select select2 @error('nama_produk') is-invalid @enderror" id="nama_produk" name="nama_produk" required>
                                 <option></option> {{-- Placeholder for Select2 --}}
                                 @foreach($produks as $produk)
@@ -88,7 +94,20 @@
 
                         <div class="mb-3">
                             <label for="kode_batch" class="form-label">{{ __('Kode Batch') }}</label>
-                            <input id="kode_batch" type="text" class="form-control @error('kode_batch') is-invalid @enderror" name="kode_batch" value="{{ old('kode_batch') }}" required autocomplete="kode_batch" placeholder="Sesuai data mincing">
+                            <input 
+                                id="kode_batch" 
+                                type="text" 
+                                class="form-control @error('kode_batch') is-invalid @enderror" 
+                                name="kode_batch" 
+                                value="{{ old('kode_batch') }}" 
+                                required 
+                                autocomplete="off" 
+                                placeholder="Sesuai data mincing"
+                                maxlength="10" 
+                                list="batch_suggestions"
+                            >
+                            <datalist id="batch_suggestions"></datalist>
+
                             @error('kode_batch')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -113,7 +132,7 @@
                     </div>
                 </div>
 
-                {{-- Other cards remain the same... --}}
+                {{-- Status Pemeriksaan --}}
                 <div class="card mb-4">
                     <div class="card-header bg-warning">
                         <strong class="text-dark">Status Pemeriksaan</strong>
@@ -183,18 +202,74 @@
 @endsection
 
 @push('scripts')
-{{-- 1. Include jQuery (Select2 depends on it) --}}
+{{-- Include jQuery (Select2 depends on it) --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-{{-- 1. Include Select2 JS --}}
+{{-- Include Select2 JS --}}
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    // 3. Initialize Select2
     $(document).ready(function() {
+        
+        // --- BAGIAN 1: KODE SELECT2 ANDA (TETAP AMAN) ---
         $('.select2').select2({
-            theme: "bootstrap-5", // Use the Bootstrap 5 theme
+            theme: "bootstrap-5", 
+            width: '100%', 
             placeholder: "Ketik untuk mencari produk...",
+            allowClear: true
         });
+
+        // --- BAGIAN 2: LOGIC BARU UNTUK KODE BATCH ---
+        $('#kode_batch').on('input', function() {
+            let input = $(this);
+            let value = input.val();
+
+            // 1. Auto Uppercase
+            value = value.toUpperCase();
+
+            // 2. Hapus Karakter Terlarang (Space, $, %, #, *)
+            value = value.replace(/[\s$#%*]/g, '');
+
+            // 3. Batasi Maksimal 10 Karakter (Logic tambahan selain maxlength HTML)
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+
+            // Update nilai di input field real-time
+            input.val(value);
+
+            // 4. Auto Suggestion (AJAX ke Controller)
+            // Hanya trigger jika sudah mengetik minimal 2 huruf agar hemat resource
+            if (value.length >= 2) {
+                $.ajax({
+                    // Pastikan route ini sudah dibuat di web.php
+                    url: "{{ route('ajax.search.batch') }}", 
+                    type: "GET",
+                    data: { q: value },
+                    success: function(data) {
+                        let dataList = $('#batch_suggestions');
+                        dataList.empty(); // Reset list sebelumnya
+                        
+                        $.each(data, function(key, item) {
+                            // Masukkan data mincing ke option
+                            dataList.append('<option value="' + item + '">');
+                        });
+                    }
+                });
+            }
+        });
+
+        // 5. Validasi Minimal 10 Karakter saat user selesai mengetik (Blur)
+        $('#kode_batch').on('blur', function() {
+            let value = $(this).val();
+            // Jika ada isi tapi kurang dari 10 karakter
+            if(value.length > 0 && value.length < 10) {
+                alert('Format Salah: Kode Batch harus tepat 10 karakter!');
+                $(this).addClass('is-invalid'); // Tambah border merah
+            } else {
+                $(this).removeClass('is-invalid'); // Hapus border merah jika benar
+            }
+        });
+
     });
 </script>
 @endpush

@@ -46,7 +46,7 @@
 
 
 @section('content')
-<div class="container my-5">
+<div class="container-fluid py-0">
     <div class="card card-custom">
         <div class="card-body p-4">
 

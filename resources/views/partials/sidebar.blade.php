@@ -21,7 +21,6 @@ $type_user = auth()->user()->type_user;
     <hr class="sidebar-divider">
 
     @can('can access master data')
-        @if($type_user == 0)
         <div class="sidebar-heading">Master Data</div>
         @php
         $masterActive = request()->routeIs('departemen.*') || request()->routeIs('plant.*') ||
@@ -73,7 +72,6 @@ $type_user = auth()->user()->type_user;
                 </div>
             </div>
         </li>
-        @endif
     @endcan
 
     @can('can access control')

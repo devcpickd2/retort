@@ -66,7 +66,7 @@
 
 {{-- Mendefinisikan bagian konten --}}
 @section('content')
-<div class="container py-4">
+<div class="container-fluid py-0">
     <div class="card shadow-sm border-0">
         <div class="card-body p-4 p-md-5">
 
@@ -252,7 +252,7 @@
                             </div>
                              <div class="col-md-4">
                                 <label for="suhu_mobil" class="form-label">Suhu Mobil (°C)</label>
-                                <input type="text" class="form-control @error('suhu_mobil') is-invalid @enderror" id="suhu_mobil" name="suhu_mobil" value="{{ old('suhu_mobil') }}" required>
+                                <input type="number" class="form-control @error('suhu_mobil') is-invalid @enderror" id="suhu_mobil" name="suhu_mobil" value="{{ old('suhu_mobil') }}" required max="50">
                                 @error('suhu_mobil') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
                             </div>
                             <div class="col-md-4">
@@ -281,7 +281,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="suhu_daging" class="form-label">Suhu Daging/Bahan (°C)</label>
-                                <input type="number" step="0.01" class="form-control @error('suhu_daging') is-invalid @enderror" id="suhu_daging" name="suhu_daging" value="{{ old('suhu_daging') }}" required>
+                                <input type="number" step="0.01" class="form-control @error('suhu_daging') is-invalid @enderror" id="suhu_daging" name="suhu_daging" value="{{ old('suhu_daging') }}" required max="50">
                                 @error('suhu_daging') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
                             </div>
                             <div class="col-12">
@@ -326,6 +326,28 @@
 
 {{-- 4. Script Asli dari File Input Anda (Sangat Penting) --}}
 <script>
+    document.querySelectorAll('input[type="number"][max]').forEach(function(input) {
+            input.addEventListener('input', function() {
+                // 1. Ambil nilai max (misal: 50)
+                const max = parseFloat(this.getAttribute('max'));
+                
+                // 2. Cek jika nilai yang diketik lebih besar dari max
+                if (parseFloat(this.value) > max) {
+                    // 3. Jika ya, paksa nilainya kembali ke max
+                    this.value = max;
+                }
+            });
+        });
+
+        // Script ini melakukan hal yang sama untuk 'min'
+        document.querySelectorAll('input[type="number"][min]').forEach(function(input) {
+            input.addEventListener('input', function() {
+                const min = parseFloat(this.getAttribute('min'));
+                if (this.value !== '' && parseFloat(this.value) < min) {
+                    this.value = min;
+                }
+            });
+        });
     document.addEventListener('DOMContentLoaded', function() {
         
         // --- Script for Dynamic Product Details ---

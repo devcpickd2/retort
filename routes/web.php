@@ -186,6 +186,10 @@ Route::resource('pvdc', PvdcController::class)->parameters([
     'pvdc' => 'uuid'
 ]);
 
+Route::post('/checklist-magnet-trap/export-pdf', [MagnetTrapController::class, 'exportPdf'])->name('checklistmagnettrap.exportPdf');
+Route::get('/ajax/search-batch-mincing', [MagnetTrapController::class, 'searchBatchMincing'])->name('ajax.search.batch');
+Route::get('checklistmagnettrap/update-form/{checklistmagnettrap}', [MagnetTrapController::class, 'showUpdateForm'])
+    ->name('checklistmagnettrap.showUpdateForm');
 Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'showVerificationPage'])->name('checklistmagnettrap.verification');
 Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
 Route::resource('checklistmagnettrap', MagnetTrapController::class);

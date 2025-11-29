@@ -21,9 +21,11 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Pemeriksaan Proses Packing</h3>
+                @can('can access add button')
                 <a href="{{ route('packing.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
+                @endcan
             </div>
             {{-- Filter dan Live Search --}}
             <form id="filterForm" method="GET" action="{{ route('packing.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">

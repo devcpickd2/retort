@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\supplier_rm; 
 use Illuminate\Support\Facades\Auth;
 
-class supplier_rmController extends Controller
+class Supplier_rmController extends Controller
 {
     public function __construct()
     {
