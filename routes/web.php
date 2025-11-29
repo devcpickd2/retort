@@ -56,7 +56,9 @@ use App\Http\Controllers\{
     Pemasakan_rteController,
     Release_packingController,
     SuhuController,
-    SanitasiController
+    SanitasiController,
+    PermissionController,
+    RoleController // Add RoleController
 };
 
 Route::get('/', function () {
@@ -69,6 +71,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::resource('user', UserController::class);
+    Route::prefix('access')->group(function () {
+        Route::resource('permissions', PermissionController::class);
+        Route::resource('roles', RoleController::class);
+        Route::get('roles/{role}/manage-access', [RoleController::class, 'manageAccess'])->name('roles.manageAccess');
+        Route::post('roles/{role}/manage-access', [RoleController::class, 'saveAccess'])->name('roles.saveAccess');
+    });
 });
 
 use Spatie\LaravelPdf\Facades\Pdf;

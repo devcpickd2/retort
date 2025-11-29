@@ -24,9 +24,11 @@
             
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Data Cleaning Magnet Trap</h3>
+                @can('can access add button')
                 <a href="{{ route('checklistmagnettrap.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
+                @endcan
             </div>
 
             {{-- Filter dan Live Search --}}
@@ -120,19 +122,21 @@
                             </td>
                             <td class="text-center align-middle">
                                 <div class="d-flex justify-content-center align-items-center">
-                                    
+                                    @can('can access verification button')
                                     <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm mx-1" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $item->uuid }}">
                                         <i class="bi bi-shield-check me-1"></i> Verifikasi
                                     </button>
-
+                                    @endcan
+                                    @can('can access edit button')
                                     <a href="{{ route('checklistmagnettrap.edit', $item->id) }}" class="btn btn-warning btn-sm mx-1">
                                         <i class="bi bi-pencil-square"></i> Edit Data
                                     </a>
-
+                                    @endcan
+                                    @can('can access update button')
                                     <a href="{{ route('checklistmagnettrap.showUpdateForm', $item) }}" class="btn btn-info btn-sm mx-1">
                                         <i class="bi bi-pencil"></i> Update
                                     </a>
-
+                                    @endcan
                                     <form action="{{ route('checklistmagnettrap.exportPdf') }}" method="POST" target="_blank" class="d-inline">
                                         @csrf
                                         <input type="hidden" name="ids[]" value="{{ $item->uuid }}">
@@ -141,7 +145,7 @@
                                             <i class="bi bi-file-earmark-pdf"></i> 
                                         </button>
                                     </form>
-
+                                    @can('can access delete button')
                                     <form action="{{ route('checklistmagnettrap.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                         @csrf
                                         @method('DELETE')
@@ -149,7 +153,7 @@
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
-                                    
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
