@@ -12,10 +12,14 @@ class RolePermissionSeeder extends Seeder
     {
         // Permission
         $permissions = [
-            'manage users',
-            'view reports',
-            'edit articles',
-            'delete articles',
+            'can access add button',
+            'can access edit button',
+            'can access update button',
+            'can access delete button',
+            'can access verification button',
+            'can access master data',
+            'can access control',
+            'can access form qc'
         ];
 
         foreach ($permissions as $perm) {
@@ -23,11 +27,11 @@ class RolePermissionSeeder extends Seeder
         }
 
         // Role
-        $admin = Role::firstOrCreate(['name' => 'admin']);
-        $staff = Role::firstOrCreate(['name' => 'staff']);
+        $admin = Role::firstOrCreate(['name' => 'superadmin']);
+        $staff = Role::firstOrCreate(['name' => 'admin']);
 
         // Assign permission ke role
         $admin->givePermissionTo($permissions); // semua
-        $staff->givePermissionTo(['view reports']); // hanya ini
+        $staff->givePermissionTo(['can access master data','can access control','can access form qc']); // hanya ini
     }
 }
