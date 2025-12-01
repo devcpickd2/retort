@@ -57,10 +57,15 @@ use App\Http\Controllers\{
     Release_packingController,
     SuhuController,
     SanitasiController,
+<<<<<<< HEAD
     // trace
     WithdrawlController,
     TraceabilityController,
     RecallController
+=======
+    PermissionController,
+    RoleController // Add RoleController
+>>>>>>> 545d16d29a68d4c7c28634d30da33929df90bf89
 };
 
 Route::get('/', function () {
@@ -73,6 +78,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::resource('user', UserController::class);
+    Route::prefix('access')->group(function () {
+        Route::resource('permissions', PermissionController::class);
+        Route::resource('roles', RoleController::class);
+        Route::get('roles/{role}/manage-access', [RoleController::class, 'manageAccess'])->name('roles.manageAccess');
+        Route::post('roles/{role}/manage-access', [RoleController::class, 'saveAccess'])->name('roles.saveAccess');
+    });
 });
 
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -173,9 +184,18 @@ Route::resource('list_form', List_formController::class)->parameters([
     'list_form' => 'uuid'
 ]);
 
+Route::post('/checklist-magnet-trap/export-pdf', [MagnetTrapController::class, 'exportPdf'])->name('checklistmagnettrap.exportPdf');
+Route::get('/ajax/search-batch-mincing', [MagnetTrapController::class, 'searchBatchMincing'])->name('ajax.search.batch');
+Route::get('checklistmagnettrap/update-form/{checklistmagnettrap}', [MagnetTrapController::class, 'showUpdateForm'])
+    ->name('checklistmagnettrap.showUpdateForm');
 Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'showVerificationPage'])->name('checklistmagnettrap.verification');
 Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
 Route::resource('checklistmagnettrap', MagnetTrapController::class);
+
+Route::get('/inspections/export-pdf', [RawMaterialInspectionController::class, 'exportPdf'])
+    ->name('inspections.export_pdf');
+Route::get('/inspections/{inspection}/form-update', [RawMaterialInspectionController::class, 'showUpdateForm'])
+    ->name('inspections.form_update');
 Route::get('/inspections/verification', [RawMaterialInspectionController::class, 'showVerificationPage'])
 ->name('inspections.verification');
 

@@ -29,7 +29,7 @@ class WireController extends Controller
             });
         })
         ->when($date, function ($query) use ($date) {
-            $query->whereDate('date', $date);
+            $query->whereDate('date', $date); 
         })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')

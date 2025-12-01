@@ -34,12 +34,27 @@ class MagnetTrapModel extends Model
         'produksi_id',
         'engineer_id',
         'created_by',
+        'plant_uuid',     
+        'updated_by',     
         'status_spv',
         'catatan_spv',
         'verified_by_spv_uuid',
         'verified_at_spv',
     ];
 
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'uuid');
+    }
+
+    /**
+     * Relasi ke User untuk mengetahui pembuat data
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by', 'uuid');
+    }
+    
     // Opsional: Definisikan relasi ke model User (jika operator dan engineer ada di tabel users)
     // public function operator()
     // {
@@ -50,4 +65,6 @@ class MagnetTrapModel extends Model
     // {
     //     return $this->belongsTo(User::class, 'engineer_id');
     // }
+
+
 }

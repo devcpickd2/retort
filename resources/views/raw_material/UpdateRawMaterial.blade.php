@@ -1,0 +1,522 @@
+{{-- resources/views/raw_material/EditRawMaterial.blade.php --}}
+
+@extends('layouts.app') 
+
+@push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+<style>
+    body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
+    .form-label { font-weight: 600; color: #495057; }
+    .form-control, .form-select { border-radius: 8px; }
+    
+    /* Input Readonly Custom Style */
+    .form-control[readonly], .form-select[disabled] {
+        background-color: #e9ecef; /* Abu-abu seperti disabled bootstrap */
+        cursor: not-allowed;
+    }
+
+    .select2-container .select2-selection--single {
+        height: calc(2.25rem + 2px);
+        padding: .375rem .75rem;
+        border: 1px solid #ced4da;
+    }
+    .select2-container--bootstrap-5 .select2-selection { border-radius: 8px !important; }
+    
+    .btn-check-group .btn {
+        display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+    }
+    .btn-check-group .btn-outline-success, .btn-check-group .btn-outline-danger { font-weight: 600; }
+    .product-detail-item { background-color: #fdfdfd; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+</style>
+@endpush
+
+@section('content')
+<div class="container-fluid py-0">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-md-5">
+
+            <h4 class="mb-1"><i class="bi bi-pencil-square"></i> Edit Pemeriksaan Bahan Baku</h4>
+            <p class="text-muted mb-4">Field yang sudah terisi sebelumnya tidak dapat diedit.</p>
+
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <strong>Whoops! Ada masalah input:</strong>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            <form action="{{ route('inspections.update', $inspection->uuid) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+
+                {{-- CARD INFORMASI UMUM --}}
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <strong><i class="bi bi-info-circle-fill"></i> Informasi Umum</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="setup_kedatangan" class="form-label">Waktu Kedatangan</label>
+                                <input type="datetime-local" 
+                                    class="form-control @error('setup_kedatangan') is-invalid @enderror" 
+                                    id="setup_kedatangan" 
+                                    name="setup_kedatangan" 
+                                    value="{{ old('setup_kedatangan', $inspection->setup_kedatangan ? $inspection->setup_kedatangan->format('Y-m-d\TH:i') : '') }}" 
+                                    required
+                                    {{-- LOGIKA READONLY: Jika data ada di DB, kunci --}}
+                                    {{ $inspection->setup_kedatangan ? 'readonly' : '' }}>
+                                @error('setup_kedatangan') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="bahan_baku" class="form-label">Bahan Baku</label>
+
+                                {{-- LOGIKA SELECT: Jika ada isi, disabled. Jika disabled, butuh input hidden agar nilai terkirim --}}
+                                @php $isBahanBakuFilled = !empty($inspection->bahan_baku); @endphp
+                                
+                                <select class="form-select select2 @error('bahan_baku') is-invalid @enderror" 
+                                    id="bahan_baku" 
+                                    name="bahan_baku" 
+                                    required 
+                                    {{ $isBahanBakuFilled ? 'disabled' : '' }}>
+                                    <option></option>
+                                    <option value="Daging Ayam" {{ old('bahan_baku', $inspection->bahan_baku) == 'Daging Ayam' ? 'selected' : '' }}>Daging Ayam</option>
+                                    <option value="Tepung Tapioka" {{ old('bahan_baku', $inspection->bahan_baku) == 'Tepung Tapioka' ? 'selected' : '' }}>Tepung Tapioka</option>
+                                    <option value="Minyak Goreng" {{ old('bahan_baku', $inspection->bahan_baku) == 'Minyak Goreng' ? 'selected' : '' }}>Minyak Goreng</option>
+                                    <option value="Bumbu ABC" {{ old('bahan_baku', $inspection->bahan_baku) == 'Bumbu ABC' ? 'selected' : '' }}>Bumbu ABC</option>
+                                </select>
+                                
+                                {{-- Input hidden wajib ada jika select disabled --}}
+                                @if($isBahanBakuFilled)
+                                    <input type="hidden" name="bahan_baku" value="{{ $inspection->bahan_baku }}">
+                                @endif
+                                
+                                @error('bahan_baku') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="supplier" class="form-label">Supplier</label>
+                                <input type="text" 
+                                    class="form-control @error('supplier') is-invalid @enderror" 
+                                    id="supplier" 
+                                    name="supplier" 
+                                    value="{{ old('supplier', $inspection->supplier) }}" 
+                                    required
+                                    {{ $inspection->supplier ? 'readonly' : '' }}>
+                                @error('supplier') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- CARD DETAIL PRODUK --}}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong><i class="bi bi-list-nested"></i> Detail Produk</strong>
+                            <button type="button" id="add-detail-btn" class="btn btn-secondary btn-sm"><i class="bi bi-plus-lg"></i> Tambah Item</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="product-details-container" data-details="{{ json_encode(old('details', $inspection->productDetails ?? [])) }}">
+                            {{-- Form detail produk akan ditambahkan di sini oleh JS --}}
+                        </div>
+                    </div>
+                </div>
+                
+                {{-- CARD KONDISI FISIK --}}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="bi bi-truck"></i> Kondisi Fisik (Mobil & Kemasan)</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @php
+                                $kondisiFisikFields = [
+                                    'mobil_check_warna' => 'Warna', 
+                                    'mobil_check_kotoran' => 'Kotoran', 
+                                    'mobil_check_aroma' => 'Aroma', 
+                                    'mobil_check_kemasan' => 'Kemasan'
+                                ];
+                            @endphp
+                            @foreach ($kondisiFisikFields as $name => $label)
+                            <div class="col-md-3 col-6 mb-3">
+                                <label class="form-label d-block">{{ $label }}</label>
+                                {{-- Cek apakah nilai sudah ada di DB (bukan null) --}}
+                                @php $isFilled = !is_null($inspection->$name); @endphp
+                                
+                                <input type="hidden" name="{{ $name }}" id="{{ $name }}" value="{{ old($name, $inspection->$name ? '1' : '0') }}">
+                                <div class="btn-group btn-check-group" role="group">
+                                    {{-- Tambahkan attribut disabled jika data sudah ada --}}
+                                    <button type="button" 
+                                        class="btn {{ old($name, $inspection->$name ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-success' }}" 
+                                        data-value="1" 
+                                        data-target-input="#{{ $name }}"
+                                        {{ $isFilled ? 'disabled' : '' }}>
+                                        <i class="bi bi-check-lg"></i> OK
+                                    </button>
+                                    <button type="button" 
+                                        class="btn {{ old($name, $inspection->$name ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" 
+                                        data-value="0" 
+                                        data-target-input="#{{ $name }}"
+                                        {{ $isFilled ? 'disabled' : '' }}>
+                                        <i class="bi bi-x-lg"></i> Not OK
+                                    </button>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- CARD ANALISA PRODUK --}}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="bi bi-search"></i> Analisa Produk</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            {{-- K.A / FFA --}}
+                            <div class="col-md-3 col-6">
+                                <label class="form-label d-block">K.A / FFA</label>
+                                @php $isKaFfaFilled = !is_null($inspection->analisa_ka_ffa); @endphp
+                                <input type="hidden" name="analisa_ka_ffa" id="analisa_ka_ffa" value="{{ old('analisa_ka_ffa', $inspection->analisa_ka_ffa ? '1' : '0') }}">
+                                <div class="btn-group btn-check-group" role="group">
+                                    <button type="button" class="btn {{ old('analisa_ka_ffa', $inspection->analisa_ka_ffa ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#analisa_ka_ffa" {{ $isKaFfaFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> OK</button>
+                                    <button type="button" class="btn {{ old('analisa_ka_ffa', $inspection->analisa_ka_ffa ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#analisa_ka_ffa" {{ $isKaFfaFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Not OK</button>
+                                </div>
+                            </div>
+
+                            {{-- Logo Halal --}}
+                            <div class="col-md-3 col-6">
+                                <label class="form-label d-block">Logo Halal</label>
+                                @php $isHalalFilled = !is_null($inspection->analisa_logo_halal); @endphp
+                                <input type="hidden" name="analisa_logo_halal" id="analisa_logo_halal" value="{{ old('analisa_logo_halal', $inspection->analisa_logo_halal ? '1' : '0') }}">
+                                <div class="btn-group btn-check-group" role="group">
+                                    <button type="button" class="btn {{ old('analisa_logo_halal', $inspection->analisa_logo_halal ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#analisa_logo_halal" {{ $isHalalFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> OK</button>
+                                    <button type="button" class="btn {{ old('analisa_logo_halal', $inspection->analisa_logo_halal ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#analisa_logo_halal" {{ $isHalalFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Not OK</button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6"></div>
+
+                            <div class="col-md-6">
+                                <label for="analisa_negara_asal" class="form-label">Negara Asal Produsen</label>
+                                <input type="text" class="form-control" id="analisa_negara_asal" name="analisa_negara_asal" 
+                                    value="{{ old('analisa_negara_asal', $inspection->analisa_negara_asal) }}" 
+                                    required
+                                    {{ $inspection->analisa_negara_asal ? 'readonly' : '' }}>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="analisa_produsen" class="form-label">Nama Produsen</label>
+                                <input type="text" class="form-control" id="analisa_produsen" name="analisa_produsen" 
+                                    value="{{ old('analisa_produsen', $inspection->analisa_produsen) }}" 
+                                    required
+                                    {{ $inspection->analisa_produsen ? 'readonly' : '' }}>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- CARD DOKUMEN PENDUKUNG --}}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="bi bi-file-earmark-text"></i> Dokumen Pendukung</strong>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Dokumen Halal</label>
+                                <div class="mb-2">
+                                    <label class="form-label d-block">Status Berlaku?</label>
+                                    @php $isDokHalalFilled = !is_null($inspection->dokumen_halal_berlaku); @endphp
+                                    <input type="hidden" name="dokumen_halal_berlaku" id="dokumen_halal_berlaku" value="{{ old('dokumen_halal_berlaku', $inspection->dokumen_halal_berlaku ? '1' : '0') }}">
+                                    <div class="btn-group btn-check-group" role="group">
+                                        <button type="button" class="btn {{ old('dokumen_halal_berlaku', $inspection->dokumen_halal_berlaku ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#dokumen_halal_berlaku" {{ $isDokHalalFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> Berlaku (OK)</button>
+                                        <button type="button" class="btn {{ old('dokumen_halal_berlaku', $inspection->dokumen_halal_berlaku ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#dokumen_halal_berlaku" {{ $isDokHalalFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Tidak (X)</button>
+                                    </div>
+                                </div>
+                                
+                                {{-- Jika file sudah ada, sembunyikan input file agar tidak bisa diganti --}}
+                                @if($inspection->dokumen_halal_file)
+                                    <div class="alert alert-light border">
+                                        <i class="bi bi-file-check"></i> File sudah terupload: 
+                                        <a href="{{ asset('storage/' . $inspection->dokumen_halal_file) }}" target="_blank">Lihat File</a>
+                                        <div class="text-muted small mt-1">(File tidak dapat diubah)</div>
+                                    </div>
+                                @else
+                                    <label class="form-label" for="dokumen_halal_file">Upload File Halal Baru</label>
+                                    <input type="file" class="form-control" name="dokumen_halal_file" id="dokumen_halal_file">
+                                @endif
+                            </div>
+
+                            <div class="col-md-6">
+                                {{-- Sama untuk COA --}}
+                                @if($inspection->dokumen_coa_file)
+                                    <label class="form-label">Dokumen COA</label>
+                                    <div class="alert alert-light border">
+                                        <i class="bi bi-file-check"></i> File sudah terupload: 
+                                        <a href="{{ asset('storage/' . $inspection->dokumen_coa_file) }}" target="_blank">Lihat File</a>
+                                        <div class="text-muted small mt-1">(File tidak dapat diubah)</div>
+                                    </div>
+                                @else
+                                    <label for="dokumen_coa_file" class="form-label">Dokumen COA Baru</label>
+                                    <input class="form-control" type="file" id="dokumen_coa_file" name="dokumen_coa_file">
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {{-- CARD TRANSPORTER --}}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <strong><i class="bi bi-person-badge"></i> Informasi Transporter</strong>
+                    </div>
+                    <div class="card-body">
+                         <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="nopol_mobil" class="form-label">Nopol Mobil</label>
+                                <input type="text" class="form-control" id="nopol_mobil" name="nopol_mobil" 
+                                    value="{{ old('nopol_mobil', $inspection->nopol_mobil) }}" 
+                                    required
+                                    {{ $inspection->nopol_mobil ? 'readonly' : '' }}>
+                            </div>
+                             <div class="col-md-4">
+                                <label for="suhu_mobil" class="form-label">Suhu Mobil (°C)</label>
+                                <input type="number" class="form-control" id="suhu_mobil" name="suhu_mobil" 
+                                    value="{{ old('suhu_mobil', $inspection->suhu_mobil) }}" 
+                                    required max="50"
+                                    {{ $inspection->suhu_mobil ? 'readonly' : '' }}>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="kondisi_mobil" class="form-label">Kondisi Mobil</label>
+                                @php $isKondisiFilled = !empty($inspection->kondisi_mobil); @endphp
+                                <select class="form-select select2" id="kondisi_mobil" name="kondisi_mobil" required {{ $isKondisiFilled ? 'disabled' : '' }}>
+                                    <option></option>
+                                    <option value="Bersih" {{ old('kondisi_mobil', $inspection->kondisi_mobil) == 'Bersih' ? 'selected' : '' }}>Bersih</option>
+                                    <option value="Kotor" {{ old('kondisi_mobil', $inspection->kondisi_mobil) == 'Kotor' ? 'selected' : '' }}>Kotor</option>
+                                    <option value="Bau" {{ old('kondisi_mobil', $inspection->kondisi_mobil) == 'Bau' ? 'selected' : '' }}>Bau</option>
+                                    <option value="Bocor" {{ old('kondisi_mobil', $inspection->kondisi_mobil) == 'Bocor' ? 'selected' : '' }}>Bocor</option>
+                                    <option value="Basah" {{ old('kondisi_mobil', $inspection->kondisi_mobil) == 'Basah' ? 'selected' : '' }}>Basah</option>
+                                    <option value="Kering" {{ old('kondisi_mobil', $inspection->kondisi_mobil) == 'Kering' ? 'selected' : '' }}>Kering</option>
+                                    <option value="Bebas Hama" {{ old('kondisi_mobil', $inspection->kondisi_mobil) == 'Bebas Hama' ? 'selected' : '' }}>Bebas Hama</option>
+                                </select>
+                                @if($isKondisiFilled) <input type="hidden" name="kondisi_mobil" value="{{ $inspection->kondisi_mobil }}"> @endif
+                            </div>
+                             <div class="col-md-6">
+                                <label for="do_po" class="form-label">No. DO / PO</label>
+                                <input type="text" class="form-control" id="do_po" name="do_po" 
+                                    value="{{ old('do_po', $inspection->do_po) }}" 
+                                    required
+                                    {{ $inspection->do_po ? 'readonly' : '' }}>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="no_segel" class="form-label">No. Segel</label>
+                                <input type="text" class="form-control" id="no_segel" name="no_segel" 
+                                    value="{{ old('no_segel', $inspection->no_segel) }}" 
+                                    required
+                                    {{ $inspection->no_segel ? 'readonly' : '' }}>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="suhu_daging" class="form-label">Suhu Daging/Bahan (°C)</label>
+                                <input type="number" step="0.01" class="form-control" id="suhu_daging" name="suhu_daging" 
+                                    value="{{ old('suhu_daging', $inspection->suhu_daging) }}" 
+                                    required max="50"
+                                    {{ $inspection->suhu_daging ? 'readonly' : '' }}>
+                            </div>
+                            <div class="col-12">
+                                <label for="keterangan" class="form-label">Keterangan (Optional)</label>
+                                <textarea class="form-control" id="keterangan" name="keterangan" rows="3"
+                                {{ $inspection->keterangan ? 'readonly' : '' }}>{{ old('keterangan', $inspection->keterangan) }}</textarea>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-success btn-lg"><i class="bi bi-check-circle"></i> Update Pemeriksaan</button>
+                    <a href="{{ route('inspections.index') }}" class="btn btn-secondary btn-lg"><i class="bi bi-arrow-left"></i> Kembali</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            theme: "bootstrap-5",
+            placeholder: "Ketik untuk mencari...",
+            allowClear: true,
+            dropdownAutoWidth: true,
+            width: '49%'
+        });
+    });
+
+    document.querySelectorAll('input[type="number"][max]').forEach(function(input) {
+        input.addEventListener('input', function() {
+            const max = parseFloat(this.getAttribute('max'));
+            if (parseFloat(this.value) > max) {
+                this.value = max;
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const container = document.getElementById('product-details-container');
+        const addBtn = document.getElementById('add-detail-btn');
+        let detailIndex = 0; 
+
+        /**
+         * Fungsi renderDetailForm dimodifikasi
+         * Cek apakah data berasal dari database (isExistingData).
+         * Jika ya, set atribut readonly.
+         */
+        function renderDetailForm(data = null) {
+            const i = detailIndex; 
+            
+            // Cek jika data ada (berarti data lama/saved), kita kunci inputnya
+            const isReadOnly = (data !== null); 
+            const readOnlyAttr = isReadOnly ? 'readonly style="background-color: #e9ecef;"' : '';
+            // Tombol hapus disembunyikan jika data sudah tersimpan (opsional, tergantung kebutuhan)
+            const deleteBtn = isReadOnly ? '' : `<button type="button" class="btn btn-danger btn-sm remove-detail-btn"><i class="bi bi-trash"></i> Hapus</button>`;
+
+            const kodeBatch = data ? (data.kode_batch || '') : '';
+            const tglProduksi = data ? (data.tanggal_produksi || '') : '';
+            const exp = data ? (data.exp || '') : '';
+            const jumlah = data ? (data.jumlah || '') : '';
+            const jumlahSampel = data ? (data.jumlah_sampel || '') : '';
+            const jumlahReject = data ? (data.jumlah_reject || '') : '';
+
+            const newDetail = document.createElement('div');
+            newDetail.classList.add('product-detail-item', 'border', 'p-3', 'mb-3', 'rounded', 'shadow-sm');
+            
+            newDetail.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5>Item #${i + 1} ${isReadOnly ? '<span class="badge bg-success">Tersimpan</span>' : '<span class="badge bg-primary">Baru</span>'}</h5>
+                    ${deleteBtn}
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Kode Batch</label>
+                        <input type="text" name="details[${i}][kode_batch]" class="form-control" value="${kodeBatch}" required ${readOnlyAttr}>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tanggal Produksi</label>
+                        <input type="date" name="details[${i}][tanggal_produksi]" class="form-control" value="${tglProduksi}" required ${readOnlyAttr}>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">EXP Date</label>
+                        <input type="date" name="details[${i}][exp]" class="form-control" value="${exp}" required ${readOnlyAttr}>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Jumlah Barang</label>
+                        <input type="number" step="0.01" name="details[${i}][jumlah]" class="form-control" value="${jumlah}" required ${readOnlyAttr}>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Jumlah Sampel</label>
+                        <input type="number" step="0.01" name="details[${i}][jumlah_sampel]" class="form-control" value="${jumlahSampel}" required ${readOnlyAttr}>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Jumlah Reject</label>
+                        <input type="number" step="0.01" name="details[${i}][jumlah_reject]" class="form-control" value="${jumlahReject}" required ${readOnlyAttr}>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newDetail);
+            detailIndex++; 
+        }
+
+        if (addBtn) {
+            addBtn.addEventListener('click', () => renderDetailForm(null));
+        }
+        
+        if (container) {
+            container.addEventListener('click', function(e) {
+                const removeBtn = e.target.closest('.remove-detail-btn');
+                if (removeBtn) {
+                    removeBtn.closest('.product-detail-item').remove();
+                }
+            });
+
+            try {
+                const existingDetails = JSON.parse(container.dataset.details || '[]');
+                
+                if (existingDetails.length > 0) {
+                    existingDetails.forEach(detail => {
+                        renderDetailForm(detail);
+                    });
+                } else {
+                    // Jika tidak ada data sama sekali, tampilkan form kosong baru
+                    renderDetailForm(null);
+                }
+            } catch (e) {
+                console.error("Gagal parse data detail: ", e);
+                renderDetailForm(null);
+            }
+        }
+
+        const buttonGroups = document.querySelectorAll('.btn-check-group');
+
+        buttonGroups.forEach(group => {
+            group.addEventListener('click', function(e) {
+                if (e.target.matches('.btn')) {
+                    // Cek jika tombol disabled, jangan lakukan apa-apa
+                    if (e.target.hasAttribute('disabled')) return;
+
+                    const button = e.target;
+                    const value = button.dataset.value; 
+                    const targetInputId = button.dataset.targetInput; 
+                    
+                    if (!targetInputId) return; 
+                    
+                    const targetInput = document.querySelector(targetInputId);
+
+                    if (targetInput) {
+                        targetInput.value = value;
+                    }
+
+                    const buttonsInGroup = group.querySelectorAll('button');
+                    buttonsInGroup.forEach(btn => {
+                        if (btn.dataset.value === '1') { 
+                            btn.classList.remove('btn-success');
+                            btn.classList.add('btn-outline-success');
+                        } else { 
+                            btn.classList.remove('btn-danger');
+                            btn.classList.add('btn-outline-danger');
+                        }
+                    });
+
+                    if (value === '1') {
+                        button.classList.remove('btn-outline-success');
+                        button.classList.add('btn-success');
+                    } else {
+                        button.classList.remove('btn-outline-danger');
+                        button.classList.add('btn-danger');
+                    }
+                }
+            });
+        });
+    });
+</script>
+@endpush

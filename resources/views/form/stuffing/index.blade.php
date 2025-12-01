@@ -5,11 +5,12 @@
     {{-- Alert sukses --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <i class="bi bi-check-circle me-2"></i> {{ trim(session('success')) }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
 
+    {{-- Alert error --}}
     @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         {{ session('error') }}
@@ -21,9 +22,11 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Pemeriksaan Stuffing Sosis Retort</h3>
+                @can('can access add button')
                 <a href="{{ route('stuffing.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
+                @endcan
             </div>
 
             {{-- Filter dan Live Search --}}
@@ -65,146 +68,245 @@
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
                 <table class="table table-striped table-bordered align-middle">
-                 <thead class="table-primary text-center">
-                    <tr>
-                        <th>NO.</th>
-                        <th>Date | Shift</th>
-                        <th>Nama Produk</th>
-                        <th>Kode Produksi</th>
-                        <th>Exp. Date</th>
-                        <th>Kode Mesin</th>
-                        <th>Jam Mulai</th>
-                        <th>Pemeriksaan</th>
-                        <th>QC</th>
-                        <th>SPV</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php 
-                    $no = ($data->currentPage() - 1) * $data->perPage() + 1; 
-                    @endphp
-                    @forelse ($data as $dep)
-                    <tr>
-                        <td class="text-center align-middle">{{ $no++ }}</td>
-                        <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift: {{ $dep->shift }}</td>   
-                        <td class="text-center align-middle">{{ $dep->nama_produk }}</td>
-                        <td class="text-center align-middle">{{ $dep->kode_produksi }}</td>
-                        <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->exp_date)->format('d-m-Y') }}</td>   
-                        <td class="text-center align-middle">{{ $dep->kode_mesin }}</td>
-                        <td class="text-center align-middle">{{ $dep->jam_mulai ?? '-' }}</td>
-                        <td class="text-center align-middle">
-                            @if($dep->id)
-                            <button class="btn btn-info btn-sm mb-2 toggle-btn" type="button" data-bs-toggle="collapse" data-bs-target="#stuffingCollapse{{ $dep->uuid }}" aria-expanded="false" aria-controls="stuffingCollapse{{ $dep->uuid }}">
-                                Details
-                            </button>
-                            <div class="collapse" id="stuffingCollapse{{ $dep->uuid }}">
-                                <div class="table-responsive">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>NO.</th>
+                            <th>Date | Shift</th>
+                            <th>Nama Produk</th>
+                            <th>Kode Produksi</th>
+                            <th>Exp. Date</th>
+                            <th>Kode Mesin</th>
+                            <th>Jam Mulai</th>
+                            <th>Pemeriksaan</th>
+                            <th>QC</th>
+                            <th>SPV</th>
+                            <th>Verification</th> {{-- Changed from Action to Verification --}}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php 
+                        $no = ($data->currentPage() - 1) * $data->perPage() + 1; 
+                        @endphp
+                        @forelse ($data as $dep)
+                        <tr>
+                            <td class="text-center">{{ $no++ }}</td>
+                            <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift: {{ $dep->shift }}</td>   
+                            <td class="text-center align-middle">{{ $dep->nama_produk }}</td>
+                            <td class="text-center align-middle">{{ $dep->kode_produksi }}</td>
+                            <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->exp_date)->format('d-m-Y') }}</td>   
+                            <td class="text-center align-middle">{{ $dep->kode_mesin }}</td>
+                            <td class="text-center align-middle">{{ $dep->jam_mulai ?? '-' }}</td>
+                            <td class="text-center align-middle">
+                                @if($dep->id)
+                                <button class="btn btn-info btn-sm mb-2 toggle-btn" type="button" data-bs-toggle="collapse" data-bs-target="#stuffingCollapse{{ $dep->uuid }}" aria-expanded="false" aria-controls="stuffingCollapse{{ $dep->uuid }}">
+                                    Details
+                                </button>
+                                <div class="collapse" id="stuffingCollapse{{ $dep->uuid }}">
+                                    <div class="table-responsive">
+                                    </div>
                                 </div>
-                            </div>
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    const toggleButtons = document.querySelectorAll('.toggle-btn');
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        const toggleButtons = document.querySelectorAll('.toggle-btn');
 
-                                    toggleButtons.forEach(function(btn) {
-                                        const targetId = btn.getAttribute('data-bs-target');
-                                        const collapseEl = document.querySelector(targetId);
+                                        toggleButtons.forEach(function(btn) {
+                                            const targetId = btn.getAttribute('data-bs-target');
+                                            const collapseEl = document.querySelector(targetId);
 
-                                        collapseEl.addEventListener('shown.bs.collapse', function () {
-                                            btn.textContent = 'Hide';
-                                        });
-                                        collapseEl.addEventListener('hidden.bs.collapse', function () {
-                                            btn.textContent = 'Details';
+                                            collapseEl.addEventListener('shown.bs.collapse', function () {
+                                                btn.textContent = 'Hide';
+                                            });
+                                            collapseEl.addEventListener('hidden.bs.collapse', function () {
+                                                btn.textContent = 'Details';
+                                            });
                                         });
                                     });
-                                });
-                            </script>
+                                </script>
 
 
-                            <div class="collapse" id="stuffingCollapse{{ $dep->uuid }}">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped table-sm text-center align-middle">
-                                        <tbody>
-                                            @php
-                                            $fields = [
-                                            ['type'=>'title', 'label'=>'Parameter Adonan'],
-                                            ['type'=>'field', 'label'=>'Suhu (°C)', 'key'=>'suhu'],
-                                            ['type'=>'field', 'label'=>'Sensori', 'key'=>'sensori'],
-                                            ['type'=>'title', 'label'=>'Parameter Stuffing'],
-                                            ['type'=>'field', 'label'=>'Kecepatan Stuffing', 'key'=>'kecepatan_stuffing'],
-                                            ['type'=>'field', 'label'=>'Panjang/pcs (cm)', 'key'=>'panjang_pcs'],
-                                            ['type'=>'field', 'label'=>'Berat/pcs (gr)', 'key'=>'berat_pcs'],
-                                            ['type'=>'field', 'label'=>'Cek Vakum', 'key'=>'cek_vakum'],
-                                            ['type'=>'field', 'label'=>'Kebersihan Seal', 'key'=>'kebersihan_seal'],
-                                            ['type'=>'field', 'label'=>'Kekuatan Seal', 'key'=>'kekuatan_seal'],
-                                            ['type'=>'field', 'label'=>'Diameter Klip (mm)', 'key'=>'diameter_klip'],
-                                            ['type'=>'field', 'label'=>'Print Kode', 'key'=>'print_kode'],
-                                            ['type'=>'field', 'label'=>'Lebar Cassing (mm)', 'key'=>'lebar_cassing'],
-                                            ];
-                                            @endphp
-
-                                            @foreach($fields as $item)
-                                            @if($item['type'] === 'title')
-                                            <tr class="table-secondary">
-                                                <td class="text-start fw-bold" colspan="2">{{ $item['label'] }}</td>
-                                            </tr>
-                                            @else
-                                            <tr>
-                                                <td class="text-start">{{ $item['label'] }}</td>
+                                <div class="collapse" id="stuffingCollapse{{ $dep->uuid }}">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped table-sm text-center align-middle">
+                                            <tbody>
                                                 @php
-                                                $value = $dep->{$item['key']} ?? null;
-                                                $display = in_array($item['key'], ['sensori','cek_vakum','kebersihan_seal','kekuatan_seal','print_kode'])
-                                                ? (!empty($value) ? '✔' : '-') 
-                                                : ($value ?? '-');
+                                                $fields = [
+                                                ['type'=>'title', 'label'=>'Parameter Adonan'],
+                                                ['type'=>'field', 'label'=>'Suhu (°C)', 'key'=>'suhu'],
+                                                ['type'=>'field', 'label'=>'Sensori', 'key'=>'sensori'],
+                                                ['type'=>'title', 'label'=>'Parameter Stuffing'],
+                                                ['type'=>'field', 'label'=>'Kecepatan Stuffing', 'key'=>'kecepatan_stuffing'],
+                                                ['type'=>'field', 'label'=>'Panjang/pcs (cm)', 'key'=>'panjang_pcs'],
+                                                ['type'=>'field', 'label'=>'Berat/pcs (gr)', 'key'=>'berat_pcs'],
+                                                ['type'=>'field', 'label'=>'Cek Vakum', 'key'=>'cek_vakum'],
+                                                ['type'=>'field', 'label'=>'Kebersihan Seal', 'key'=>'kebersihan_seal'],
+                                                ['type'=>'field', 'label'=>'Kekuatan Seal', 'key'=>'kekuatan_seal'],
+                                                ['type'=>'field', 'label'=>'Diameter Klip (mm)', 'key'=>'diameter_klip'],
+                                                ['type'=>'field', 'label'=>'Print Kode', 'key'=>'print_kode'],
+                                                ['type'=>'field', 'label'=>'Lebar Cassing (mm)', 'key'=>'lebar_cassing'],
+                                                ];
                                                 @endphp
-                                                <td>{{ $display }}</td>
-                                            </tr>
-                                            @endif
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            @else
-                            <span>-</span>
-                            @endif
-                        </td>
 
-                        <td class="text-center align-middle">{{ $dep->username }}</td>
-                        <td class="text-center align-middle">
-                            @if ($dep->status_spv == 0)
-                            <span class="fw-bold text-secondary">Created</span>
-                            @elseif ($dep->status_spv == 1)
-                            <span class="fw-bold text-success">Verified</span>
-                            @elseif ($dep->status_spv == 2)
-                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
-                             class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
-                             <!-- Modal -->
-                             <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="revisionModalLabel{{ $dep->uuid }}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-danger text-white">
-                                            <h5 class="modal-title" id="revisionModalLabel{{ $dep->uuid }}">Detail Revisi</h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <ul class="list-unstyled mb-0">
-                                                <li><strong>Status:</strong> Revision</li>
-                                                <li><strong>Catatan:</strong> {{ $dep->catatan_spv ?? '-' }}</li>
-                                            </ul>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                                @foreach($fields as $item)
+                                                @if($item['type'] === 'title')
+                                                <tr class="table-secondary">
+                                                    <td class="text-start fw-bold" colspan="2">{{ $item['label'] }}</td>
+                                                </tr>
+                                                @else
+                                                <tr>
+                                                    <td class="text-start">{{ $item['label'] }}</td>
+                                                    @php
+                                                    $value = $dep->{$item['key']} ?? null;
+                                                    $display = in_array($item['key'], ['sensori','cek_vakum','kebersihan_seal','kekuatan_seal','print_kode'])
+                                                    ? (!empty($value) ? '✔' : '-') 
+                                                    : ($value ?? '-');
+                                                    @endphp
+                                                    <td>{{ $display }}</td>
+                                                </tr>
+                                                @endif
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                @else
+                                <span>-</span>
+                                @endif
+                            </td>
+
+                            <td class="text-center align-middle">{{ $dep->username }}</td>
+                            <td class="text-center align-middle">
+                                @if ($dep->status_spv == 0)
+                                <span class="fw-bold text-secondary">Created</span>
+                                @elseif ($dep->status_spv == 1)
+                                <span class="fw-bold text-success">Verified</span>
+                                @elseif ($dep->status_spv == 2)
+                                <!-- Link buka modal -->
+                                <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
+                                   class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
+                                   <!-- Modal -->
+                                   <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="revisionModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title" id="revisionModalLabel{{ $dep->uuid }}">Detail Revisi</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <ul class="list-unstyled mb-0">
+                                                    <li><strong>Status:</strong> Revision</li>
+                                                    <li><strong>Catatan:</strong> {{ $dep->catatan_spv ?? '-' }}</li>
+                                                </ul>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                @endif
+                            </td>
+                            <td class="text-center align-middle">
+                                @can('can access verification button')
+                                <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm mb-1" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
+                                    <i class="bi bi-shield-check me-1"></i> Verifikasi
+                                </button>
+                                @endcan
+                                @can('can access edit button')
+                                <a href="{{ route('stuffing.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1 mb-1">
+                                    <i class="bi bi-pencil-square"></i> Edit Data
+                                </a>
+                                @endcan
+                                @can('can access update button')
+                                <a href="{{ route('stuffing.update.form', $dep->uuid) }}" class="btn btn-info btn-sm me-1 mb-1">
+                                    <i class="bi bi-pencil"></i> Update
+                                </a>
+                                @endcan
+                                @can('can access delete button')
+                                <form action="{{ route('stuffing.destroy', $dep->uuid) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm mb-1"
+                                    onclick="return confirm('Yakin ingin menghapus?')">
+                                    <i class="bi bi-trash"></i> Hapus
+                                </button>
+                            </form>
+                                @endcan
+                            <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="verifyModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-md">
+                                    <form action="{{ route('stuffing.verification.update', $dep->uuid) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white" 
+                                        style="background: linear-gradient(145deg, #7a1f12, #9E3419); 
+                                        box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
+                                        <div class="modal-header border-bottom border-light-subtle p-4" style="border-bottom-width: 3px !important;">
+                                            <h5 class="modal-title fw-bolder fs-3 text-uppercase" id="verifyModalLabel{{ $dep->uuid }}" style="color: #00ffc4;">
+                                                <i class="bi bi-gear-fill me-2"></i> VERIFICATION
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+
+                                        <div class="modal-body p-5">
+                                            <p class="text-light mb-4 fs-6">
+                                                Pastikan data yang akan diverifikasi di check dengan teliti terlebih dahulu.
+                                            </p>
+                                            <div class="row g-4">
+                                                <div class="col-md-12">
+                                                    <label for="status_spv_{{ $dep->uuid }}" class="form-label fw-bold mb-2 text-center d-block" 
+                                                        style="color: #FFE5DE; font-size: 0.95rem;">
+                                                        Pilih Status Verifikasi
+                                                    </label>
+
+                                                    <select 
+                                                    name="status_spv" 
+                                                    id="status_spv_{{ $dep->uuid }}" 
+                                                    class="form-select form-select-lg fw-bold text-center mx-auto"
+                                                    style="
+                                                    background: linear-gradient(135deg, #fff1f0, #ffe5de);
+                                                    border: 2px solid #dc3545;
+                                                    border-radius: 12px;
+                                                    color: #dc3545;
+                                                    height: 55px;
+                                                    font-size: 1.1rem;
+                                                    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+                                                    width: 85%;
+                                                    transition: all 0.3s ease;
+                                                    "
+                                                    required
+                                                    >
+                                                    <option value="1" {{ $dep->status_spv == 1 ? 'selected' : '' }} 
+                                                        style="color: #198754; font-weight: 600;">✅ Verified (Disetujui)</option>
+                                                        <option value="2" {{ $dep->status_spv == 2 ? 'selected' : '' }} 
+                                                            style="color: #dc3545; font-weight: 600;">❌ Revision (Perlu Perbaikan)</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-md-12 mt-3">
+                                                        <label for="catatan_spv_{{ $dep->uuid }}" class="form-label fw-bold text-light mb-2">
+                                                            Catatan Tambahan (Opsional)
+                                                        </label>
+                                                        <textarea name="catatan_spv" id="catatan_spv_{{ $dep->uuid }}" rows="4" 
+                                                            class="form-control text-dark border-0 shadow-none" 
+                                                            placeholder="Masukkan catatan, misalnya alasan revisi..." 
+                                                            style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer justify-content-end p-4 border-top" style="background-color: #9E3419; border-color: #00ffc4 !important;">
+                                                    <button type="button" class="btn btn-outline-light fw-bold rounded-pill px-4 me-2" data-bs-dismiss="modal">
+                                                        Batal
+                                                    </button>
+                                                    <button type="submit" class="btn fw-bolder rounded-pill px-5" style="background-color: #E39581; color: #2c3e50;">
+                                                        <i class="bi bi-save-fill me-1"></i> SUBMIT
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                            @endif
-                        </td>
-                        <td class="text-center align-middle">
-                            <a href="{{ route('stuffing.update.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
-                                <i class="bi bi-pencil"></i> Update
-                            </a>
                         </td>
                     </tr>
                     @empty
@@ -213,7 +315,6 @@
                     </tr>
                     @endforelse
                 </tbody>
-
             </table>
         </div>
 

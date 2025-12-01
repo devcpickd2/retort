@@ -1,169 +1,203 @@
-{{-- resources/views/raw_material/IndexRawMaterial.blade.php --}}
-{{-- (Atau ganti nama file sesuai kebutuhan Anda) --}}
+@extends('layouts.app')
 
-@extends('layouts.app') {{-- Menggunakan layout utama Anda --}}
+@section('content')
+<div class="container-fluid py-0">
 
-{{-- Menambahkan style khusus untuk halaman ini --}}
-@push('styles')
+    {{-- Alert --}}
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i> {{ trim(session('success')) }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    {{-- Card --}}
+    <div class="card card-custom shadow-sm">
+        <div class="card-body">
+
+            {{-- Header --}}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold"><i class="bi bi-box-seam me-2"></i> Data Pemeriksaan Bahan Baku</h3>
+                <a href="{{ route('inspections.create') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Tambah
+                </a>
+            </div>
+
+            {{-- Filter dan Live Search (Style Magnet Trap) --}}
+            <form id="filterForm" method="GET" action="{{ route('inspections.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
+
+                {{-- Input Tanggal --}}
+                <div class="input-group" style="max-width: 220px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-calendar-date text-muted"></i>
+                    </span>
+                    <input type="date" name="date" id="filter_date" class="form-control border-start-0"
+                    value="{{ request('date') }}" placeholder="Tanggal">
+                </div>
+
+                {{-- Input Search --}}
+                <div class="input-group flex-grow-1" style="max-width: 450px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="search" id="search" class="form-control border-start-0"
+                    value="{{ request('search') }}" placeholder="Cari Bahan Baku / Supplier / No. DO...">
+                </div>
+
+            </form>
+
+            {{-- Script Auto Submit --}}
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const search = document.getElementById('search');
+                    const date = document.getElementById('filter_date');
+                    const form = document.getElementById('filterForm');
+                    let timer;
+
+                    // Debounce search
+                    search.addEventListener('input', () => {
+                        clearTimeout(timer);
+                        timer = setTimeout(() => form.submit(), 500);
+                    });
+
+                    // Auto submit date
+                    date.addEventListener('change', () => form.submit());
+                });
+            </script>
+
+            {{-- Tabel Data --}}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>NO.</th>
+                            <th>Tgl Datang</th>
+                            <th>Bahan Baku</th>
+                            <th>Supplier</th>
+                            <th>No. DO / PO</th>
+                            <th>Nopol Mobil</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($inspections as $item)
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration + ($inspections->currentPage() - 1) * $inspections->perPage() }}</td>
+                            
+                            {{-- Tanggal --}}
+                            <td class="text-center align-middle">
+                                {{ $item->setup_kedatangan ? \Carbon\Carbon::parse($item->setup_kedatangan)->format('d-m-Y') : '-' }} <br>
+                                <span class="text-muted small">
+                                    {{ $item->setup_kedatangan ? \Carbon\Carbon::parse($item->setup_kedatangan)->format('H:i') : '' }}
+                                </span>
+                            </td>
+
+                            <td class="align-middle">{{ $item->bahan_baku }}</td>
+                            <td class="align-middle">{{ Str::limit($item->supplier, 25) }}</td>
+                            <td class="text-center align-middle">{{ $item->do_po }}</td>
+                            <td class="text-center align-middle">{{ $item->nopol_mobil }}</td>
+                            
+                            {{-- Aksi --}}
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center align-items-center">
+
+                                    {{-- 1. Detail (Disesuaikan dengan style tombol 'Verifikasi' - Primary, Bold, Shadow) --}}
+                                    <a href="{{ route('inspections.show', $item->uuid) }}" class="btn btn-primary btn-sm fw-bold shadow-sm mx-1">
+                                        <i class="bi bi-eye me-1"></i> Detail
+                                    </a>
+
+                                    {{-- 2. Edit Data (Style tombol Warning dengan Text) --}}
+                                    <a href="{{ route('inspections.edit', $item->uuid) }}" class="btn btn-warning btn-sm mx-1">
+                                        <i class="bi bi-pencil-square"></i> Edit Data
+                                    </a>
+
+                                    {{-- 3. Update (Route Baru yang Anda minta - Style tombol Info dengan Text) --}}
+                                    <a href="{{ route('inspections.form_update', $item->uuid) }}" class="btn btn-info btn-sm mx-1">
+                                        <i class="bi bi-pencil"></i> Update
+                                    </a>
+
+                                    <a href="{{ route('inspections.export_pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
+                                        <i class="fas fa-file-pdf"></i> Export PDF
+                                    </a>
+
+                                    {{-- 4. Hapus (Style tombol Danger - Icon Only) --}}
+                                    <form action="{{ route('inspections.destroy', $item->uuid) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm mx-1">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Belum ada data pemeriksaan bahan baku.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Pagination --}}
+            <div class="mt-3">
+                {{ $inspections->withQueryString()->links('pagination::bootstrap-5') }}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{-- Auto-hide alert --}}
+<script>
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if(alert){
+            alert.classList.remove('show');
+            alert.classList.add('fade');
+        }
+    }, 3000);
+</script>
+
+{{-- Style Tambahan --}}
 <style>
+    /* Styling Font Tabel */
+    .table td, .table th {
+        font-size: 0.85rem;
+        white-space: nowrap; 
+    }
+    
+    /* Styling Card Custom */
     .card-custom {
         border: none;
         border-radius: 0.75rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-    .table-header-custom {
-        background-color: #0D6EFD; /* Warna Biru Primary (konsisten dengan form) */
-        color: white;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.85rem;
+    
+    /* Input Group Focus State untuk tampilan lebih bersih (Menghilangkan garis biru saat klik) */
+    .input-group:focus-within {
+        box-shadow: none;
     }
-    .table > tbody > tr > td,
-    .table > tbody > tr > th {
-        vertical-align: middle;
+    .form-control:focus, .input-group-text:focus {
+         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+         border-color: #86b7fe;
     }
-    .table-hover > tbody > tr:hover {
-        background-color: #f8f9fa;
-    }
-    .badge-status {
-        padding: 0.5em 0.75em;
-        font-size: 0.75rem;
-        font-weight: 600;
-        border-radius: 50rem;
-    }
-    .status-ok {
-        background-color: rgba(25, 135, 84, 0.1);
-        color: #198754;
-    }
-    .status-not-ok {
-        background-color: rgba(220, 53, 69, 0.1);
-        color: #DC3545;
-    }
-    .btn-group .btn {
-        margin: 0 !important;
-    }
+
+    body { background-color: #f8f9fa; }
+    
+    /* Memastikan link font bootstrap icons tersedia */
+    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
 </style>
-{{-- Font Awesome diperlukan untuk ikon --}}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-@endpush
-
-
-@section('content')
-<div class="container my-5">
-    <div class="card card-custom">
-        <div class="card-body p-4">
-
-            {{-- BAGIAN HEADER --}}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="card-title mb-0 fw-bold"><i class="fas fa-box-seam me-2"></i>Data Pemeriksaan Bahan Baku</h4>
-                <a href="{{ route('inspections.create') }}" class="btn btn-success">
-                    <i class="fas fa-plus me-1"></i>Tambah
-                </a>
-            </div>
-
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-
-            {{-- BAGIAN FILTER --}}
-            <form method="GET" action="{{ route('inspections.index') }}" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label for="start_date" class="form-label small fw-bold">Tanggal Awal</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request('start_date') }}">
-                </div>
-                <div class="col-md-3">
-                    <label for="end_date" class="form-label small fw-bold">Tanggal Akhir</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request('end_date') }}">
-                </div>
-                <div class="col-md-3">
-                    <label for="search" class="form-label small fw-bold">Cari (Bahan Baku / Supplier)</label>
-                    <input type="text" id="search" name="search" class="form-control" value="{{ request('search') }}" placeholder="Ketik bahan baku atau supplier...">
-                </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
-                    <a href="{{ route('inspections.index') }}" class="btn btn-secondary w-100"><i class="fas fa-sync-alt me-1"></i> Reset</a>
-                </div>
-            </form>
-        </div>
-        
-        <hr class="my-0">
-
-        {{-- BAGIAN TABEL DATA --}}
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-header-custom">
-                    <tr>
-                        <th class="text-center">No</th>
-                        <th>Tgl Datang</th>
-                        <th>Bahan Baku</th>
-                        <th>Supplier</th>
-                        <th>No. DO / PO</th>
-                        <th>Nopol Mobil</th>
-                        <!-- <th class="text-center">Status</th> -->
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($inspections as $item)
-                    <tr>
-                        <td class="text-center fw-bold">{{ $loop->iteration + ($inspections->currentPage() - 1) * $inspections->perPage() }}</td>
-                        <td>{{ $item->setup_kedatangan ? \Carbon\Carbon::parse($item->setup_kedatangan)->format('d M Y H:i') : '-' }}</td>
-                        <td>{{ $item->bahan_baku }}</td>
-                        <td>{{ Str::limit($item->supplier, 20) }}</td>
-                        <td>{{ $item->do_po }}</td>
-                        <td>{{ $item->nopol_mobil }}</td>
-                        
-                        <!-- {{-- Logika Status Otomatis --}}
-                        @php
-                            $isOk = $item->mobil_check_warna && 
-                                    $item->mobil_check_kotoran &&
-                                    $item->mobil_check_aroma &&
-                                    $item->mobil_check_kemasan &&
-                                    $item->analisa_ka_ffa &&
-                                    $item->analisa_logo_halal &&
-                                    $item->dokumen_halal_berlaku;
-                        @endphp
-                        <td class="text-center">
-                            @if($isOk)
-                                <span class="badge-status status-ok"><i class="fas fa-check-circle me-1"></i>OK</span>
-                            @else
-                                <span class="badge-status status-not-ok"><i class="fas fa-times-circle me-1"></i>NOT OK</span>
-                            @endif
-                        </td> -->
-                        
-                        <td class="text-center">
-                            {{-- Menggunakan UUID untuk konsistensi --}}
-                            <form action="{{ route('inspections.destroy', $item->uuid) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                <div class="btn-group" role="group">
-                                    {{-- Tombol Detail / Show --}}
-                                    <a href="{{ route('inspections.show', $item->uuid) }}" class="btn btn-sm btn-outline-primary" title="Detail"><i class="fas fa-eye"></i></a>
-                                    <a href="{{ route('inspections.edit', $item->uuid) }}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="text-center py-5">
-                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Data tidak ditemukan</h5>
-                            <p class="small text-muted">Coba ubah filter pencarian Anda atau tambahkan data baru.</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if ($inspections->hasPages())
-        <div class="card-footer bg-light">
-            {{-- Menambahkan withQueryString agar filter tetap ada saat ganti halaman --}}
-            {!! $inspections->withQueryString()->links() !!}
-        </div>
-        @endif
-    </div>
-</div>
 @endsection

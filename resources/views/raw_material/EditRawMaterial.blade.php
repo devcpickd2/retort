@@ -66,7 +66,7 @@
 
 {{-- Mendefinisikan bagian konten --}}
 @section('content')
-<div class="container py-4">
+<div class="container-fluid py-0">
     <div class="card shadow-sm border-0">
         <div class="card-body p-4 p-md-5">
 
@@ -109,11 +109,12 @@
                                 @error('setup_kedatangan') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
                             </div>
                             
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <label for="bahan_baku" class="form-label">Bahan Baku</label>
                                 <select class="form-select select2 @error('bahan_baku') is-invalid @enderror" id="bahan_baku" name="bahan_baku" required>
                                     <option></option> {{-- Placeholder untuk Select2 --}}
-                                    {{-- PERUBAHAN: Cek 'old' atau data $inspection --}}
+                                    
+                                    {{-- Logika Edit: Menggunakan old() dengan fallback ke data $inspection --}}
                                     <option value="Daging Ayam" {{ old('bahan_baku', $inspection->bahan_baku) == 'Daging Ayam' ? 'selected' : '' }}>Daging Ayam</option>
                                     <option value="Tepung Tapioka" {{ old('bahan_baku', $inspection->bahan_baku) == 'Tepung Tapioka' ? 'selected' : '' }}>Tepung Tapioka</option>
                                     <option value="Minyak Goreng" {{ old('bahan_baku', $inspection->bahan_baku) == 'Minyak Goreng' ? 'selected' : '' }}>Minyak Goreng</option>
@@ -280,7 +281,7 @@
                              <div class="col-md-4">
                                 <label for="suhu_mobil" class="form-label">Suhu Mobil (°C)</label>
                                 {{-- PERUBAHAN: Isi value dengan data lama --}}
-                                <input type="text" class="form-control @error('suhu_mobil') is-invalid @enderror" id="suhu_mobil" name="suhu_mobil" value="{{ old('suhu_mobil', $inspection->suhu_mobil) }}" required>
+                                <input type="number" class="form-control @error('suhu_mobil') is-invalid @enderror" id="suhu_mobil" name="suhu_mobil" value="{{ old('suhu_mobil', $inspection->suhu_mobil) }}" required max="50">
                                 @error('suhu_mobil') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
                             </div>
                             <div class="col-md-4">
@@ -313,7 +314,7 @@
                             <div class="col-md-6">
                                 <label for="suhu_daging" class="form-label">Suhu Daging/Bahan (°C)</label>
                                 {{-- PERUBAHAN: Isi value dengan data lama --}}
-                                <input type="number" step="0.01" class="form-control @error('suhu_daging') is-invalid @enderror" id="suhu_daging" name="suhu_daging" value="{{ old('suhu_daging', $inspection->suhu_daging) }}" required>
+                                <input type="number" step="0.01" class="form-control @error('suhu_daging') is-invalid @enderror" id="suhu_daging" name="suhu_daging" value="{{ old('suhu_daging', $inspection->suhu_daging) }}" required max="50">
                                 @error('suhu_daging') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
                             </div>
                             <div class="col-12">
@@ -352,13 +353,27 @@
             theme: "bootstrap-5", // Use the Bootstrap 5 theme
             placeholder: "Ketik untuk mencari...",
             allowClear: true,
-            dropdownAutoWidth: true
+            dropdownAutoWidth: true,
+            width: '49%'
         });
     });
 </script>
 
 {{-- 4. PERUBAHAN: Menggunakan Script JS dari file Edit yang lama --}}
 <script>
+        document.querySelectorAll('input[type="number"][max]').forEach(function(input) {
+            input.addEventListener('input', function() {
+                // 1. Ambil nilai max (misal: 50)
+                const max = parseFloat(this.getAttribute('max'));
+                
+                // 2. Cek jika nilai yang diketik lebih besar dari max
+                if (parseFloat(this.value) > max) {
+                    // 3. Jika ya, paksa nilainya kembali ke max
+                    this.value = max;
+                }
+            });
+        });
+
     document.addEventListener('DOMContentLoaded', function() {
         
         // --- Script for Dynamic Product Details (MODIFIED FOR EDIT) ---

@@ -21,9 +21,11 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Kontrol Labelisasi PVDC</h3>
+                @can('can access add button')
                 <a href="{{ route('labelisasi_pvdc.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
+                @endcan
             </div>
 
             {{-- Filter dan Live Search --}}
@@ -64,8 +66,241 @@
 
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
+<<<<<<< HEAD
              <table class="table table-striped table-bordered align-middle table-hover">
                 <thead class="table-primary text-center">
+=======
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>NO.</th>
+                            <th>Date | Shift</th>
+                            <th>Nama Produk</th>
+                            <th>Labelisasi</th>
+                            <th>QC</th>
+                            <th>Operator</th>
+                            <th>SPV</th>
+                            <th>Verification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php 
+                        $no = ($data->currentPage() - 1) * $data->perPage() + 1; 
+                        @endphp
+                        @forelse ($data as $dep)
+                        <tr>
+                            <td class="text-center">{{ $no++ }}</td>
+                            <td>{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift: {{ $dep->shift }}</td>   
+                            <td>{{ $dep->nama_produk }}</td>
+                            <td class="text-center">
+                                @php
+                                $labelisasi_pvdc = json_decode($dep->labelisasi, true);
+                                @endphp
+
+                                @if(!empty($labelisasi_pvdc))
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#labelisasi_pvdcModal{{ $dep->uuid }}" 
+                                   style="font-weight: bold; text-decoration: underline;">
+                                   Result
+                               </a>
+
+                               <!-- Modal Detail Labelisasi PVDC -->
+                               <div class="modal fade" id="labelisasi_pvdcModal{{ $dep->uuid }}" tabindex="-1"
+                                aria-labelledby="labelisasi_pvdcModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                <div class="modal-dialog" style="max-width: 60%;">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-warning text-white">
+                                            <h5 class="modal-title" id="labelisasi_pvdcModalLabel{{ $dep->uuid }}">
+                                                Detail Kontrol Labelisasi PVDC
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped table-sm text-center align-middle">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>No</th>
+                                                            <th>Mesin</th>
+                                                            <th>Kode Produksi</th>
+                                                            <th>Bukti Gambar</th>
+                                                            <th>Keterangan</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($labelisasi_pvdc as $i => $row)
+                                                        <tr>
+                                                            <td>{{ $i + 1 }}</td>
+                                                            <td>{{ $row['mesin'] ?? '-' }}</td>
+                                                            <td>{{ $row['kode_batch'] ?? '-' }}</td>
+                                                            <td>
+                                                                @if(!empty($row['file']))
+                                                                <a href="{{ $row['file'] }}" target="_blank">
+                                                                    <img src="{{ $row['file'] }}" width="80" class="img-thumbnail">
+                                                                </a>
+                                                                @else
+                                                                -
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $row['keterangan'] ?? '-' }}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @else
+                            <span>-</span>
+                            @endif
+                        </td>
+                        <td class="text-center align-middle">{{ $dep->username }}</td>
+                        <td class="text-center align-middle">{{ $dep->nama_operator }}</td>
+                        <td class="text-center align-middle">
+                            @if ($dep->status_spv == 0)
+                            <span class="fw-bold text-secondary">Created</span>
+                            @elseif ($dep->status_spv == 1)
+                            <span class="fw-bold text-success">Verified</span>
+                            @elseif ($dep->status_spv == 2)
+                            <!-- Link buka modal -->
+                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
+                               class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
+
+                               <!-- Modal -->
+                               <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="revisionModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title" id="revisionModalLabel{{ $dep->uuid }}">Detail Revisi</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <ul class="list-unstyled mb-0">
+                                                <li><strong>Status:</strong> Revision</li>
+                                                <li><strong>Catatan:</strong> {{ $dep->catatan_spv ?? '-' }}</li>
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                        </td>
+
+                        <td class="text-center align-middle">
+                            @can('can access verification button')
+                            <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
+                                <i class="bi bi-shield-check me-1"></i> Verifikasi
+                            </button>
+                            @endcan
+                            @can('can access edit button')
+                            <a href="{{ route('labelisasi_pvdc.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            @endcan
+                            @can('can access update button')
+                            <a href="{{ route('labelisasi_pvdc.update.form', $dep->uuid) }}" class="btn btn-info btn-sm me-1">
+                                <i class="bi bi-pencil"></i> Update
+                            </a>
+                            @endcan
+                            @can('can access delete button')
+                            <form action="{{ route('labelisasi_pvdc.destroy', $dep->uuid) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Yakin ingin menghapus?')">
+                                <i class="bi bi-trash"></i> Hapus
+                            </button>
+                        </form>
+                            @endcan
+                        <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="verifyModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-md">
+                                <form action="{{ route('labelisasi_pvdc.verification.update', $dep->uuid) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white" 
+                                    style="background: linear-gradient(145deg, #7a1f12, #9E3419); 
+                                    box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
+                                    <div class="modal-header border-bottom border-light-subtle p-4" style="border-bottom-width: 3px !important;">
+                                        <h5 class="modal-title fw-bolder fs-3 text-uppercase" id="verifyModalLabel{{ $dep->uuid }}" style="color: #00ffc4;">
+                                            <i class="bi bi-gear-fill me-2"></i> VERIFICATION
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body p-5">
+                                        <p class="text-light mb-4 fs-6">
+                                            Pastikan data yang akan diverifikasi di check dengan teliti terlebih dahulu.
+                                        </p>
+                                        <div class="row g-4">
+                                            <div class="col-md-12">
+                                                <label for="status_spv_{{ $dep->uuid }}" class="form-label fw-bold mb-2 text-center d-block" 
+                                                    style="color: #FFE5DE; font-size: 0.95rem;">
+                                                    Pilih Status Verifikasi
+                                                </label>
+
+                                                <select 
+                                                name="status_spv" 
+                                                id="status_spv_{{ $dep->uuid }}" 
+                                                class="form-select form-select-lg fw-bold text-center mx-auto"
+                                                style="
+                                                background: linear-gradient(135deg, #fff1f0, #ffe5de);
+                                                border: 2px solid #dc3545;
+                                                border-radius: 12px;
+                                                color: #dc3545;
+                                                height: 55px;
+                                                font-size: 1.1rem;
+                                                box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+                                                width: 85%;
+                                                transition: all 0.3s ease;
+                                                "
+                                                required
+                                                >
+                                                <option value="1" {{ $dep->status_spv == 1 ? 'selected' : '' }} 
+                                                    style="color: #198754; font-weight: 600;">✅ Verified (Disetujui)</option>
+                                                    <option value="2" {{ $dep->status_spv == 2 ? 'selected' : '' }} 
+                                                        style="color: #dc3545; font-weight: 600;">❌ Revision (Perlu Perbaikan)</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-md-12 mt-3">
+                                                    <label for="catatan_spv_{{ $dep->uuid }}" class="form-label fw-bold text-light mb-2">
+                                                        Catatan Tambahan (Opsional)
+                                                    </label>
+                                                    <textarea name="catatan_spv" id="catatan_spv_{{ $dep->uuid }}" rows="4" 
+                                                        class="form-control text-dark border-0 shadow-none" 
+                                                        placeholder="Masukkan catatan, misalnya alasan revisi..." 
+                                                        style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer justify-content-end p-4 border-top" style="background-color: #9E3419; border-color: #00ffc4 !important;">
+                                                <button type="button" class="btn btn-outline-light fw-bold rounded-pill px-4 me-2" data-bs-dismiss="modal">
+                                                    Batal
+                                                </button>
+                                                <button type="submit" class="btn fw-bolder rounded-pill px-5" style="background-color: #E39581; color: #2c3e50;">
+                                                    <i class="bi bi-save-fill me-1"></i> SUBMIT
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                    </tr>
+                    @empty
+>>>>>>> 545d16d29a68d4c7c28634d30da33929df90bf89
                     <tr>
                         <th>NO.</th>
                         <th>Date | Shift</th>

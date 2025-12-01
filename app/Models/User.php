@@ -5,13 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory,  HasUuids;
+    use HasFactory, HasUuids, HasRoles;
 
-    protected $table = 'users'; // nama tabel
+    protected $table = 'users';
     protected $primaryKey = 'uuid';
+
+    protected $keyType = 'string';
+    public $incrementing = false;  
 
     protected $fillable = [
         'uuid', 'name', 'username', 'password', 'plant',
@@ -36,5 +40,17 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Departemen::class, 'department');
     }
+
+    public const TYPE_USER_ROLE_MAP = [
+        0 => 'admin',
+        1 => 'manager',
+        2 => 'supervisor',
+        3 => 'foreman_produksi',
+        8 => 'foreman_qc',
+        4 => 'inspector',
+        5 => 'engineer',
+        6 => 'warehouse',
+        7 => 'lab',
+    ];
 
 }
