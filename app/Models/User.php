@@ -29,7 +29,7 @@ class User extends Authenticatable
 // app/Models/User.php
     public function plantRelasi()
     {
-        return $this->belongsTo(Plant::class, 'plant'); 
+        return $this->belongsTo(Plant::class, 'plant', 'uuid');
     }
 
     public function departmentRelasi()

@@ -2,28 +2,6 @@
 
 @php
 use Illuminate\Support\Str;
-
-// Dekode data pemeriksaan
-$pemeriksaanTersimpan = json_decode($gmp->pemeriksaan, true) ?? [];
-
-// Restrukturisasi data pemeriksaan tersimpan agar mudah diakses:
-// Key: Area Name (e.g., "Area A") -> Key: Nama Karyawan -> Value: Data Pemeriksaan (Array)
-$dataByAreaKaryawan = [];
-foreach ($pemeriksaanTersimpan as $row) {
-    // Pastikan area dan nama karyawan ada sebelum menyimpan
-    if (isset($row['area']) && isset($row['nama_karyawan'])) {
-        // Area harus sama dengan nama area dari database
-        $areaName = $row['area'];
-        $namaKaryawan = $row['nama_karyawan'];
-        
-        // Inisialisasi jika belum ada
-        if (!isset($dataByAreaKaryawan[$areaName])) {
-            $dataByAreaKaryawan[$areaName] = [];
-        }
-        
-        $dataByAreaKaryawan[$areaName][$namaKaryawan] = $row;
-    }
-}
 @endphp
 
 @section('content')
@@ -31,14 +9,14 @@ foreach ($pemeriksaanTersimpan as $row) {
     <div class="card shadow-sm">
         <div class="card-body">
             <h4 class="mb-4">
-                <i class="bi bi-pencil-square"></i> Form Edit Pemeriksaan Personal Hygiene dan Kesehatan Karyawan
+                <i class="bi bi-pencil-square"></i> Edit Pemeriksaan Personal Hygiene dan Kesehatan Karyawan
             </h4>
 
-            {{-- Pastikan action diarahkan ke method update --}}
             <form method="POST" action="{{ route('gmp.update', $gmp->uuid) }}" enctype="multipart/form-data">
                 @csrf
-                @method('PUT') {{-- Wajib menggunakan method PUT/PATCH untuk update --}}
+                @method('PUT')
 
+                {{-- Waktu Pemeriksaan --}}
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
                         <strong>Waktu Pemeriksaan</strong>
@@ -47,13 +25,14 @@ foreach ($pemeriksaanTersimpan as $row) {
                         <div class="row mb-3">
                             <div class="col-md-4">
                                 <label for="dateInput" class="form-label">Tanggal</label>
-                                <input type="date" id="dateInput" name="date" class="form-control" required 
-                                value="{{ old('date', \Carbon\Carbon::parse($gmp->date)->format('Y-m-d')) }}">
+                                <input type="date" id="dateInput" name="date" class="form-control"
+                                value="{{ old('date', $gmp->date) }}" required>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {{-- Pemeriksaan Area --}}
                 <div class="card mb-3">
                     <div class="card-header bg-info text-white">
                         <strong>Pemeriksaan Area</strong>
@@ -65,13 +44,13 @@ foreach ($pemeriksaanTersimpan as $row) {
                             <i class="bi bi-info-circle"></i>
                             <strong>Catatan:</strong>
                             <ul>
-                             <li><b>Kosongkan</b> checkbox apabila <u>memakai lengkap atau sesuai standar</u>. </li>
-                             <li> <strong>Centang</strong> checkbox apabila <u><b>tidak memakai</b></u> atau <u>memakai namun tidak benar atau <b>tidak sesuai standar</b></u>.</li>
-                         </ul>
-                     </div>
+                               <li><b>Kosongkan</b> checkbox apabila <u>memakai lengkap atau sesuai standar</u>. </li>
+                               <li> <strong>Centang</strong> checkbox apabila <u><b>tidak memakai</b></u> atau <u><b>memakai namun tidak benar</b> atau <b>tidak sesuai standar</b></u>.</li>
+                           </ul>
+                       </div>
 
-                     {{-- Tab Dinamis Area --}}
-                     <ul class="nav nav-tabs" id="areaTabs" role="tablist">
+                       {{-- Tab Dinamis Area --}}
+                       <ul class="nav nav-tabs" id="areaTabs" role="tablist">
                         @foreach($areas as $index => $area)
                         <li class="nav-item" role="presentation">
                             <button class="nav-link {{ $index == 0 ? 'active' : '' }}"
@@ -141,8 +120,7 @@ foreach ($pemeriksaanTersimpan as $row) {
                             <tbody>
                                 @foreach($karyawanByArea[$namaArea] ?? [] as $i => $nama_karyawan)
                                 @php
-                                // Ambil data pemeriksaan untuk karyawan dan area ini
-                                $karyawanData = $dataByAreaKaryawan[$namaArea][$nama_karyawan] ?? [];
+                                $rowData = $oldDataPerArea[$namaArea][$nama_karyawan] ?? [];
                                 @endphp
                                 <tr>
                                     <td class="text-start ps-2">
@@ -152,33 +130,24 @@ foreach ($pemeriksaanTersimpan as $row) {
 
                                     {{-- Checkbox Pemeriksaan --}}
                                     @foreach([
-                                    'anting', 'kalung', 'cincin', 'jam_tangan', 'peniti', 'bros', 
-                                    'payet', 'softlens', 'eyelashes', 'seragam', 'boot', 'masker', 
-                                    'ciput_hairnet', 'kuku', 'parfum', 'make_up', 
-                                    'diare', 'demam', 'luka_bakar', 'batuk', 'radang', 'influenza', 'sakit_mata'
+                                    'anting','kalung','cincin','jam_tangan','peniti','bros',
+                                    'payet','softlens','eyelashes','seragam','boot','masker',
+                                    'ciput_hairnet','kuku','parfum','make_up',
+                                    'diare','demam','luka_bakar','batuk','radang','influenza','sakit_mata'
                                     ] as $attr)
-                                    @php
-                                        // Nilai dari data tersimpan, default 0
-                                        $savedValue = $karyawanData[$attr] ?? 0; 
-                                        // Gunakan old() jika ada, jika tidak, gunakan savedValue
-                                        $checked = old("{$slugArea}.{$i}.{$attr}", $savedValue) == 1 ? 'checked' : '';
-                                    @endphp
                                     <td>
                                         <input type="hidden" name="{{ $slugArea }}[{{ $i }}][{{ $attr }}]" value="0">
-                                        <input type="checkbox" name="{{ $slugArea }}[{{ $i }}][{{ $attr }}]" value="1" {{ $checked }}>
+                                        <input type="checkbox" name="{{ $slugArea }}[{{ $i }}][{{ $attr }}]" value="1"
+                                        {{ isset($rowData[$attr]) && $rowData[$attr] == 1 ? 'checked' : '' }}>
                                     </td>
                                     @endforeach
 
                                     {{-- Kolom Keterangan --}}
                                     <td class="text-start">
-                                        @php
-                                            // Nilai keterangan dari data tersimpan, default null
-                                            $savedKeterangan = $karyawanData['keterangan'] ?? '';
-                                        @endphp
                                         <input type="text" 
-                                        class="form-control form-control-sm w-100" 
+                                        class="form-control form-control-sm w-100"
                                         name="{{ $slugArea }}[{{ $i }}][keterangan]"
-                                        value="{{ old("{$slugArea}.{$i}.keterangan", $savedKeterangan) }}">
+                                        value="{{ $rowData['keterangan'] ?? '' }}">
                                     </td>
                                 </tr>
                                 @endforeach
@@ -192,7 +161,7 @@ foreach ($pemeriksaanTersimpan as $row) {
             {{-- Tombol Aksi --}}
             <div class="d-flex justify-content-between mt-3">
                 <button type="submit" class="btn btn-success">
-                    <i class="bi bi-arrow-repeat"></i> Perbarui Data
+                    <i class="bi bi-save"></i> Update
                 </button>
                 <a href="{{ route('gmp.index') }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Kembali
@@ -205,35 +174,31 @@ foreach ($pemeriksaanTersimpan as $row) {
 </div>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dateInput = document.getElementById("dateInput");
+        if (!dateInput.value) {
+            let now = new Date();
+            let yyyy = now.getFullYear();
+            let mm = String(now.getMonth() + 1).padStart(2, '0');
+            let dd = String(now.getDate()).padStart(2, '0');
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+    });
+</script>
+
 <style>
-    /* Styling Anda yang sebelumnya (atau impor CSS yang sama dari create.blade.php) */
-    .compact-table td, .compact-table th {
-        padding: 0.3rem !important;
-        font-size: 0.85rem;
-        line-height: 1.2;
-        vertical-align: middle;
-    }
-
-    .compact-table tbody td:first-child {
-        min-width: 250px !important;
-        width: 250px !important;
-        text-align: left !important;
-        padding-left: 8px !important;
-    }
-
-    .compact-table tbody td:last-child {
-        min-width: 220px !important;
-        width: 220px !important;
-        text-align: left !important;
-    }
-
-    .nav-tabs .nav-link {
-        font-weight: 600;
-    }
-
-    textarea.form-control {
-        resize: none;
-    }
+    .compact-table td, .compact-table th { padding: 0.3rem !important; font-size: 0.85rem; line-height: 1.2; vertical-align: middle; }
+    .compact-table tbody td:first-child { min-width: 250px !important; width: 250px !important; text-align: left !important; padding-left: 8px !important; }
+    .compact-table tbody td:last-child { min-width: 220px !important; width: 220px !important; text-align: left !important; }
+    .nav-tabs .nav-link { font-weight: 600; }
+    textarea.form-control { resize: none; }
+    .table thead th { text-align: center; vertical-align: middle; white-space: nowrap; }
+    .table tbody td { text-align: center; vertical-align: middle; }
+    .table tbody td.text-start { text-align: left; }
+    input[type="checkbox"] { width: 1rem; height: 1rem; margin: auto; display: block; }
+    .card-header strong { display: block; text-align: left; }
+    .table tbody tr:hover { background-color: #f1f1f1; }
 </style>
 
 @endsection

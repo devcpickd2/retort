@@ -199,7 +199,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center">Belum ada data sample bulanan.</td>
+                            <td colspan="8" class="text-center">Belum ada data sample bulanan.</td>
                         </tr>
                         @endforelse
                     </tbody>

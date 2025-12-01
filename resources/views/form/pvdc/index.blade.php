@@ -203,6 +203,56 @@
             <div class="mt-3">
                 {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
             </div>
+
+            <form method="GET" action="{{ route('pvdc.exportPdf') }}">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body d-flex align-items-end gap-2 flex-wrap">
+
+                        <div class="col-auto">
+                            <label class="fw-semibold">Tanggal</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date" name="date" value="{{ request('date') }}"
+                            class="form-control form-control-sm" required>
+                        </div>
+
+                        <div class="col-auto">
+                            <label class="fw-semibold">Shift</label>
+                        </div>
+                        <div class="col-auto">
+                            <select name="shift" class="form-control form-control-sm" required>
+                                <option value="" disabled selected>Pilih shift</option>
+                                <option value="1" @selected(request('shift')=='1')>Shift 1</option>
+                                <option value="2" @selected(request('shift')=='2')>Shift 2</option>
+                                <option value="3" @selected(request('shift')=='3')>Shift 3</option>
+                            </select>
+                        </div>
+
+                        <div class="col-auto">
+                            <label class="fw-semibold">Nama Produk</label>
+                        </div>
+                        <div class="col-auto">
+                            <select name="nama_produk" class="form-control form-control-sm selectpicker" data-live-search="true" required>
+                                <option value="">Pilih Produk</option>
+                                @foreach($produks as $p)
+                                <option value="{{ $p->nama_produk }}" 
+                                    @selected(request('nama_produk') == $p->nama_produk)>
+                                    {{ $p->nama_produk }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>

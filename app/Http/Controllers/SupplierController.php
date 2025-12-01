@@ -42,7 +42,8 @@ class SupplierController extends Controller
     {
         $request->validate([
             'nama_supplier' => 'required|string|max:255',
-            'jenis_barang' => 'required|string|max:255'
+            'jenis_barang' => 'required|string|max:255',
+            'alamat' => 'nullable|string|max:255'
         ]);
 
         $user = Auth::user();
@@ -51,7 +52,8 @@ class SupplierController extends Controller
             'username' => $user->username,  
             'plant' => $user->plant,       
             'nama_supplier' => $request->nama_supplier,
-            'jenis_barang' => $request->jenis_barang
+            'jenis_barang' => $request->jenis_barang,
+            'alamat' => $request->alamat
         ]);
 
         return redirect()->route('supplier.index')->with('success', 'Supplier berhasil ditambahkan');
@@ -74,7 +76,8 @@ class SupplierController extends Controller
     {
         $request->validate([
             'nama_supplier' => 'required|string|max:255',
-            'jenis_barang' => 'required|string|max:255'
+            'jenis_barang' => 'required|string|max:255',
+            'alamat' => 'nullable|string|max:255'
         ]);
 
         $userPlantUuid = Auth::user()->plant;
@@ -85,7 +88,8 @@ class SupplierController extends Controller
 
         $supplier->update([
             'nama_supplier' => $request->nama_supplier,
-            'jenis_barang' => $request->jenis_barang
+            'jenis_barang' => $request->jenis_barang,
+            'alamat' => $request->alamat
         ]);
 
         return redirect()->route('supplier.index')->with('success', 'Supplier berhasil diupdate');

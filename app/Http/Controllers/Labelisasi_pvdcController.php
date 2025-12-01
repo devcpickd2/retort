@@ -12,30 +12,60 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use App\Models\User;
+use Illuminate\Support\Facades\Response;
 
 class Labelisasi_pvdcController extends Controller
 {
     public function index(Request $request)
     {
-        $search     = $request->input('search');
-        $date = $request->input('date');
-        $userPlant  = Auth::user()->plant;
+        $search        = $request->input('search');
+        $date          = $request->input('date');
+        $shift         = $request->input('shift');
+        $namaProduk    = $request->input('nama_produk');
+        $userPlant     = Auth::user()->plant;
 
+    // Ambil list produk untuk dropdown
+        $produks = Labelisasi_pvdc::where('plant', $userPlant)
+        ->select('nama_produk')
+        ->distinct()
+        ->orderBy('nama_produk')
+        ->get();
+
+    // Query utama PVDC
         $data = Labelisasi_pvdc::query()
         ->where('plant', $userPlant)
-        ->when($search, fn($q) => $q->where(function ($sub) use ($search) {
-            $sub->where('username', 'like', "%{$search}%")
-            ->orWhere('nama_produk', 'like', "%{$search}%");
-        }))
+
+        // Filter pencarian bebas
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                ->orWhere('nama_produk', 'like', "%{$search}%")
+                ->orWhere('nama_supplier', 'like', "%{$search}%");
+            });
+        })
+
+        // Filter berdasarkan tanggal
         ->when($date, function ($query) use ($date) {
             $query->whereDate('date', $date);
         })
+
+        // Filter shift
+        ->when($shift, function ($query) use ($shift) {
+            $query->where('shift', $shift);
+        })
+
+        // Filter nama produk
+        ->when($namaProduk, function ($query) use ($namaProduk) {
+            $query->where('nama_produk', $namaProduk);
+        })
+
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.labelisasi_pvdc.index', compact('data', 'search', 'date'));
+        return view('form.labelisasi_pvdc.index', compact('data', 'produks', 'search', 'date', 'shift', 'namaProduk'));
     }
 
     public function create()
@@ -112,39 +142,47 @@ class Labelisasi_pvdcController extends Controller
             'shift' => 'required|string',
             'nama_produk' => 'required|string',
             'nama_operator' => 'required|string',
+            'data_pvdc' => 'required|array|min:1',
+            'data_pvdc.*.mesin' => 'required|string',
+            'data_pvdc.*.kode_batch' => 'required|string',
+            'data_pvdc.*.kode_produksi' => 'required|file|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $tempData = session()->get('pvdc_temp', []);
+        $dataPvdc = [];
+        foreach($request->data_pvdc as $item) {
+            $file = $item['kode_produksi'];
+            $filename = time().'_'.Str::random(8).'.'.$file->getClientOriginalExtension();
+            $path = $file->storeAs('public/uploads/pvdc', $filename);
+            $url = Storage::url($path);
 
-        if (empty($tempData)) {
-            return response()->json(['success' => false, 'message' => 'Belum ada data PVDC yang diinputkan!']);
+            $dataPvdc[] = [
+                'mesin' => $item['mesin'],
+                'kode_batch' => $item['kode_batch'],
+                'file' => $url,
+                'keterangan' => $item['keterangan'] ?? null,
+            ];
         }
 
-        try {
-            Labelisasi_pvdc::create([
-                'uuid' => $uuid,
-                'date' => $request->date,
-                'shift' => $request->shift,
-                'nama_produk' => $request->nama_produk,
-                'nama_operator' => $request->nama_operator,
-                'username' => $username,
-                'plant' => $userPlant,
-                'status_operator' => "1",
-                'status_spv' => "0",
-                'labelisasi' => json_encode($tempData, JSON_UNESCAPED_UNICODE),
-            ]);
+        Labelisasi_pvdc::create([
+            'uuid' => $uuid,
+            'date' => $request->date,
+            'shift' => $request->shift,
+            'nama_produk' => $request->nama_produk,
+            'nama_operator' => $request->nama_operator,
+            'username' => $username,
+            'plant' => $userPlant,
+            'status_operator' => "1",
+            'status_spv' => "0",
+            'labelisasi' => json_encode($dataPvdc, JSON_UNESCAPED_UNICODE),
+        ]);
 
-            session()->forget('pvdc_temp');
-
-            return response()->json([
-                'success' => true,
-                'redirect_url' => route('labelisasi_pvdc.index'),
-                'message' => 'Data Labelisasi PVDC berhasil disimpan.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal menyimpan data: ' . $e->getMessage()]);
-        }
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('labelisasi_pvdc.index'),
+            'message' => 'Data Labelisasi PVDC berhasil disimpan.'
+        ]);
     }
+
 
     public function update($uuid)
     {
@@ -391,4 +429,177 @@ class Labelisasi_pvdcController extends Controller
 
         Storage::put("{$path}/{$filename}", (string) $image);
     }
+
+    public function exportPdf(Request $request)
+    {
+    // Bersihkan output buffer supaya TCPDF tidak error
+        if (ob_get_length()) ob_end_clean();
+
+        require_once base_path('vendor/tecnickcom/tcpdf/tcpdf.php');
+
+        $date        = $request->date;
+        $shift       = $request->shift;
+        $nama_produk = $request->nama_produk;
+
+    // Ambil data PVDC
+        $labelisasi_pvdc = Labelisasi_pvdc::whereDate('date', $date)
+        ->where('shift', $shift)
+        ->where('nama_produk', $nama_produk)
+        ->first();
+
+        if (!$labelisasi_pvdc) {
+            return back()->with('error', 'Data PVDC tidak ditemukan.');
+        }
+
+    // Decode JSON
+        $dataPvdc = json_decode($labelisasi_pvdc->labelisasi, true) ?? [];
+
+    // Setup PDF Landscape LEGAL
+        $pdf = new \TCPDF('L', 'mm', 'LEGAL', true, 'UTF-8', false);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(true, 10);
+        $pdf->AddPage();
+
+    // ===========================
+    // HEADER
+    // ===========================
+        $pdf->SetFont('times', 'I', 7);
+        $pdf->Cell(0, 3, "PT. Charoen Pokphand Indonesia", 0, 1, 'L');
+        $pdf->Cell(0, 3, "Food Division", 0, 1, 'L');
+        $pdf->Ln(2);
+        $pdf->SetFont('times', 'B', 14);
+        $pdf->Cell(0, 10, "DATA LABELISASI PVDC", 0, 1, 'C');
+
+        $pdf->SetFont('times', '', 10);
+        $pdf->Cell(0, 6, "Tanggal: " . date('d-m-Y', strtotime($labelisasi_pvdc->date)) .
+            " | Shift: " . $labelisasi_pvdc->shift .
+            " | Produk: " . $labelisasi_pvdc->nama_produk, 0, 1, 'C');
+        $pdf->Ln(5);
+
+    // ===========================
+    // TABEL LABELISASI (2 DATA PER BARIS)
+    // ===========================
+        $pdf->SetFont('times', '', 10);
+
+        $rows = array_chunk($dataPvdc, 2);
+        $blockWidth = ($pdf->getPageWidth() - 20) / 2;
+        $lineHeight = 6;
+
+        foreach ($rows as $row) {
+            $yStart = $pdf->GetY();
+            $xStart = 10;
+
+        // ----- BARIS MESIN -----
+            foreach ($row as $item) {
+                $pdf->SetXY($xStart, $yStart);
+                $pdf->Cell($blockWidth, $lineHeight, "Mesin: " . ($item['mesin'] ?? '-'), 1, 0, 'L');
+                $xStart += $blockWidth;
+            }
+            $pdf->Ln($lineHeight);
+            $xStart = 10;
+
+        // ----- BARIS KODE BATCH + KETERANGAN -----
+            foreach ($row as $item) {
+                $pdf->SetXY($xStart, $pdf->GetY());
+                $pdf->Cell($blockWidth * 0.5, $lineHeight, "Kode Batch: " . ($item['kode_batch'] ?? '-'), 1, 0, 'L');
+                $pdf->Cell($blockWidth * 0.5, $lineHeight, "Keterangan: " . ($item['keterangan'] ?? '-'), 1, 0, 'L');
+                $xStart += $blockWidth;
+            }
+            $pdf->Ln($lineHeight);
+            $xStart = 10;
+
+        // ----- BARIS GAMBAR -----
+            foreach ($row as $item) {
+                $pdf->SetXY($xStart, $pdf->GetY());
+                $pdf->Cell($blockWidth, 30, "", 1, 0);
+
+                if (!empty($item['file'])) {
+                // Path fisik server untuk TCPDF
+                    $imgPath = public_path(str_replace('/storage/', 'storage/', $item['file']));
+                    if (file_exists($imgPath)) {
+                        $pdf->Image($imgPath, $xStart + 2, $pdf->GetY() + 2, $blockWidth - 4, 26, '', '', '', true);
+                    }
+                }
+
+                $xStart += $blockWidth;
+            }
+            $pdf->Ln(32);
+        }
+
+        $all_data = Labelisasi_pvdc::whereDate('date', $date)
+        ->where('shift', $shift)
+        ->where('nama_produk', $nama_produk)
+        ->get();
+
+        $notes = $all_data->pluck('catatan')->filter()->toArray();
+        $notes_text = !empty($notes) ? implode(', ', $notes) : '-';
+
+        $pdf->SetFont('times', 'B', 9);
+        $pdf->Cell(0, 6, 'Catatan:', 0, 1);
+
+        $pdf->SetFont('times', '', 8);
+        $pdf->MultiCell(0, 5, $notes_text, 0, 'L');
+        $pdf->Ln(5);
+
+    // ===========================
+    // TANDA TANGAN + QR
+    // ===========================
+        $last = $all_data->last();
+        $qc_user  = User::where('username', $last->username)->first();
+        $spv_user = User::where('username', $last->nama_spv ?? '')->first();
+
+        $qc_tgl  = $last->created_at ? $last->created_at->format('d-m-Y H:i') : '-';
+        $spv_tgl = $last->tgl_update_spv ? date('d-m-Y H:i', strtotime($last->tgl_update_spv)) : '-';
+
+        $barcode_size = 15;
+        $page_width = $pdf->getPageWidth();
+        $margin = 50;
+        $usable_width = $page_width - ($margin * 2);
+        $gap = ($usable_width - (2 * $barcode_size)) / 1;
+
+        $x_positions = [
+            $margin,
+            $margin + $barcode_size + $gap
+        ];
+
+        $y_start = $pdf->GetY() + 5;
+
+        if ($last->status_spv == 1 && $spv_user) {
+        // QC
+            $pdf->SetXY($x_positions[0], $y_start);
+            $pdf->SetFont('times', '', 10);
+            $pdf->Cell($barcode_size, 6, 'Dibuat Oleh', 0, 1, 'C');
+
+            $qc_text = "Jabatan: QC Inspector\nNama: {$qc_user->name}\nTgl Dibuat: {$qc_tgl}";
+            $pdf->write2DBarcode($qc_text, 'QRCODE,L', $x_positions[0], $y_start + 8, $barcode_size, $barcode_size);
+
+            $pdf->SetXY($x_positions[0], $y_start + 8 + $barcode_size);
+            $pdf->SetFont('times', '', 8);
+            $pdf->MultiCell($barcode_size, 5, "QC Inspector", 0, 'C');
+
+        // SPV
+            $pdf->SetXY($x_positions[1], $y_start);
+            $pdf->Cell($barcode_size, 6, 'Disetujui Oleh', 0, 1, 'C');
+
+            $spv_text = "Jabatan: Supervisor QC\nNama: {$spv_user->name}\nTgl Verifikasi: {$spv_tgl}";
+            $pdf->write2DBarcode($spv_text, 'QRCODE,L', $x_positions[1], $y_start + 8, $barcode_size, $barcode_size);
+
+            $pdf->SetXY($x_positions[1], $y_start + 8 + $barcode_size);
+            $pdf->SetFont('times', '', 8);
+            $pdf->MultiCell($barcode_size, 5, "Supervisor QC", 0, 'C');
+        } else {
+            $pdf->SetXY($x_positions[1], $y_start + 20);
+            $pdf->SetFont('times', '', 11);
+            $pdf->SetTextColor(255, 0, 0);
+            $pdf->Cell($barcode_size, 6, 'Data belum diverifikasi', 0, 1, 'C');
+            $pdf->SetTextColor(0);
+        }
+
+    // OUTPUT PDF
+        $pdf->Output("Labelisasi_PVDC_{$labelisasi_pvdc->date}_Shift_{$labelisasi_pvdc->shift}.pdf", 'I');
+        exit;
+    }
+
 }
