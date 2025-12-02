@@ -1,140 +1,211 @@
-{{-- Menggunakan layout utama Anda --}}
 @extends('layouts.app')
 
-{{-- Menambahkan style khusus untuk halaman ini (diambil dari contoh UI/UX Anda) --}}
-@push('styles')
-<style>
-    /* Variabel-variabel ini sebaiknya ada di file CSS utama Anda jika Anda menggunakan Bootstrap */
-    :root {
-        --bs-primary: #0D6EFD;
-        --bs-success: #198754;
-        --bs-warning: #FFC107;
-        --bs-danger: #DC3545;
-        --bs-secondary: #6C757D;
-    }
+@section('content')
+<div class="container-fluid py-0">
 
+    {{-- 1. BAGIAN ALERT --}}
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i> {{ trim(session('success')) }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    {{-- 2. CARD CUSTOM --}}
+    <div class="card card-custom shadow-sm">
+        <div class="card-body">
+
+            {{-- HEADER --}}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold"><i class="bi bi-box-seam me-2"></i> Daftar Pemeriksaan Packaging</h3>
+                <a href="{{ route('packaging-inspections.create') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Tambah Inspeksi
+                </a>
+            </div>
+
+            {{-- FILTER SEPERTI GAMBAR --}}
+            <form id="filterForm" method="GET" action="{{ route('packaging-inspections.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
+                
+                {{-- Input Tanggal (Icon + Input Menyatu) --}}
+                <div class="input-group" style="max-width: 200px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-calendar-date text-muted"></i>
+                    </span>
+                    <input type="date" name="start_date" id="start_date" class="form-control border-start-0 ps-1" 
+                           value="{{ request('start_date') }}" placeholder="dd/mm/yyyy">
+                </div>
+
+                {{-- Input Pencarian (Icon + Input Menyatu) --}}
+                <div class="input-group flex-grow-1" style="max-width: 450px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="search" id="search" class="form-control border-start-0 ps-1"
+                           value="{{ request('search') }}" placeholder="Cari Shift..">
+                </div>
+
+                {{-- Tombol Reset (Opsional) --}}
+                @if(request('start_date') || request('search'))
+                <a href="{{ route('packaging-inspections.index') }}" class="btn btn-secondary btn-sm ms-auto" title="Reset Filter">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </a>
+                @endif
+            </form>
+
+            {{-- SCRIPT AUTO SUBMIT --}}
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const startInfo = document.getElementById('start_date');
+                    const searchInfo = document.getElementById('search');
+                    const form = document.getElementById('filterForm');
+                    let timer;
+
+                    // Fungsi Auto Submit
+                    const autoSubmit = () => form.submit();
+
+                    // Submit saat tanggal berubah
+                    startInfo.addEventListener('change', autoSubmit);
+
+                    // Debounce search untuk input teks
+                    searchInfo.addEventListener('input', () => {
+                        clearTimeout(timer);
+                        timer = setTimeout(autoSubmit, 500);
+                    });
+                });
+            </script>
+
+            {{-- 3. TABEL DATA --}}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th width="5%">NO.</th>
+                            <th>Tanggal Inspeksi</th>
+                            <th>Shift</th>
+                            <th width="20%">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($inspections as $inspection)
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration + ($inspections->currentPage() - 1) * $inspections->perPage() }}</td>
+                            
+                            {{-- Tanggal --}}
+                            <td class="text-center align-middle">
+                                {{ $inspection->inspection_date ? \Carbon\Carbon::parse($inspection->inspection_date)->format('d-m-Y') : '-' }}
+                            </td>
+
+                            {{-- Shift --}}
+                            <td class="text-center align-middle">
+                                <span class="badge bg-light text-dark border">
+                                    {{ $inspection->shift }}
+                                </span>
+                            </td>
+                            
+                            {{-- Aksi --}}
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    
+                                    {{-- 1. Detail (Primary) --}}
+                                    <a href="{{ route('packaging-inspections.show', $inspection) }}" class="btn btn-primary btn-sm fw-bold shadow-sm mx-1" title="Lihat Detail">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    {{-- 3. Edit Full (Warning) --}}
+                                    <a href="{{ route('packaging-inspections.edit', $inspection) }}" class="btn btn-warning btn-sm mx-1" title="Edit Semua Data">
+                                        <i class="bi bi-pencil-square"></i> Edit Data
+                                    </a>
+                                    {{-- 2. Update / Lengkapi (Success - HIJAU - MENU BARU) --}}
+                                    {{-- Tombol ini mengarah ke route 'edit-for-update' yang baru dibuat --}}
+                                    <a href="{{ route('packaging-inspections.edit-for-update', $inspection) }}" class="btn btn-info btn-sm mx-1" title="Lengkapi Data">
+                                        <i class="bi bi-pencil"></i> Update
+                                    </a>
+
+
+                                    {{-- 4. Hapus (Danger) --}}
+                                    <form action="{{ route('packaging-inspections.destroy', $inspection) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm mx-1" title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Belum ada data pemeriksaan packaging.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Pagination --}}
+            <div class="mt-3">
+                {!! $inspections->withQueryString()->links('pagination::bootstrap-5') !!}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{-- 4. SCRIPT & STYLE TAMBAHAN --}}
+
+{{-- Auto-hide alert --}}
+<script>
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if(alert){
+            alert.classList.remove('show');
+            alert.classList.add('fade');
+        }
+    }, 3000);
+</script>
+
+<style>
+    /* Styling Font Tabel agar compact */
+    .table td, .table th {
+        font-size: 0.85rem;
+        white-space: nowrap; 
+    }
+    
+    /* Styling Card Custom */
     .card-custom {
         border: none;
         border-radius: 0.75rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-    .table-header-custom {
-        background-color: var(--bs-primary); /* Warna Biru Primary */
-        color: white;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.85rem;
+    
+    /* Input Group Focus State - Menghilangkan border biru saat fokus */
+    .input-group:focus-within {
+        box-shadow: none;
     }
-    .table > tbody > tr > td,
-    .table > tbody > tr > th {
-        vertical-align: middle;
+    .form-control:focus, .input-group-text:focus {
+         box-shadow: none; /* Menghilangkan shadow biru bootstrap */
+         border-color: #ced4da; /* Tetap gunakan warna border default */
     }
-    .table-hover > tbody > tr:hover {
-        background-color: #f8f9fa;
+
+    /* Agar icon dan input terlihat menyatu */
+    .input-group-text {
+        background-color: #fff;
     }
-    .btn-group .btn {
-        margin: 0 !important;
-    }
-    .form-label {
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
+
+    body { background-color: #f8f9fa; }
+    
+    /* Import Bootstrap Icons */
+    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
 </style>
-{{-- Font Awesome diperlukan untuk ikon --}}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" xintegrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-@endpush
-
-
-@section('content')
-<div class="container-fluid py-0">
-    <div class="card card-custom">
-        <div class="card-body p-4">
-
-            {{-- BAGIAN HEADER --}}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="card-title mb-0 fw-bold">
-                    <i class="fas fa-boxes-packing me-2"></i>Daftar Pemeriksaan Packaging
-                </h4>
-                <a href="{{ route('packaging-inspections.create') }}" class="btn btn-success">
-                    <i class="fas fa-plus me-1"></i>Tambah Inspeksi Baru
-                </a>
-            </div>
-
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-
-            {{-- BAGIAN FILTER --}}
-            <form method="GET" action="{{ route('packaging-inspections.index') }}" class="row g-3 align-items-end mb-4">
-                <div class="col-md-3">
-                    <label for="start_date" class="form-label small">Tanggal Awal</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request('start_date') }}">
-                </div>
-                <div class="col-md-3">
-                    <label for="end_date" class="form-label small">Tanggal Akhir</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request('end_date') }}">
-                </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
-                    <a href="{{ route('packaging-inspections.index') }}" class="btn btn-secondary w-100"><i class="fas fa-sync-alt me-1"></i> Reset</a>
-                </div>
-            </form>
-        </div>
-        
-        <hr class="my-0">
-
-        {{-- BAGIAN TABEL DATA --}}
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-header-custom">
-                    <tr>
-                        <th class="text-center">No</th>
-                        <th>Tanggal Inspeksi</th>
-                        <th>Shift</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($inspections as $inspection)
-                    <tr>
-                        <td class="text-center fw-bold">{{ $loop->iteration + ($inspections->currentPage() - 1) * $inspections->perPage() }}</td>
-                        <td>{{ $inspection->inspection_date ? \Carbon\Carbon::parse($inspection->inspection_date)->format('d M Y') : '-' }}</td>
-                        <td>{{ $inspection->shift }}</td>
-                        
-                        <td class="text-center">
-                            <form action="{{ route('packaging-inspections.destroy', $inspection) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                <div class="btn-group" role="group">
-                                    {{-- Tombol Detail / Show --}}
-                                    <a href="{{ route('packaging-inspections.show', $inspection) }}" class="btn btn-sm btn-outline-primary" title="Detail"><i class="fas fa-eye"></i></a>
-                                    {{-- Tombol Edit --}}
-                                    <a href="{{ route('packaging-inspections.edit', $inspection) }}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                                    {{-- Tombol Hapus --}}
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="text-center py-5">
-                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Data tidak ditemukan</h5>
-                            <p class="small text-muted">Coba ubah filter pencarian Anda atau tambahkan data baru.</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        @if ($inspections->hasPages())
-        <div class="card-footer bg-light">
-            {{-- Menambahkan withQueryString agar filter tetap ada saat ganti halaman --}}
-            {!! $inspections->withQueryString()->links() !!}
-        </div>
-        @endif
-    </div>
-</div>
 @endsection

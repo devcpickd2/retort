@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\MagnetTrapModel;
@@ -8,7 +7,7 @@ use Illuminate\Support\Str;
 use App\Models\Produk;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class MagnetTrapController extends Controller
 {
@@ -273,7 +272,7 @@ public function store(Request $request)
 
     public function exportPdf(Request $request)
     {
-        // 1. Ambil ID/UUID yang dikirim dari checkbox "Check All"
+        // 1. Ambil ID/UUID yang dikirim dari form
         $ids = $request->input('ids'); 
 
         // Validasi jika tidak ada data yang dipilih
@@ -281,19 +280,63 @@ public function store(Request $request)
             return redirect()->back()->with('error', 'Pilih setidaknya satu data untuk diexport.');
         }
 
-        // 2. Ambil data dari database berdasarkan UUID yang dipilih
-        // Kita urutkan berdasarkan created_at atau pukul agar rapi
+        // 2. Ambil data dari database
         $data = MagnetTrapModel::whereIn('uuid', $ids)
-                    ->orderBy('created_at', 'ASC')
-                    ->get();
+                        ->orderBy('created_at', 'ASC')
+                        ->get();
 
-        // 3. Load View PDF
-        // setPaper('a4', 'landscape') agar tabel memanjang ke samping sesuai gambar
-        $pdf = Pdf::loadView('magnet_trap.export_pdf', compact('data'))
-                    ->setPaper('a4', 'landscape');
+        // =========================================================
+        // 3. SETUP TCPDF (NATIVE)
+        // =========================================================
+        
+        // Load library manual sesuai request Anda
+        // Pastikan Anda sudah menjalankan: composer require tecnickcom/tcpdf
+        require_once base_path('vendor/tecnickcom/tcpdf/tcpdf.php');
 
-        // 4. Stream (tampilkan di browser) atau Download
-        return $pdf->stream('Checklist-Cleaning-Magnet-Trap.pdf');
+        // Buat Instance TCPDF (Landscape, mm, A4)
+        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
+
+        // Metadata Dokumen
+        $pdf->SetTitle('Checklist Cleaning Magnet Trap');
+        $pdf->SetAuthor('CP Food Division');
+
+        // Hapus Header & Footer default (garis hitam bawaan)
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        // Set Margin (Kiri, Atas, Kanan)
+        $pdf->SetMargins(10, 10, 10);
+        
+        // Auto Page Break (sedikit margin bawah agar tidak kepotong)
+        $pdf->SetAutoPageBreak(TRUE, 10);
+
+        // Tambah Halaman
+        $pdf->AddPage();
+
+        // =========================================================
+        // 4. RENDER VIEW KE HTML
+        // =========================================================
+        
+        // Render blade menjadi string HTML
+        $html = view('magnet_trap.export_pdf', compact('data'))->render();
+
+        // Tulis HTML ke PDF
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        // =========================================================
+        // 5. OUTPUT & PEMBERSIHAN BUFFER (PENTING!)
+        // =========================================================
+
+        // Membersihkan output buffer agar tidak error "Some data has already been output"
+        if (ob_get_contents()) {
+            ob_end_clean();
+        }
+
+        // Output ke browser ('I' = Inline/View, 'D' = Download)
+        $pdf->Output('Checklist-Cleaning-Magnet-Trap.pdf', 'I');
+        
+        // Hentikan script
+        exit;
     }
 }
 

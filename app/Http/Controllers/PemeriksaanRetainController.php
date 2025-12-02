@@ -13,25 +13,22 @@ class PemeriksaanRetainController extends Controller
 {
     public function index(Request $request) 
     {
-        // Mulai query builder
         $query = PemeriksaanRetain::withCount('items')
-                    ->with('creator')
+                    ->with('creator') 
                     ->latest();
 
-        // Terapkan filter tanggal awal (jika ada)
-        $query->when($request->start_date, function ($q) use ($request) {
-            return $q->where('tanggal', '>=', $request->start_date);
-        });
+        // Optional: Filter otomatis agar user hanya melihat data Plant-nya sendiri
+        /*
+        if (Auth::check() && Auth::user()->plant) {
+             $query->where('plant_uuid', Auth::user()->plant);
+        }
+        */
 
-        // Terapkan filter tanggal akhir (jika ada)
-        $query->when($request->end_date, function ($q) use ($request) {
-            return $q->where('tanggal', '<=', $request->end_date);
-        });
+        $query->when($request->start_date, fn($q) => $q->where('tanggal', '>=', $request->start_date));
+        $query->when($request->end_date, fn($q) => $q->where('tanggal', '<=', $request->end_date));
 
-        // Ambil data setelah difilter dan paginasi
         $pemeriksaanRetains = $query->paginate(15);
             
-        // Kirim data ke view
         return view('pemeriksaan_retain.index', compact('pemeriksaanRetains')); 
     }
 
@@ -56,10 +53,12 @@ class PemeriksaanRetainController extends Controller
 
         DB::beginTransaction();
         try {
-            // 'uuid' dan 'created_by' akan diisi otomatis oleh Model 'booted'
+            // Note: 'plant_uuid', 'created_by', 'updated_by' OTOMATIS DIISI OLEH MODEL (booted)
+            // Jadi kita cukup kirim data form saja.
             $pemeriksaanRetain = PemeriksaanRetain::create($request->only('hari', 'tanggal', 'keterangan'));
 
             foreach ($request->items as $itemData) {
+                // Mapping data item agar aman
                 $itemPayload = [
                     'kode_produksi'   => $itemData['kode_produksi'] ?? null,
                     'exp_date'        => $itemData['exp_date'] ?? null,
@@ -80,7 +79,6 @@ class PemeriksaanRetainController extends Controller
                     'lab_mikro'       => $itemData['lab_mikro'] ?? null,
                 ];
 
-                // 'uuid' akan diisi otomatis oleh Model Item
                 $pemeriksaanRetain->items()->create($itemPayload);
             }
 
@@ -94,27 +92,23 @@ class PemeriksaanRetainController extends Controller
             Log::error('Error storing pemeriksaan retain: ' . $e->getMessage());
 
             return redirect()->back()
-                             ->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage())
+                             ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
                              ->withInput();
         }
     }
 
     public function show(PemeriksaanRetain $pemeriksaanRetain)
     {
-        
-        $pemeriksaanRetain->load('items', 'creator', 'verifiedBy'); 
-        
+        $pemeriksaanRetain->load('items', 'creator', 'verifiedBy', 'updater'); 
         return view('pemeriksaan_retain.show', compact('pemeriksaanRetain'));
     }
 
-    // $pemeriksaanRetain akan di-resolve menggunakan 'uuid'
     public function edit(PemeriksaanRetain $pemeriksaanRetain)
     {
         $pemeriksaanRetain->load('items');
         return view('pemeriksaan_retain.edit', compact('pemeriksaanRetain'));
     }
 
-    // $pemeriksaanRetain akan di-resolve menggunakan 'uuid'
     public function update(Request $request, PemeriksaanRetain $pemeriksaanRetain)
     {
          $validator = Validator::make($request->all(), [
@@ -130,10 +124,14 @@ class PemeriksaanRetainController extends Controller
 
         DB::beginTransaction();
         try {
+            // Update data header.
+            // 'updated_by' akan otomatis terupdate oleh Model (booted -> updating)
             $pemeriksaanRetain->update($request->only('hari', 'tanggal', 'keterangan'));
 
+            // Strategy: Hapus semua items lama, buat baru (Replacement)
             $pemeriksaanRetain->items()->delete();
 
+            // Create ulang items
             foreach ($request->items as $itemData) {
                  $itemPayload = [
                     'kode_produksi'   => $itemData['kode_produksi'] ?? null,
@@ -164,86 +162,77 @@ class PemeriksaanRetainController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error updating pemeriksaan retain: ' . $e->getMessage());
-
-            return redirect()->back()
-                             ->with('error', 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage())
-                             ->withInput();
+            Log::error('Error updating: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage())->withInput();
         }
     }
 
-    // $pemeriksaanRetain akan di-resolve menggunakan 'uuid'
     public function destroy(PemeriksaanRetain $pemeriksaanRetain)
     {
         try {
+            $pemeriksaanRetain->items()->delete(); // Hapus items dulu (soft delete)
             $pemeriksaanRetain->delete();
-            
             return redirect()->route('pemeriksaan_retain.index')
-                             ->with('success', 'Data pemeriksaan retain berhasil dipindahkan ke keranjang sampah.');
+                             ->with('success', 'Data berhasil dihapus.');
         } catch (\Exception $e) {
-            return redirect()->back()
-                             ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
     }
 
+    // --- FITUR VERIFIKASI ---
+
     public function showVerificationPage(Request $request)
     {
-        // 1. Buat Query Dasar
-        // Pastikan Anda menambahkan relasi 'verifiedBy' di Model
         $baseQuery = PemeriksaanRetain::with('creator', 'items', 'verifiedBy')
-                        ->latest('tanggal'); // Urutkan berdasarkan tanggal dibuat
+                                ->latest('tanggal');
 
-        // 2. Terapkan Filter Umum (dari form)
-        $baseQuery->when($request->start_date, fn($q, $date) => $q->where('tanggal', '>=', $date));
-        $baseQuery->when($request->end_date, fn($q, $date) => $q->where('tanggal', '<=', $date));
+        $baseQuery->when($request->start_date, fn($q, $d) => $q->where('tanggal', '>=', $d));
+        $baseQuery->when($request->end_date, fn($q, $d) => $q->where('tanggal', '<=', $d));
 
         $baseQuery->when($request->search, function ($q, $search) {
             $q->where(function ($sub) use ($search) {
                 $sub->where('hari', 'like', "%{$search}%")
-                    ->orWhere('keterangan', 'like', "%{$search}%")
-                    ->orWhereHas('items', function ($itemQuery) use ($search) {
-                        $itemQuery->where('kode_produksi', 'like', "%{$search}%")
-                                  ->orWhere('varian', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('creator', function ($userQuery) use ($search) {
-                        $userQuery->where('name', 'like', "%{$search}%");
+                    ->orWhereHas('creator', function ($u) use ($search) {
+                        $u->where('name', 'like', "%{$search}%");
                     });
             });
         });
 
-        // 3. Ambil SEMUA data (Pending, Verified, Revision) dalam satu query
-        // Tidak ada lagi pemisahan query
-        $pemeriksaanRetains = $baseQuery->paginate(20) // Ambil 20 data per halaman
-                                       ->withQueryString();
-
-        // 4. Kirim satu set data ke view
-        // Variabel '$verifiedData' tidak diperlukan lagi
+        $pemeriksaanRetains = $baseQuery->paginate(20)->withQueryString();
         return view('pemeriksaan_retain.verification', compact('pemeriksaanRetains'));
     }
 
-    // Method untuk MENYIMPAN hasil verifikasi
     public function submitVerification(Request $request, PemeriksaanRetain $pemeriksaanRetain)
     {
         $request->validate([
             'status_spv' => 'required|in:1,2',
-            'catatan_spv' => 'nullable|string|required_if:status_spv,2', // Wajib jika 'Revision'
+            'catatan_spv' => 'nullable|string|required_if:status_spv,2',
         ]);
 
         try {
+            // Gunakan UUID user yang login untuk verified_by
+            // Kolom 'updated_by' juga akan otomatis terupdate oleh Model
             $pemeriksaanRetain->update([
                 'status_spv'  => $request->status_spv,
                 'catatan_spv' => $request->catatan_spv,
-                'verified_by' => Auth::user()->uuid, // Menggunakan UUID user yang login
+                'verified_by' => Auth::user()->uuid, 
                 'verified_at' => now(),
             ]);
 
             return redirect()->route('pemeriksaan_retain.verification')
-                            ->with('success', 'Data berhasil diverifikasi.');
-
+                             ->with('success', 'Data berhasil diverifikasi.');
         } catch (\Exception $e) {
-            Log::error('Error verifying retain: ' . $e->getMessage());
-            return redirect()->back()
-                            ->with('error', 'Terjadi kesalahan saat menyimpan verifikasi.');
+            Log::error('Verifikasi Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal verifikasi.');
         }
+    }
+
+    public function editForUpdate(PemeriksaanRetain $pemeriksaanRetain)
+    {
+        // Load items agar muncul di form
+        $pemeriksaanRetain->load('items');
+        
+        // Return ke view baru: pemeriksaan_retain.update
+        return view('pemeriksaan_retain.update', compact('pemeriksaanRetain'));
     }
 }

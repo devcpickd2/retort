@@ -150,7 +150,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm mx-1">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="bi bi-trash"></i> Hapus
                                         </button>
                                     </form>
                                     @endcan

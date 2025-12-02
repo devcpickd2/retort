@@ -59,7 +59,7 @@ use App\Http\Controllers\{
     SanitasiController,
     WithdrawlController,
     TraceabilityController,
-    RecallController
+    RecallController,
     PermissionController,
     RoleController // Add RoleController
 };
