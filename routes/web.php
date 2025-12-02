@@ -57,15 +57,12 @@ use App\Http\Controllers\{
     Release_packingController,
     SuhuController,
     SanitasiController,
-<<<<<<< HEAD
     // trace
     WithdrawlController,
     TraceabilityController,
-    RecallController
-=======
+    RecallController,
     PermissionController,
     RoleController // Add RoleController
->>>>>>> 545d16d29a68d4c7c28634d30da33929df90bf89
 };
 
 Route::get('/', function () {
