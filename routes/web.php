@@ -57,7 +57,6 @@ use App\Http\Controllers\{
     Release_packingController,
     SuhuController,
     SanitasiController,
-    // trace
     WithdrawlController,
     TraceabilityController,
     RecallController,
