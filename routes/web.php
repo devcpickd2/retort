@@ -205,13 +205,15 @@ Route::put('/inspections/verify/{uuid}', [RawMaterialInspectionController::class
     ->name('inspections.verify');
 Route::resource('inspections', RawMaterialInspectionController::class);
 // RUTE BARU: Menampilkan halaman daftar verifikasi Packaging
+Route::get('packaging-inspections/{packagingInspection}/update-view', [PackagingInspectionController::class, 'editForUpdate'])->name('packaging-inspections.edit-for-update');
 Route::get('packaging-inspections/verification', [PackagingInspectionController::class, 'showVerificationList'])
     ->name('packaging-inspections.verification');
 
 // RUTE BARU: Memproses modal verifikasi Packaging
 Route::put('packaging-inspections/verify/{inspection}', [PackagingInspectionController::class, 'verify'])->name('packaging-inspections.verify');
 Route::resource('packaging-inspections', PackagingInspectionController::class);
-
+Route::get('pemeriksaan-retain/{pemeriksaanRetain}/update-view', [PemeriksaanRetainController::class, 'editForUpdate'])
+    ->name('pemeriksaan_retain.edit-for-update');
 Route::get('pemeriksaan-retain/verification', [PemeriksaanRetainController::class, 'showVerificationPage'])
     ->name('pemeriksaan_retain.verification');
 Route::put('pemeriksaan-retain/{pemeriksaanRetain}/verify', [PemeriksaanRetainController::class, 'submitVerification'])
