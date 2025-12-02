@@ -22,11 +22,12 @@ class DashboardController extends Controller
 
         // Ambil plant user yang sedang login
         $userPlant = Auth::user()->plant;
+        $userType  = Auth::user()->type_user ?? null;
 
-        // Ambil daftar produksi sesuai plant user
-        if (!session()->has('selected_produksi')) {
+        // Hanya buat pop_up_produksi untuk user type 4 & 8
+        if (in_array($userType, [4,8]) && !session()->has('selected_produksi')) {
             $produksi = User::where('type_user', 3)
-                            ->where('plant', $userPlant) // 🔹 filter sesuai plant user login
+                            ->where('plant', $userPlant)
                             ->get();
 
             session(['pop_up_produksi' => $produksi]);

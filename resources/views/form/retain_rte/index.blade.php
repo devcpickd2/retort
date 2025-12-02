@@ -299,7 +299,11 @@
                         </tr>
                         @empty
                         <tr>
+<<<<<<< HEAD
+                            <td colspan="8" class="text-center">Belum ada data sample bulanan.</td>
+=======
                             <td colspan="19" class="text-center">Belum ada data pengecekan retain_rte.</td>
+>>>>>>> 545d16d29a68d4c7c28634d30da33929df90bf89
                         </tr>
                         @endforelse
                     </tbody>

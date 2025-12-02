@@ -39,24 +39,24 @@
                             <i class="bi bi-info-circle"></i>
                             <strong>Keterangan Kondisi:</strong> ✔ = OK / Bersih, 1–11 = Masalah:
                             @php
-                                $items = [
-                                    '✔ OK (Bersih)', '1. Basah', '2. Berdebu', '3. Kerak', '4. Noda',
-                                    '5. Karat', '6. Sampah', '7. Retak/Pecah', '8. Sisa Produk',
-                                    '9. Sisa Adonan', '10. Berjamur', '11. Lain-lain'
-                                ];
-                                $cols = 3;
-                                $rows = ceil(count($items)/$cols);
+                            $items = [
+                            '✔ OK (Bersih)', '1. Basah', '2. Berdebu', '3. Kerak', '4. Noda',
+                            '5. Karat', '6. Sampah', '7. Retak/Pecah', '8. Sisa Produk',
+                            '9. Sisa Adonan', '10. Berjamur', '11. Lain-lain'
+                            ];
+                            $cols = 3;
+                            $rows = ceil(count($items)/$cols);
                             @endphp
                             <div class="d-flex mt-1">
                                 @for($c = 0; $c < $cols; $c++)
-                                    <div class="me-4" style="flex: 1;">
-                                        @for($r = 0; $r < $rows; $r++)
-                                            @php $index = $r + $c * $rows; @endphp
-                                            @if(isset($items[$index]))
-                                                <div>{{ $items[$index] }}</div>
-                                            @endif
-                                        @endfor
-                                    </div>
+                                <div class="me-4" style="flex: 1;">
+                                    @for($r = 0; $r < $rows; $r++)
+                                    @php $index = $r + $c * $rows; @endphp
+                                    @if(isset($items[$index]))
+                                    <div>{{ $items[$index] }}</div>
+                                    @endif
+                                    @endfor
+                                </div>
                                 @endfor
                             </div>
                         </div>
@@ -67,14 +67,14 @@
                             <select name="area" id="areaSelect" class="form-control @error('area') is-invalid @enderror selectpicker" required>
                                 <option value="">-- Pilih Area --</option>
                                 @foreach($areas as $a)
-                                    <option value="{{ $a->area }}" data-bagian='@json(json_decode($a->bagian))'
-                                        {{ $sanitasi->area == $a->area ? 'selected' : '' }}>
-                                        {{ $a->area }}
-                                    </option>
+                                <option value="{{ $a->area }}" data-bagian='@json(json_decode($a->bagian))'
+                                    {{ $sanitasi->area == $a->area ? 'selected' : '' }}>
+                                    {{ $a->area }}
+                                </option>
                                 @endforeach
                             </select>
                             @error('area')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -103,33 +103,35 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
 <script>
-$(document).ready(function(){
-    $('.selectpicker').selectpicker();
-});
+    $(document).ready(function(){
+        $('.selectpicker').selectpicker();
+    });
 
 // PEMERIKSAAN DINAMIS
-document.addEventListener("DOMContentLoaded", function() {
-    const areaSelect = document.getElementById('areaSelect');
-    const wrapper = document.getElementById('pemeriksaan-wrapper');
-    const sanitasiData = @json($sanitasi);
+    document.addEventListener("DOMContentLoaded", function() {
+        const areaSelect = document.getElementById('areaSelect');
+        const wrapper = document.getElementById('pemeriksaan-wrapper');
+        const sanitasiData = @json($sanitasi);
 
-    function renderPemeriksaan(bagianArray, pemeriksaanData = {}) {
-        wrapper.innerHTML = '';
-        if(!bagianArray || bagianArray.length === 0) return;
+        function renderPemeriksaan(bagianArray, pemeriksaanData = {}) {
+            wrapper.innerHTML = '';
+            if(!bagianArray || bagianArray.length === 0) return;
 
-        bagianArray.forEach(b => {
-            const rowData = pemeriksaanData[b] || {};
-            const table = document.createElement('table');
-            table.classList.add('table', 'table-bordered', 'mb-3');
-            table.innerHTML = `
+            bagianArray.forEach(b => {
+                const rowData = pemeriksaanData[b] || {};
+                const table = document.createElement('table');
+                table.classList.add('table', 'table-bordered', 'mb-3');
+                table.innerHTML = `
             <thead class="table-secondary">
-                <tr><th colspan="5">${b}</th></tr>
+                <tr><th colspan="7">${b}</th></tr>
                 <tr>
                     <th>Waktu</th>
                     <th>Kondisi</th>
                     <th>Keterangan</th>
                     <th>Rencana Tindakan</th>
-                    <th>Waktu Tindakan</th>
+                    <th>Waktu Pengerjaan</th>
+                    <th>Dikerjakan Oleh</th>
+                    <th>Waktu Verifikasi</th>
                 </tr>
             </thead>
             <tbody>
@@ -138,34 +140,36 @@ document.addEventListener("DOMContentLoaded", function() {
                     <td>
                         <select name="pemeriksaan[${b}][kondisi]" class="form-control">
                             <option value="✔" ${rowData.kondisi === '✔' ? 'selected' : ''}>✔</option>
-                            ${[...Array(11)].map((_, i) => `<option value="${i+1}" ${rowData.kondisi == (i+1) ? 'selected' : ''}>${i+1}</option>`).join('')}
+                    ${[...Array(11)].map((_, i) => `<option value="${i+1}" ${rowData.kondisi == (i+1) ? 'selected' : ''}>${i+1}</option>`).join('')}
                         </select>
                     </td>
                     <td><input type="text" name="pemeriksaan[${b}][keterangan]" class="form-control" value="${rowData.keterangan ?? ''}"></td>
                     <td><input type="text" name="pemeriksaan[${b}][tindakan]" class="form-control" value="${rowData.tindakan ?? ''}"></td>
                     <td><input type="time" name="pemeriksaan[${b}][waktu_koreksi]" class="form-control" value="${rowData.waktu_koreksi ?? ''}"></td>
+                    <td><input type="text" name="pemeriksaan[${b}][dikerjakan_oleh]" class="form-control" value="${rowData.dikerjakan_oleh ?? ''}"></td>
+                    <td><input type="time" name="pemeriksaan[${b}][waktu_verifikasi]" class="form-control" value="${rowData.waktu_verifikasi ?? ''}"></td>
                 </tr>
             </tbody>
-            `;
-            wrapper.appendChild(table);
-        });
-    }
+                `;
+                wrapper.appendChild(table);
+            });
+        }
 
     // Render pemeriksaan saat load
-    if(areaSelect.value) {
-        const selected = areaSelect.selectedOptions[0];
-        const bagianArray = JSON.parse(selected.dataset.bagian || '[]');
-        const pemeriksaanData = sanitasiData.pemeriksaan ? JSON.parse(sanitasiData.pemeriksaan) : {};
-        renderPemeriksaan(bagianArray, pemeriksaanData);
-    }
+        if(areaSelect.value) {
+            const selected = areaSelect.selectedOptions[0];
+            const bagianArray = JSON.parse(selected.dataset.bagian || '[]');
+            const pemeriksaanData = sanitasiData.pemeriksaan ? JSON.parse(sanitasiData.pemeriksaan) : {};
+            renderPemeriksaan(bagianArray, pemeriksaanData);
+        }
 
     // Render saat ganti area (tanpa data lama)
-    areaSelect.addEventListener('change', function() {
-        const selected = this.selectedOptions[0];
-        const bagianArray = JSON.parse(selected.dataset.bagian || '[]');
-        renderPemeriksaan(bagianArray);
+        areaSelect.addEventListener('change', function() {
+            const selected = this.selectedOptions[0];
+            const bagianArray = JSON.parse(selected.dataset.bagian || '[]');
+            renderPemeriksaan(bagianArray);
+        });
     });
-});
 </script>
 @endpush
 @endsection

@@ -68,9 +68,18 @@
                             <th>NO.</th>
                             <th>Date</th>
                             <th>MP - CHAMBER</th>
-                            <th>KARANTINA - PACKING</th>
-                            <th>FILLING - SUSUN</th>
-                            <th>SAMPLING FG</th>
+                            @php
+                            // Ambil semua area unik dari semua row data
+                            $allAreas = [];
+                            foreach($data as $d) {
+                                foreach($d->areas as $a) {
+                                    if(!in_array($a,$allAreas)) $allAreas[] = $a;
+                                }
+                            }
+                            @endphp
+                            @foreach($allAreas as $area)
+                            <th>{{ strtoupper($area) }}</th>
+                            @endforeach
                             <th>QC</th>
                             <th>Produksi</th>
                             <th>SPV</th>
@@ -83,96 +92,48 @@
                         @endphp
                         @forelse ($data as $dep)
                         <tr>
-                            <td class="text-center">{{ $no++ }}</td>
-                            <td>{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }}</td>   
-                            @php
-                            if (!function_exists('hitungPresentase')) {
-                                function hitungPresentase($json) {
-                                    if (!$json) return 0;
+                            <td class="text-center align-middle">{{ $no++ }}</td>
+                            <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }}</td>
+                            <td class="text-center align-middle">{{ $dep->username }}</td>
 
-                                    $data = is_array($json) ? $json : json_decode($json, true);
-                                    if (!$data) return 0;
+                            @foreach($allAreas as $area)
+                            <td class="text-center align-middle">
+                                @php
+                                $areaLower = strtolower(trim($area));
+                                $scores = [];
+                                $totalAttr = 0;
+                                $countChecked = 0;
 
-                                    $total = 0;
-                                    $count = 0;
+                                foreach($dep->pemeriksaan as $row){
+                                    if(strtolower(trim($row['area'] ?? '')) === $areaLower){
+                                        $attrKeys = array_diff(array_keys($row), ['nama_karyawan','pukul','keterangan','area']);
+                                        $rowTotal = count($attrKeys);
+                                        $rowCount = 0;
 
-                                    foreach ($data as $row) {
-                                        foreach ($row as $key => $val) {
-                                            if ($key !== 'nama_karyawan') {
-                                                $total++;
-                                                if ($val == 1) $count++;
-                                            }
+                                        foreach($attrKeys as $key){
+                                            if ((int)($row[$key] ?? 0) === 1) $rowCount++;
                                         }
-                                    }
 
-                                    return $total > 0 ? round(($count / $total) * 100, 1) : 0;
-                                }
-                            }
-
-                            if (!function_exists('topKaryawan')) {
-                                function topKaryawan($json, $limit = 3) {
-                                    if (!$json) return [];
-
-                                    $data = is_array($json) ? $json : json_decode($json, true);
-                                    if (!$data) return [];
-
-                                    $scores = [];
-                                    foreach ($data as $row) {
-                                        $nama = $row['nama_karyawan'] ?? 'Tanpa Nama';
-                                        $count = 0;
-                                        foreach ($row as $key => $val) {
-                                            if ($key !== 'nama_karyawan' && $val == 1) $count++;
-                                        }
-                                        $scores[] = ['nama' => $nama, 'nilai' => $count];
-                                    }
-
-                                    usort($scores, function($a, $b) { return $b['nilai'] <=> $a['nilai']; });
-
-                                        return array_slice($scores, 0, $limit);
+                                        $scores[] = ['nama'=>$row['nama_karyawan'],'nilai'=>$rowCount];
+                                        $totalAttr += $rowTotal;
+                                        $countChecked += $rowCount;
                                     }
                                 }
-                                @endphp
 
-                                {{-- Pemakaian di tabel --}}
-                                <td>
-                                    {{ hitungPresentase($dep->mp_chamber) }} %
-                                    <br>
-                                    <small>
-                                        @foreach(topKaryawan($dep->mp_chamber) as $row)
-                                        • {{ $row['nama'] }} ({{ $row['nilai'] }})<br>
-                                        @endforeach
-                                    </small>
-                                </td>
+                                $persen = $totalAttr > 0 ? round(($countChecked/$totalAttr)*100,1) : 0;
+                                usort($scores, fn($a,$b) => $b['nilai'] <=> $a['nilai']);
+                                    $top = array_slice($scores,0,3);
+                                    @endphp
 
-                                <td>
-                                    {{ hitungPresentase($dep->karantina_packing) }} %
+                                    {{ $persen }} %
                                     <br>
                                     <small>
-                                        @foreach(topKaryawan($dep->karantina_packing) as $row)
-                                        • {{ $row['nama'] }} ({{ $row['nilai'] }})<br>
+                                        @foreach($top as $s)
+                                        • {{ $s['nama'] }} ({{ $s['nilai'] }})<br>
                                         @endforeach
                                     </small>
                                 </td>
-
-                                <td>
-                                    {{ hitungPresentase($dep->filling_susun) }} %
-                                    <br>
-                                    <small>
-                                        @foreach(topKaryawan($dep->filling_susun) as $row)
-                                        • {{ $row['nama'] }} ({{ $row['nilai'] }})<br>
-                                        @endforeach
-                                    </small>
-                                </td>
-                                
-                                <td>
-                                    {{ hitungPresentase($dep->sampling_fg) }} %
-                                    <br>
-                                    <small>
-                                        @foreach(topKaryawan($dep->sampling_fg) as $row)
-                                        • {{ $row['nama'] }} ({{ $row['nilai'] }})<br>
-                                        @endforeach
-                                    </small>
-                                </td>
+                                @endforeach
                                 <td class="text-center align-middle">{{ $dep->username }}</td>
                                 <td class="text-center align-middle">{{ $dep->nama_produksi }}</td>
                                 <td class="text-center align-middle">

@@ -12,7 +12,7 @@
                 @csrf
 
                 {{-- ===================== IDENTITAS ===================== --}}
-                <div class="card mb-4">
+                <div class="card mb-4"> 
                     <div class="card-header bg-primary text-white">
                         <strong>Identitas Data PVDC</strong>
                     </div>
@@ -57,7 +57,6 @@
                     </div>
                 </div>
 
-                {{-- ===================== DATA PVDC ===================== --}}
                 <div class="card mb-4">
                     <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
                         <strong>Data PVDC</strong>
@@ -98,7 +97,6 @@
                                         <input type="text" name="data_pvdc[0][keterangan]" class="form-control form-control-sm">
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-primary btn-sm saveRow">Simpan</button>
                                         <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
                                     </td>
                                 </tr>
@@ -123,7 +121,6 @@
         </div>
     </div>
 </div>
-
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
@@ -132,6 +129,7 @@
         $('.selectpicker').selectpicker();
     });
 </script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const dateInput = document.getElementById("dateInput");
@@ -155,63 +153,37 @@
         }
     });
 </script>
+
 <script>
     $(document).ready(function(){
+
     // =================== VALIDASI KODE BATCH ===================
         function validateKodeBatch(input) {
             let value = input.val().toUpperCase().replace(/\s+/g, '');
             input.val(value);
 
-        // Hapus notifikasi lama
             input.next(".invalid-feedback").remove();
             input.removeClass("is-invalid");
 
-        // Cek panjang
             if (value.length !== 10) {
                 showError(input, "Kode produksi harus terdiri dari 10 karakter.");
                 return false;
             }
 
-        // Regex validasi format umum (huruf + angka)
             const format = /^[A-Z0-9]+$/;
             if (!format.test(value)) {
                 showError(input, "Kode produksi hanya boleh huruf besar dan angka.");
                 return false;
             }
 
-        // Cek awalan
-            // if (!value.startsWith("P")) {
-            //     showError(input, "Kode produksi harus dimulai dengan huruf 'P'.");
-            //     return false;
-            // }
-
-        // Cek huruf bulan (karakter ke-2 harus huruf A–L)
             const bulanChar = value.charAt(1);
-            const validBulan = /^[A-L]$/;
-            if (!validBulan.test(bulanChar)) {
+            if (!/^[A-L]$/.test(bulanChar)) {
                 showError(input, "Karakter ke-2 harus huruf bulan (A–L).");
                 return false;
             }
 
-        // Cek 2 digit tahun (karakter ke-3 & ke-4)
-            // const yearNow = new Date().getFullYear().toString().slice(-2);
-            // const yearPart = value.substr(2, 2);
-            // if (yearPart !== yearNow) {
-            //     showError(input, `Tahun tidak sesuai (${yearNow}).`);
-            //     return false;
-            // }
-
-        // Cek shift (karakter ke-8–9)
-            // const shiftCode = value.substr(7, 2);
-            // const validShift = ["AA", "BB", "C", "CA", "CB", "CC"];
-            // if (!validShift.some(code => shiftCode.startsWith(code.charAt(0)))) {
-            //     showError(input, "Kode shift tidak valid (gunakan A, B, C, CA, BB, dst).");
-            //     return false;
-            // }
-
-        // Cek karakter terakhir rework (0 atau 1)
             const rework = value.charAt(9);
-            if (!["0", "1"].includes(rework)) {
+            if (!["0","1"].includes(rework)) {
                 showError(input, "Karakter terakhir harus 0 (belum rework) atau 1 (rework).");
                 return false;
             }
@@ -219,29 +191,14 @@
             return true;
         }
 
-    // Fungsi menampilkan error di bawah input
         function showError(input, message) {
             input.addClass("is-invalid");
             input.after(`<div class="invalid-feedback">${message}</div>`);
         }
 
-    // Jalankan validasi saat input berubah
         $(document).on("input blur", 'input[name$="[kode_batch]"]', function () {
             validateKodeBatch($(this));
         });
-
-    // =================== VALIDASI FILE ===================
-        function validateFile(input) {
-            input.next(".invalid-feedback").remove();
-            input.removeClass("is-invalid");
-
-            if (!input[0].files || input[0].files.length === 0) {
-                input.addClass("is-invalid");
-                input.after(`<div class="invalid-feedback">Gambar wajib diunggah!</div>`);
-                return false;
-            }
-            return true;
-        }
 
     // =================== TAMBAH BARIS ===================
         let index = 0;
@@ -260,14 +217,13 @@
                 <input type="text" name="data_pvdc[${index}][kode_batch]" class="form-control form-control-sm" required>
             </td>
             <td>
-                <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*" required>
-            </td>
-            <td>
-                <input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm">
+                <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*">
                 <div class="preview mt-2"></div>
             </td>
             <td>
-                <button type="button" class="btn btn-primary btn-sm saveRow">Simpan</button>
+                <input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm">
+            </td>
+            <td>
                 <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
             </td>
         </tr>
@@ -275,119 +231,48 @@
         });
 
     // =================== HAPUS BARIS ===================
-        $('#pvdcBody').on('click', '.saveRow', function () {
-            const row = $(this).closest('tr');
+        $('#pvdcBody').on('click', '.removeRow', function () {
+            $(this).closest('tr').remove();
+        });
+
+        $('#saveBtn').click(function () {
             const btn = $(this);
-            const mesin = row.find('select[name^="data_pvdc"]').val();
-            const kodeBatch = row.find('input[name$="[kode_batch]"]').val();
-            const fileInput = row.find('input[type="file"]')[0];
-            const file = fileInput ? fileInput.files[0] : null;
-            const ket = row.find('input[name$="[keterangan]"]').val();
+            const form = $('#pvdcForm')[0];
+    const formData = new FormData(form); // ambil semua input langsung dari form
 
-    // Validasi local
-            row.find('.invalid-feedback').remove();
-            if (!mesin || !kodeBatch || !file) {
-                if(!mesin) row.find('select[name^="data_pvdc"]').after('<div class="invalid-feedback d-block">Mesin harus dipilih</div>');
-                if(!kodeBatch) row.find('input[name$="[kode_batch]"]').after('<div class="invalid-feedback d-block">Kode batch harus diisi</div>');
-                if(!file) row.find('input[type="file"]').after('<div class="invalid-feedback d-block">File harus diupload</div>');
-                return;
-            }
+    let hasData = false;
+    $('#pvdcBody tr').each(function(){
+        const mesin = $(this).find('select[name$="[mesin]"]').val();
+        const kodeBatch = $(this).find('input[name$="[kode_batch]"]').val();
+        if(mesin && kodeBatch){
+            hasData = true;
+        }
+    });
 
-            const formData = new FormData();
-            formData.append('mesin', mesin);
-    formData.append('kode_batch', kodeBatch); // ❌ Pastikan ini key sama dengan validasi di controller
-    formData.append('file', file);
-    formData.append('keterangan', ket || '');
-    formData.append('_token', '{{ csrf_token() }}');
+    if(!hasData){
+        alert('Belum ada data PVDC yang diinputkan!');
+        return;
+    }
 
-    btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Menyimpan...');
+    btn.prop('disabled', true).html('Menyimpan...');
 
     $.ajax({
-        url: "{{ route('labelisasi_pvdc.saveRowTemp') }}",
+        url: "{{ route('labelisasi_pvdc.storeFinal') }}",
         type: 'POST',
         data: formData,
         processData: false,
         contentType: false,
-        success: function(res) {
-            if(res.success){
-                const preview = `
-                <a href="${res.file}" target="_blank" class="d-block mt-2">
-                    <img src="${res.file}" width="100" class="img-thumbnail"><br>
-                </a>`;
-                row.find('.preview').html(preview);
-                btn.removeClass('btn-primary').addClass('btn-success')
-                .html('<i class="bi bi-check-circle"></i> Tersimpan');
-            } else {
-                row.find('input[type="file"]').after('<div class="invalid-feedback d-block">'+res.message+'</div>');
-                btn.prop('disabled', false).html('Simpan');
-            }
+        success: function(res){
+            if(res.success) window.location.href = res.redirect_url;
+            else alert(res.message);
         },
-        error: function(err){
-            let errors = err.responseJSON?.errors || {};
-            if(errors.kode_batch){
-                row.find('input[name$="[kode_batch]"]').after('<div class="invalid-feedback d-block">'+errors.kode_batch[0]+'</div>');
-            }
-            if(errors.file){
-                row.find('input[type="file"]').after('<div class="invalid-feedback d-block">'+errors.file[0]+'</div>');
-            }
+        complete: function(){
             btn.prop('disabled', false).html('Simpan');
         }
     });
 });
 
 
-    // =================== SIMPAN FINAL ===================
-        $('#saveBtn').click(function () {
-            const btn = $(this);
-            const rows = $('#pvdcBody tr');
-            let isValid = true;
-
-            rows.each(function () {
-                const kodeBatchInput = $(this).find('input[name$="[kode_batch]"]');
-                const fileInput = $(this).find('input[type="file"]');
-                const mesinSelect = $(this).find('select[name^="data_pvdc"]');
-
-    // VALIDASI HANYA MESIN, KODE BATCH, FILE
-                if (!validateKodeBatch(kodeBatchInput)) isValid = false;
-                if (!validateFile(fileInput)) isValid = false;
-                if (!mesinSelect.val()) {
-                    mesinSelect.addClass("is-invalid")
-                    .next(".invalid-feedback").remove();
-                    mesinSelect.after(`<div class="invalid-feedback">Mesin wajib dipilih!</div>`);
-                    isValid = false;
-                }
-
-    // Jangan cek keterangan sama sekali
-                if (!isValid) $(this).addClass('table-danger');
-                else $(this).removeClass('table-danger');
-            });
-
-
-        if (!isValid) return; // Jangan lanjut jika ada error
-
-        // AJAX simpan final
-        btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Menyimpan...');
-        const formData = new FormData($('#pvdcForm')[0]);
-
-        $.ajax({
-            url: "{{ route('labelisasi_pvdc.storeFinal') }}",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                if (res.success) window.location.href = res.redirect_url;
-                else $('#resultArea').html(`<div class="alert alert-danger">${res.message}</div>`);
-            },
-            error: function () {
-                $('#resultArea').html(`<div class="alert alert-danger">Terjadi kesalahan saat menyimpan data.</div>`);
-            },
-            complete: function () {
-                btn.prop('disabled', false).html('<i class="bi bi-save"></i> Simpan');
-            }
-        });
-    });
     });
 </script>
-
 @endsection

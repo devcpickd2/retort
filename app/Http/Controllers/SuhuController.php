@@ -55,7 +55,6 @@ class SuhuController extends Controller
     return view('form.suhu.create', compact('area_suhus', 'suhuData'));
 }
 
-
 public function store(Request $request)
 {
     $username   = Auth::user()->username ?? 'User RTM';
