@@ -477,6 +477,7 @@ Route::put('/mincing/edit_spv/{uuid}', [MincingController::class, 'edit_spv'])->
 Route::get('/mincing/verification', [MincingController::class, 'verification'])->name('mincing.verification');
 Route::put('/mincing/verification/{uuid}', [MincingController::class, 'updateVerification'])
 ->name('mincing.verification.update');
+Route::get('/mincing/export-pdf', [MincingController::class, 'exportPdf'])->name('mincing.exportPdf');
 Route::delete('/mincing/{uuid}', [MincingController::class, 'destroy'])->name('mincing.destroy');
 
 // Metal

@@ -53,10 +53,8 @@ $type_user = auth()->user()->type_user;
                         href="{{ route('produk.index') }}">List Produk</a>
                     <a class="collapse-item {{ request()->routeIs('mesin.*') ? 'active' : '' }}"
                         href="{{ route('mesin.index') }}">List Mesin</a>
-                    <!-- <a class="collapse-item {{ request()->routeIs('list_chamber.*') ? 'active' : '' }}" href="{{ route('list_chamber.index') }}">List Chamber</a> -->
                     <a class="collapse-item {{ request()->routeIs('supplier.*') ? 'active' : '' }}"
                         href="{{ route('supplier.index') }}">List Supplier</a>
-                    <!-- <a class="collapse-item {{ request()->routeIs('supplier_rm.*') ? 'active' : '' }}" href="{{ route('supplier_rm.index') }}">List Supplier RM</a> -->
                     <a class="collapse-item {{ request()->routeIs('area_hygiene.*') ? 'active' : '' }}"
                         href="{{ route('area_hygiene.index') }}">Area GMP</a>
                     <a class="collapse-item {{ request()->routeIs('area_suhu.*') ? 'active' : '' }}"
@@ -67,8 +65,6 @@ $type_user = auth()->user()->type_user;
                         href="{{ route('produksi.index') }}">Karyawan Produksi</a>
                     <a class="collapse-item {{ request()->routeIs('operator.*') ? 'active' : '' }}"
                         href="{{ route('operator.index') }}">Karyawan Pendukung</a>
-                    <!--  <a class="collapse-item {{ request()->routeIs('engineer.*') ? 'active' : '' }}" href="{{ route('engineer.index') }}">Engineer</a>
-                <a class="collapse-item {{ request()->routeIs('koordinator.*') ? 'active' : '' }}" href="{{ route('koordinator.index') }}">Koordinator</a> -->
                 </div>
             </div>
         </li>
