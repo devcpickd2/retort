@@ -7,6 +7,7 @@ use App\Models\Produk;
 use App\Models\Mesin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use TCPDF; // Import TCPDF
 
 class MincingController extends Controller 
 {
@@ -14,6 +15,7 @@ class MincingController extends Controller
     {
      $search    = $request->input('search');
      $date      = $request->input('date');
+     $shift     = $request->input('shift'); // Add shift
      $userPlant  = Auth::user()->plant;
 
      $data = Mincing::query()
@@ -28,13 +30,105 @@ class MincingController extends Controller
      ->when($date, function ($query) use ($date) {
         $query->whereDate('date', $date);
     })
+     ->when($shift, function ($query) use ($shift) { // Add shift filter
+        $query->where('shift', $shift);
+    })
      ->orderBy('date', 'desc')
      ->orderBy('created_at', 'desc')
      ->paginate(10)
      ->appends($request->all());
 
-     return view('form.mincing.index', compact('data', 'search', 'date'));
+     return view('form.mincing.index', compact('data', 'search', 'date', 'shift'));
  }
+
+    /**
+     * Export data ke PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        $produks = Mincing::query()
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('kode_produksi', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc')
+            ->get();
+
+        // Clear any previous output buffers to prevent "TCPDF ERROR: Some data has already been output"
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // Create new TCPDF object
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // Set document information
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Your Name/Company');
+        $pdf->SetTitle('Pemeriksaan Mincing - Emulsifying - Aging');
+        $pdf->SetSubject('Pemeriksaan Mincing');
+
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // // Set default header data
+        // $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, 'Pemeriksaan Mincing - Emulsifying - Aging', 'Tanggal: ' . date('d M Y'));
+
+        // // Set header and footer fonts
+        // $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+        // $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
+        // Set default monospaced font
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+        // Set margins
+        $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+        // Set auto page breaks
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+        // Set image scale factor
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+        // Set some language-dependent strings (optional)
+        if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+            require_once(dirname(__FILE__).'/lang/eng.php');
+            $pdf->setLanguageArray($l);
+        }
+
+        // Set font
+        $pdf->SetFont('helvetica', '', 10);
+
+        // Add a page
+        $pdf->AddPage('L', 'A4'); // Landscape A4
+
+        // Convert the Blade view to HTML
+        $html = view('reports.mincing-emulsifying-aging', compact('produks', 'request'))->render();
+
+        // Print text using writeHTMLCell()
+        $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+        // Close and output PDF document (Inline/Preview)
+        $pdf->Output('Pemeriksaan_Mincing_Emulsifying_Aging_' . date('Ymd_His') . '.pdf', 'I');
+
+        exit();
+    }
 
  public function create()
  {
