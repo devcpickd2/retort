@@ -6,23 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth; 
 
-// Nama class diubah
 class PemeriksaanKekuatanMagnetTrap extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /**
-     * Menentukan nama tabel secara eksplisit
-     */
     protected $table = 'pemeriksaan_kekuatan_magnet_traps';
 
-    // Mass assignment
     protected $guarded = ['id'];
 
-    /**
-     * Tipe data casting
-     */
     protected $casts = [
         'tanggal' => 'date',
         'parameter_sesuai' => 'boolean',
@@ -33,29 +26,52 @@ class PemeriksaanKekuatanMagnetTrap extends Model
     ];
 
     /**
-     * Boot method untuk otomatis mengisi 'uuid'.
+     * Boot method untuk otomatis mengisi uuid, plant_uuid, created_by, dan updated_by
      */
     protected static function boot()
     {
         parent::boot();
+
+        // 1. Event saat data AKAN dibuat (Creating)
         static::creating(function ($model) {
+            // Isi UUID jika kosong
             if (empty($model->uuid)) {
                 $model->uuid = (string) Str::uuid();
+            }
+
+            // Jika user login, isi plant_uuid dan created_by otomatis
+            if (Auth::check()) {
+                $user = Auth::user();
+                $model->plant_uuid = $user->plant; // Pastikan kolom 'plant' ada di user
+
+                if (empty($model->created_by)) {
+                    $model->created_by = $user->uuid;
+                }
+            }
+        });
+
+        // 2. Event saat data AKAN diupdate (Updating)
+        static::updating(function ($model) {
+            if (Auth::check()) {
+                // Isi updated_by setiap kali ada perubahan data
+                $model->updated_by = Auth::user()->uuid;
             }
         });
     }
 
-    /**
-     * Relasi ke user yang membuat
-     */
+    // --- RELASI ---
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by', 'uuid');
     }
 
-    /**
-     * Relasi ke user (SPV) yang verifikasi
-     */
+    // Tambahan relasi updater
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'uuid');
+    }
+
     public function verifier()
     {
         return $this->belongsTo(User::class, 'verified_by', 'uuid');

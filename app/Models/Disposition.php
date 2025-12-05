@@ -2,25 +2,19 @@
 
 namespace App\Models;
 
-// <-- TAMBAHAN: Import model User untuk relasi
-use App\Models\User; 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str; // Penting untuk UUID
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth; // <-- TAMBAHAN: Import Auth Facade
 
 class Disposition extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /**
-     * Mengaktifkan SoftDeletes
-     */
     protected $dates = ['deleted_at'];
 
-    /**
-     * Kolom yang boleh diisi (mass assignment)
-     */
     protected $fillable = [
         'nomor',
         'tanggal',
@@ -31,7 +25,9 @@ class Disposition extends Model
         'dasar_disposisi',
         'uraian_disposisi',
         'catatan',
-        'created_by', 
+        'plant_uuid', 
+        'created_by',
+        'updated_by', 
         'status_spv',
         'catatan_spv',
         'verified_by',
@@ -39,38 +35,54 @@ class Disposition extends Model
     ];
 
     /**
-     * Event 'creating' ini akan otomatis mengisi UUID
-     * saat data baru dibuat.
+     * Booted method untuk menangani event model otomatis.
      */
     protected static function booted(): void
     {
+        // Event saat data AKAN dibuat (Creating)
         static::creating(function ($disposition) {
             $disposition->uuid = (string) Str::uuid();
+
+            // <-- TAMBAHAN: Otomatis isi plant_uuid & created_by jika user login
+            if (Auth::check()) {
+                // Ambil column 'plant' dari user yang login
+                $disposition->plant_uuid = Auth::user()->plant; 
+                
+                // Jika created_by belum diisi di controller, isi otomatis disini
+                if (!$disposition->created_by) {
+                    $disposition->created_by = Auth::id();
+                }
+            }
+        });
+
+        // Event saat data AKAN diupdate (Updating)
+        // <-- TAMBAHAN: Konfigurasi updated_by sinkron dengan updated_at
+        static::updating(function ($disposition) {
+            if (Auth::check()) {
+                $disposition->updated_by = Auth::id();
+            }
         });
     }
 
-    /**
-     * Memberitahu Laravel untuk menggunakan 'uuid'
-     * saat mencari data via URL (Route Model Binding).
-     */
     public function getRouteKeyName(): string
     {
         return 'uuid';
     }
 
-    // <-- TAMBAHAN: Relasi Eloquent ke User
-    /**
-     * Mendapatkan user yang membuat disposisi ini.
-     */
+    // RELASI
     public function creator()
     {
-        // Relasi belongsTo ke model User, menggunakan foreign key 'created_by'
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // <-- TAMBAHAN: Relasi untuk mengetahui siapa yang mengupdate terakhir
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function verifiedBy()
     {
-        // Relasi belongsTo ke model User, menggunakan foreign key 'verified_by'
         return $this->belongsTo(User::class, 'verified_by');
     }
 }

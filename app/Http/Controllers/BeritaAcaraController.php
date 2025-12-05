@@ -16,36 +16,44 @@ class BeritaAcaraController extends Controller
      * @param Request $request
      * @return \Illuminate\View\View
      */
-    public function index(Request $request) // <-- 1. Tambahkan Request $request
+    public function index(Request $request)
     {
-        // 2. Mulai query builder
-        $query = BeritaAcara::with('creator')->latest();
+        // 1. Base Query dengan Eager Loading
+        // Mengambil relasi creator & updater agar efisien (tidak N+1 query)
+        $query = BeritaAcara::with(['creator', 'updater']);
 
-        // 3. Tambahkan logika filter (dicopy dari verificationSpv)
-        // Filter Tanggal (menggunakan tanggal_kedatangan sebagai acuan)
-        if ($request->filled('start_date')) {
-            $query->where('tanggal_kedatangan', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->where('tanggal_kedatangan', '<=', $request->end_date);
+        // 2. Filter Tanggal (Single Date)
+        // Disesuaikan dengan UI baru yang menggunakan name="date"
+        if ($request->filled('date')) {
+            // Menggunakan whereDate untuk mencocokkan tanggal spesifik
+            $query->whereDate('tanggal_kedatangan', $request->date);
         }
 
-        // Filter Pencarian
+        // 3. Filter Search (Pencarian Global)
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
+
+            // Grouping query (WHERE ...) AND ( ... OR ... OR ...)
+            $query->where(function($q) use ($search) {
                 $q->where('nomor', 'like', "%{$search}%")
-                    ->orWhere('supplier', 'like', "%{$search}%")
-                    ->orWhere('nama_barang', 'like', "%{$search}%");
+                ->orWhere('supplier', 'like', "%{$search}%")
+                ->orWhere('nama_barang', 'like', "%{$search}%")
+                
+                // Opsional: Mencari berdasarkan nama Pembuat (Creator)
+                ->orWhereHas('creator', function($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', "%{$search}%");
+                });
             });
         }
 
-        // 4. Eksekusi query dengan paginasi dan appends
-        $beritaAcaras = $query->paginate(15)->appends($request->query());
+        // 4. Sorting & Pagination
+        // Menggunakan withQueryString() agar filter tidak hilang saat pindah halaman
+        $beritaAcaras = $query->latest()
+                            ->paginate(15)
+                            ->withQueryString();
 
         return view('berita-acara.index', compact('beritaAcaras'));
     }
-
     /**
      * Menampilkan form create.
      */

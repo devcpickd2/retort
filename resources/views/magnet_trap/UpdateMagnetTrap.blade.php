@@ -172,6 +172,7 @@
                                        name="jumlah_temuan" 
                                        value="{{ old('jumlah_temuan', $checklistmagnettrap->jumlah_temuan) }}" 
                                        required 
+                                       min="0"
                                        placeholder="Contoh: 0"
                                        {{ ($checklistmagnettrap->jumlah_temuan !== null) ? 'readonly' : '' }}>
                                 @error('jumlah_temuan')
@@ -238,32 +239,44 @@
                         <div class="row">
                             
                             {{-- Field: Operator Produksi --}}
-                            <div class="col-md-6 mb-3">
-                                <label for="produksi" class="form-label">{{ __('Operator Produksi') }}</label>
-                                @php $isProduksiFilled = !empty($checklistmagnettrap->produksi_id); @endphp
-                                
-                                <select class="form-select @error('produksi_id') is-invalid @enderror" 
-                                        id="produksi" 
-                                        name="produksi_id" 
-                                        required
-                                        {{ $isProduksiFilled ? 'disabled' : '' }}>
-                                    <option disabled selected>Pilih Operator...</option>
-                                    <option value="1" {{ (old('produksi_id', $checklistmagnettrap->produksi_id) == 1) ? 'selected' : '' }}>Operator 1</option>
-                                    <option value="2" {{ (old('produksi_id', $checklistmagnettrap->produksi_id) == 2) ? 'selected' : '' }}>Operator 2</option>
-                                </select>
-                                
-                                @if($isProduksiFilled)
-                                    <input type="hidden" name="produksi_id" value="{{ $checklistmagnettrap->produksi_id }}">
-                                @endif
+                    <div class="col-md-6 mb-3">
+                        <label for="produksi" class="form-label">{{ __('Operator Produksi') }}</label>
+                        
+                        {{-- Cek apakah data sudah terisi sebelumnya --}}
+                        @php $isProduksiFilled = !empty($checklistmagnettrap->produksi_id); @endphp
+                        
+                        <select class="form-select @error('produksi_id') is-invalid @enderror" 
+                                id="produksi" 
+                                name="produksi_id" 
+                                required
+                                {{ $isProduksiFilled ? 'disabled' : '' }}>
+                            
+                            <option value="" disabled {{ is_null($checklistmagnettrap->produksi_id) ? 'selected' : '' }}>Pilih Operator...</option>
+                            
+                            @foreach($operators as $operator)
+                                <option value="{{ $operator->id }}" 
+                                    {{ (old('produksi_id', $checklistmagnettrap->produksi_id) == $operator->id) ? 'selected' : '' }}>
+                                    {{ $operator->nama_karyawan }}
+                                </option>
+                            @endforeach
+                        </select>
+                        
+                        {{-- PENTING: Jika select disabled, value tidak terkirim via form post. 
+                            Maka kita butuh input hidden agar controller tetap menerima ID-nya --}}
+                        @if($isProduksiFilled)
+                            <input type="hidden" name="produksi_id" value="{{ $checklistmagnettrap->produksi_id }}">
+                        @endif
 
-                                @error('produksi_id')
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                @enderror
-                            </div>
+                        @error('produksi_id')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
 
                             {{-- Field: Engineer --}}
                             <div class="col-md-6 mb-3">
                                 <label for="engineer" class="form-label">{{ __('Engineer') }}</label>
+
+                                {{-- Cek apakah data Engineer sudah terisi --}}
                                 @php $isEngineerFilled = !empty($checklistmagnettrap->engineer_id); @endphp
 
                                 <select class="form-select @error('engineer_id') is-invalid @enderror" 
@@ -271,11 +284,18 @@
                                         name="engineer_id" 
                                         required
                                         {{ $isEngineerFilled ? 'disabled' : '' }}>
-                                    <option disabled selected>Pilih Engineer...</option>
-                                    <option value="1" {{ (old('engineer_id', $checklistmagnettrap->engineer_id) == 1) ? 'selected' : '' }}>Engineer A</option>
-                                    <option value="2" {{ (old('engineer_id', $checklistmagnettrap->engineer_id) == 2) ? 'selected' : '' }}>Engineer B</option>
+                                        
+                                    <option disabled value="" {{ is_null($checklistmagnettrap->engineer_id) ? 'selected' : '' }}>Pilih Engineer...</option>
+                                    
+                                    @foreach($engineers as $engineer)
+                                        <option value="{{ $engineer->id }}" 
+                                            {{ (old('engineer_id', $checklistmagnettrap->engineer_id) == $engineer->id) ? 'selected' : '' }}>
+                                            {{ $engineer->nama_karyawan }}
+                                        </option>
+                                    @endforeach
                                 </select>
 
+                                {{-- Input hidden agar data tetap terkirim saat disabled --}}
                                 @if($isEngineerFilled)
                                     <input type="hidden" name="engineer_id" value="{{ $checklistmagnettrap->engineer_id }}">
                                 @endif

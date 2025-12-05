@@ -16,30 +16,38 @@ class PemeriksaanKekuatanMagnetTrapController extends Controller
      */
     public function index(Request $request)
     {
-        // Model & variabel diubah
-        $query = PemeriksaanKekuatanMagnetTrap::with('creator')->latest();
+        // 1. Base Query dengan Eager Loading
+        // Memuat relasi creator & updater untuk menghindari N+1 Query
+        $query = PemeriksaanKekuatanMagnetTrap::with(['creator', 'updater']);
 
-        // Filter Tanggal
-        if ($request->filled('start_date')) {
-            $query->where('tanggal', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->where('tanggal', '<=', $request->end_date);
+        // 2. Filter Tanggal (Single Date)
+        // Sesuai dengan input name="date" di View baru
+        if ($request->filled('date')) {
+            $query->whereDate('tanggal', $request->date);
         }
 
-        // Filter Pencarian
+        // 3. Filter Search (Pencarian Global)
         if ($request->filled('search')) {
             $search = $request->search;
+
+            // Grouping query agar logika OR tidak merusak filter tanggal (AND)
             $query->where(function ($q) use ($search) {
-                $q->Where('kondisi_magnet_trap', 'like', "%{$search}%")
-                    ->orWhere('petugas_qc', 'like', "%{$search}%");
+                $q->where('kondisi_magnet_trap', 'like', "%{$search}%")
+                ->orWhere('petugas_qc', 'like', "%{$search}%")
+                
+                // Tambahan: Cari juga berdasarkan nama User pembuat (jika ada)
+                ->orWhereHas('creator', function($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', "%{$search}%");
+                });
             });
         }
 
-        // Variabel diubah
-        $pemeriksaanKekuatanMagnetTraps = $query->paginate(15)->appends($request->query());
+        // 4. Sorting & Pagination
+        // Menggunakan withQueryString() agar parameter filter tetap ada di link paginasi
+        $pemeriksaanKekuatanMagnetTraps = $query->latest()
+                                                ->paginate(15)
+                                                ->withQueryString();
 
-        // View path & variabel diubah
         return view('pemeriksaan-kekuatan-magnet-trap.index', compact('pemeriksaanKekuatanMagnetTraps'));
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use App\Models\Produk;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Operator;
 
 
 class MagnetTrapController extends Controller
@@ -55,7 +56,12 @@ class MagnetTrapController extends Controller
     {
         // Ganti 'magnet_trap.create' jika nama file view Anda berbeda
         $produks = Produk::orderBy('nama_produk', 'asc')->get();
-        return view('magnet_trap.CreateMagnetTrap ', compact('produks'));
+        $operators = Operator::where('bagian', 'Operator')
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
+        $engineers = Operator::where('bagian', 'Engineer')
+                         ->orderBy('nama_karyawan', 'asc')->get();
+        return view('magnet_trap.CreateMagnetTrap ', compact('produks', 'operators', 'engineers'));
     }
 
     /**
@@ -64,7 +70,7 @@ class MagnetTrapController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-public function store(Request $request)
+    public function store(Request $request)
     {
         $validatedData = $request->validate([
             'nama_produk' => 'required',
@@ -115,8 +121,12 @@ public function store(Request $request)
     public function edit(MagnetTrapModel $checklistmagnettrap)
     {
         $produks = Produk::orderBy('nama_produk', 'asc')->get();
-        
-        return view('magnet_trap.EditMagnetTrap', compact('checklistmagnettrap', 'produks'));
+        $operators = Operator::where('bagian', 'Operator')
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
+        $engineers = Operator::where('bagian', 'Engineer')
+                         ->orderBy('nama_karyawan', 'asc')->get();
+        return view('magnet_trap.EditMagnetTrap', compact('checklistmagnettrap', 'produks', 'operators', 'engineers'));
     }
 
     /**
@@ -246,9 +256,13 @@ public function store(Request $request)
     {
         // Ambil data produk (sama seperti di method edit biasa)
         $produks = Produk::orderBy('nama_produk', 'asc')->get();
-        
+        $operators = Operator::where('bagian', 'Operator')
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
+        $engineers = Operator::where('bagian', 'Engineer')
+                         ->orderBy('nama_karyawan', 'asc')->get();
         // Bedanya DISINI: Arahkan ke view 'UpdateMagnetTrap'
-        return view('magnet_trap.UpdateMagnetTrap', compact('checklistmagnettrap', 'produks'));
+        return view('magnet_trap.UpdateMagnetTrap', compact('checklistmagnettrap', 'produks', 'operators', 'engineers'));
     }
 
     public function searchBatchMincing(Request $request)
