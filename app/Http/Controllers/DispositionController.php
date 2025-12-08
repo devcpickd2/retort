@@ -215,4 +215,10 @@ class DispositionController extends Controller
             return redirect()->route('dispositions.verification')->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
         }
     }
+
+    public function showUpdateForm(Disposition $disposition)
+    {
+        // Kita menggunakan view baru bernama 'dispositions.update_view'
+        return view('dispositions.update_view', compact('disposition'));
+    }
 }

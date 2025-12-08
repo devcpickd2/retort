@@ -189,4 +189,10 @@ class PemeriksaanKekuatanMagnetTrapController extends Controller
             return redirect()->route('pemeriksaan-kekuatan-magnet-trap.verification.spv')->with('error', 'Terjadi kesalahan saat menyimpan data.');
         }
     }
+
+    public function showUpdateForm(PemeriksaanKekuatanMagnetTrap $pemeriksaanKekuatanMagnetTrap)
+    {
+        // Menggunakan view baru khusus update
+        return view('pemeriksaan-kekuatan-magnet-trap.update_view', compact('pemeriksaanKekuatanMagnetTrap'));
+    }
 }

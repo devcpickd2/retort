@@ -141,6 +141,11 @@
                                         <a href="{{ route('berita-acara.edit', $item->id) }}" class="btn btn-sm btn-warning text-white" title="Edit">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
+                                        <a href="{{ route('berita-acara.update_form', $item->id) }}" 
+                                        class="btn btn-sm btn-success text-white" 
+                                        title="Update / Lengkapi Data">
+                                        <i class="bi bi-pencil-square"></i> Update
+                                        </a>
                                         
                                         {{-- Hapus --}}
                                         <form action="{{ route('berita-acara.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">

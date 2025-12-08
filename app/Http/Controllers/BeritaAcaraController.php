@@ -206,4 +206,9 @@ class BeritaAcaraController extends Controller
             return redirect()->route('berita-acara.verification.spv')->with('error', 'Terjadi kesalahan saat menyimpan data.');
         }
     }
+
+    public function showUpdateForm(BeritaAcara $beritaAcara)
+    {
+        return view('berita-acara.update_view', compact('beritaAcara'));
+    }
 }

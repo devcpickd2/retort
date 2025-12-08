@@ -140,6 +140,12 @@
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                         
+                                        <a href="{{ route('penyimpangan-kualitas.update_form', $item->id) }}" 
+                                            class="btn btn-sm btn-success text-white" 
+                                            title="Update / Lengkapi Data">
+                                            <i class="bi bi-pencil-square"></i> Update
+                                        </a>
+
                                         {{-- Hapus --}}
                                         <form action="{{ route('penyimpangan-kualitas.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
                                             @csrf

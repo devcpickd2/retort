@@ -180,7 +180,6 @@ Route::resource('list_form', List_formController::class)->parameters([
     'list_form' => 'uuid'
 ]);
 
-Route::post('/checklist-magnet-trap/export-pdf', [MagnetTrapController::class, 'exportPdf'])->name('checklistmagnettrap.exportPdf');
 Route::get('/ajax/search-batch-mincing', [MagnetTrapController::class, 'searchBatchMincing'])->name('ajax.search.batch');
 Route::get('checklistmagnettrap/update-form/{checklistmagnettrap}', [MagnetTrapController::class, 'showUpdateForm'])
     ->name('checklistmagnettrap.showUpdateForm');
@@ -188,8 +187,6 @@ Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'sh
 Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
 Route::resource('checklistmagnettrap', MagnetTrapController::class);
 
-Route::get('/inspections/export-pdf', [RawMaterialInspectionController::class, 'exportPdf'])
-    ->name('inspections.export_pdf');
 Route::get('/inspections/{inspection}/form-update', [RawMaterialInspectionController::class, 'showUpdateForm'])
     ->name('inspections.form_update');
 Route::get('/inspections/verification', [RawMaterialInspectionController::class, 'showVerificationPage'])
@@ -222,12 +219,18 @@ Route::get('loading-produks/verification', [LoadingProdukController::class, 'sho
 Route::put('loading-produks/{uuid}/verify', [LoadingProdukController::class, 'verify'])
 ->name('loading-produks.verify');
 Route::resource('loading-produks', LoadingProdukController::class);
+
+Route::get('/dispositions/{disposition}/update-form', [DispositionController::class, 'showUpdateForm'])
+    ->name('dispositions.update_form');
 Route::get('dispositions-verification', [DispositionController::class, 'verification'])
 ->name('dispositions.verification');
 
 Route::put('dispositions-verify/{disposition:uuid}', [DispositionController::class, 'verify'])
 ->name('dispositions.verify');
 Route::resource('dispositions', DispositionController::class);
+
+Route::get('/berita-acara/{beritaAcara}/update-form', [BeritaAcaraController::class, 'showUpdateForm'])
+    ->name('berita-acara.update_form');
 
 Route::prefix('berita-acara-verification')->name('berita-acara.')->group(function () {
     Route::get('qc-supervisor', [BeritaAcaraController::class, 'verificationSpv'])
@@ -236,6 +239,10 @@ Route::prefix('berita-acara-verification')->name('berita-acara.')->group(functio
     ->name('verify.spv');
 });
 Route::resource('berita-acara', BeritaAcaraController::class);
+
+Route::get('/pemeriksaan-kekuatan-magnet-trap/{pemeriksaanKekuatanMagnetTrap}/update-form', 
+    [PemeriksaanKekuatanMagnetTrapController::class, 'showUpdateForm'])
+    ->name('pemeriksaan-kekuatan-magnet-trap.update_form');
 Route::prefix('pemeriksaan-kekuatan-magnet-trap-verification')->name('pemeriksaan-kekuatan-magnet-trap.')->group(function () {
     Route::get('spv', [PemeriksaanKekuatanMagnetTrapController::class, 'verificationSpv'])
     ->name('verification.spv');
@@ -245,6 +252,10 @@ Route::prefix('pemeriksaan-kekuatan-magnet-trap-verification')->name('pemeriksaa
     ->name('verify.spv');
 });
 Route::resource('pemeriksaan-kekuatan-magnet-trap', PemeriksaanKekuatanMagnetTrapController::class);
+
+Route::get('/penyimpangan-kualitas/{penyimpanganKualitas}/update-form', 
+    [PenyimpanganKualitasController::class, 'showUpdateForm'])
+    ->name('penyimpangan-kualitas.update_form');
 Route::prefix('penyimpangan-kualitas-verification')->name('penyimpangan-kualitas.')->group(function () {
 
     // Rute untuk "Diketahui Oleh"
@@ -453,7 +464,7 @@ Route::get('/pvdc/verification', [PvdcController::class, 'verification'])->name(
 Route::put('/pvdc/verification/{uuid}', [PvdcController::class, 'updateVerification'])
 ->name('pvdc.verification.update');
 Route::delete('/pvdc/{uuid}', [PvdcController::class, 'destroy'])->name('pvdc.destroy');
-Route::get('/pvdc/export/pdf', [PvdcController::class, 'exportPdf'])->name('pvdc.exportPdf');
+Route::get('/pvdc/export-pdf', [PvdcController::class, 'exportPdf'])->name('pvdc.exportPdf');
 
 // Labelisasi PVDC
 Route::get('/labelisasi_pvdc', [Labelisasi_pvdcController::class, 'index'])->name('labelisasi_pvdc.index');

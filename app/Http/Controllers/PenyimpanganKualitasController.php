@@ -227,4 +227,10 @@ class PenyimpanganKualitasController extends Controller
             return redirect()->route('penyimpangan-kualitas.verification.disetujui')->with('error', 'Terjadi kesalahan.');
         }
     }
+
+    public function showUpdateForm(PenyimpanganKualitas $penyimpanganKualitas)
+    {
+        // Menggunakan view baru khusus update restricted
+        return view('penyimpangan-kualitas.update_view', compact('penyimpanganKualitas'));
+    }
 }

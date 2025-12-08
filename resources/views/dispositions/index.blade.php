@@ -120,6 +120,12 @@
                                         <a href="{{ route('dispositions.edit', $disp->uuid) }}" class="btn btn-sm btn-warning text-white" title="Edit">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
+
+                                        <a href="{{ route('dispositions.update_form', $disp->uuid) }}" 
+                                            class="btn btn-sm btn-success text-white" 
+                                            title="Update / Lengkapi Data">
+                                            <i class="bi bi-pencil-square"></i> Update
+                                        </a>
                                         
                                         {{-- Hapus --}}
                                         <form action="{{ route('dispositions.destroy', $disp->uuid) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">

@@ -134,6 +134,12 @@
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                         
+                                        <a href="{{ route('pemeriksaan-kekuatan-magnet-trap.update_form', $item->id) }}" 
+                                            class="btn btn-sm btn-success text-white" 
+                                            title="Update / Lengkapi Data">
+                                            <i class="bi bi-pencil-square"></i> Update
+                                        </a>
+
                                         {{-- Hapus --}}
                                         <form action="{{ route('pemeriksaan-kekuatan-magnet-trap.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
                                             @csrf
