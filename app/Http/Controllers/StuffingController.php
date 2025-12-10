@@ -8,6 +8,7 @@ use App\Models\Mesin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use TCPDF;
 
 class StuffingController extends Controller
 {
@@ -15,6 +16,7 @@ class StuffingController extends Controller
     {
         $search     = $request->input('search');
         $date       = $request->input('date');
+        $shift      = $request->input('shift');
         $userPlant  = Auth::user()->plant;
         
         $data = Stuffing::query()
@@ -30,12 +32,76 @@ class StuffingController extends Controller
         ->when($date, function ($query) use ($date) {
             $query->whereDate('date', $date);
         })
+        ->when($shift, function ($query) use ($shift) { 
+            $query->where('shift', $shift);
+        })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.stuffing.index', compact('data', 'search', 'date'));
+        return view('form.stuffing.index', compact('data', 'search', 'date', 'shift'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        $items = Stuffing::query()
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('kode_produksi', 'like', "%{$search}%")
+                      ->orWhere('kode_mesin', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc')
+            ->orderBy('shift', 'asc')
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Laporan Stuffing');
+        
+        // Hilangkan Header/Footer Bawaan (Agar kita bisa custom full di Blade)
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // 3. SET MARGIN TIPIS (5mm)
+        // Format: Left, Top, Right
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5); // Margin bawah juga tipis
+
+        // 4. Set Font Default
+        $pdf->SetFont('helvetica', '', 8);
+
+        $pdf->AddPage();
+
+        // 5. Render
+        $html = view('reports.stuffing', compact('items', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Laporan_Stuffing_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
     }
 
     public function create()

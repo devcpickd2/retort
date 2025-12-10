@@ -307,6 +307,7 @@ Route::get('/stuffing/verification', [StuffingController::class, 'verification']
 Route::put('/stuffing/verification/{uuid}', [StuffingController::class, 'updateVerification'])
 ->name('stuffing.verification.update');
 Route::delete('/stuffing/{uuid}', [StuffingController::class, 'destroy'])->name('stuffing.destroy');
+Route::get('/stuffing/export-pdf', [App\Http\Controllers\StuffingController::class, 'exportPdf'])->name('stuffing.exportPdf');
 
 // Wire
 Route::get('/wire', [WireController::class, 'index'])->name('wire.index');
@@ -320,6 +321,7 @@ Route::get('/wire/verification', [WireController::class, 'verification'])->name(
 Route::put('/wire/verification/{uuid}', [WireController::class, 'updateVerification'])
 ->name('wire.verification.update');
 Route::delete('/wire/{uuid}', [WireController::class, 'destroy'])->name('wire.destroy');
+Route::get('/wire/export-pdf', [WireController::class, 'exportPdf'])->name('wire.exportPdf');
 
 // Sampling FG
 Route::get('/get-jumlah-box', [App\Http\Controllers\sampling_fgController::class, 'getJumlahBox'])->name('get.jumlah.box');
@@ -480,7 +482,7 @@ Route::put('/labelisasi_pvdc/verification/{uuid}', [Labelisasi_pvdcController::c
 Route::post('/labelisasi_pvdc/save-row-temp', [Labelisasi_pvdcController::class, 'saveRowTemp'])->name('labelisasi_pvdc.saveRowTemp');
 Route::post('/labelisasi_pvdc/store-final', [Labelisasi_pvdcController::class, 'storeFinal'])->name('labelisasi_pvdc.storeFinal');
 Route::delete('/labelisasi_pvdc/{uuid}', [Labelisasi_pvdcController::class, 'destroy'])->name('labelisasi_pvdc.destroy');
-Route::get('/labelisasi_pvdc/export/pdf', [Labelisasi_pvdcController::class, 'exportPdf'])->name('labelisasi_pvdc.exportPdf');
+Route::get('/labelisasi_pvdc/export-pdf', [Labelisasi_pvdcController::class, 'exportPdf'])->name('labelisasi_pvdc.exportPdf');
 
 // Mincing
 Route::get('/mincing', [MincingController::class, 'index'])->name('mincing.index');
