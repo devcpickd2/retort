@@ -130,7 +130,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="jumlah_temuan" class="form-label">{{ __('Jumlah Temuan') }}</label>
-                                <input id="jumlah_temuan" type="number" class="form-control @error('jumlah_temuan') is-invalid @enderror" name="jumlah_temuan" value="{{ old('jumlah_temuan', $checklistmagnettrap->jumlah_temuan) }}" required placeholder="Contoh: 0">
+                                <input id="jumlah_temuan" type="number" class="form-control @error('jumlah_temuan') is-invalid @enderror" name="jumlah_temuan" value="{{ old('jumlah_temuan', $checklistmagnettrap->jumlah_temuan) }}" required placeholder="Contoh: 0" min="0">
                                 @error('jumlah_temuan')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
@@ -175,10 +175,18 @@
                             <div class="col-md-6 mb-3">
                                 <label for="produksi" class="form-label">{{ __('Operator Produksi') }}</label>
                                 <select class="form-select @error('produksi_id') is-invalid @enderror" id="produksi" name="produksi_id" required>
-                                    <option disabled>Pilih Operator...</option>
-                                    <option value="1" {{ (old('produksi_id', $checklistmagnettrap->produksi_id) == 1) ? 'selected' : '' }}>Operator 1</option>
-                                    <option value="2" {{ (old('produksi_id', $checklistmagnettrap->produksi_id) == 2) ? 'selected' : '' }}>Operator 2</option>
+                                    <option value="" disabled {{ is_null($checklistmagnettrap->produksi_id) ? 'selected' : '' }}>Pilih Operator...</option>
+                                    
+                                    @foreach($operators as $operator)
+                                        <option value="{{ $operator->id }}" 
+                                            {{-- Logic: Cek old input, jika tidak ada cek data database. Jika cocok dengan ID loop, set selected --}}
+                                            {{ (old('produksi_id', $checklistmagnettrap->produksi_id) == $operator->id) ? 'selected' : '' }}>
+                                            {{ $operator->nama_karyawan }}
+                                        </option>
+                                    @endforeach
+
                                 </select>
+                                
                                 @error('produksi_id')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
@@ -186,9 +194,15 @@
                             <div class="col-md-6 mb-3">
                                 <label for="engineer" class="form-label">{{ __('Engineer') }}</label>
                                 <select class="form-select @error('engineer_id') is-invalid @enderror" id="engineer" name="engineer_id" required>
-                                    <option disabled>Pilih Engineer...</option>
-                                    <option value="1" {{ (old('engineer_id', $checklistmagnettrap->engineer_id) == 1) ? 'selected' : '' }}>Engineer A</option>
-                                    <option value="2" {{ (old('engineer_id', $checklistmagnettrap->engineer_id) == 2) ? 'selected' : '' }}>Engineer B</option>
+                                    <option disabled value="" {{ is_null($checklistmagnettrap->engineer_id) ? 'selected' : '' }}>Pilih Engineer...</option>
+                                    
+                                    @foreach($engineers as $engineer)
+                                        <option value="{{ $engineer->id }}" 
+                                            {{ (old('engineer_id', $checklistmagnettrap->engineer_id) == $engineer->id) ? 'selected' : '' }}>
+                                            {{ $engineer->nama_karyawan }}
+                                        </option>
+                                    @endforeach
+
                                 </select>
                                 @error('engineer_id')
                                     <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>

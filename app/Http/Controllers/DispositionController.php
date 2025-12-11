@@ -12,27 +12,43 @@ class DispositionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request) // <-- Tambahkan 'Request $request'
+    public function index(Request $request)
     {
-        // Mulai query
-        // <-- TAMBAHAN: 'with('creator')' untuk eager loading
-        // Ini opsional, tapi bagus untuk performa jika Anda ingin menampilkan nama pembuat di 'index'
-        $query = Disposition::with('creator'); 
+        // 1. Base Query dengan Eager Loading (Creator & Updater)
+        // 'with' digunakan agar tidak terjadi N+1 Query problem saat menampilkan nama pembuat
+        $query = Disposition::with(['creator', 'updater']);
 
-        // Terapkan filter jika ada
-        if ($request->filled('start_date')) {
-            $query->where('tanggal', '>=', $request->start_date);
+        // 2. Filter Tanggal
+        // Menggunakan 'date' sesuai name="date" di input HTML Anda
+        if ($request->filled('date')) {
+            $query->whereDate('tanggal', $request->date);
         }
 
-        if ($request->filled('end_date')) {
-            $query->where('tanggal', '<=', $request->end_date);
+        // 3. Filter Search (Pencarian Global)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            
+            // Kita bungkus dalam where(function...) agar logika OR tidak merusak logika AND tanggal
+            $query->where(function($q) use ($search) {
+                $q->where('nomor', 'like', "%{$search}%")
+                  ->orWhere('kepada', 'like', "%{$search}%")
+                  
+                  // Sesuai Model Anda: Gunakan 'uraian_disposisi' dan 'catatan'
+                  ->orWhere('uraian_disposisi', 'like', "%{$search}%")
+                  ->orWhere('catatan', 'like', "%{$search}%")
+                  
+                  // Pencarian Relasi: Mencari berdasarkan nama User (creator)
+                  ->orWhereHas('creator', function($subQuery) use ($search) {
+                      $subQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
         }
 
-        // Ambil data, urutkan, dan paginasi
-        // Tambahkan 'appends' agar paginasi mengingat filter Anda
+        // 4. Ambil data, urutkan dari yang terbaru, dan paginasi
+        // withQueryString() wajib ada agar filter tidak hilang saat pindah halaman
         $dispositions = $query->latest()
-                                ->paginate(10)
-                                ->appends($request->query());
+                              ->paginate(10)
+                              ->withQueryString();
 
         return view('dispositions.index', compact('dispositions'));
     }
@@ -198,5 +214,11 @@ class DispositionController extends Controller
             // Handle jika ada error
             return redirect()->route('dispositions.verification')->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
         }
+    }
+
+    public function showUpdateForm(Disposition $disposition)
+    {
+        // Kita menggunakan view baru bernama 'dispositions.update_view'
+        return view('dispositions.update_view', compact('disposition'));
     }
 }

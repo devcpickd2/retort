@@ -7,15 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // Diperlukan untuk relasi 'verifier'
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PackagingInspection extends Model
 {
     use HasFactory, SoftDeletes;
 
-    /**
-     * Otomatis mengisi UUID saat membuat record baru.
-     */
     protected static function booted(): void
     {
         static::creating(function ($model) {
@@ -25,38 +22,34 @@ class PackagingInspection extends Model
         });
     }
 
-    /**
-     * Memberitahu Laravel untuk menggunakan 'uuid' untuk Route Model Binding.
-     */
     public function getRouteKeyName()
     {
         return 'uuid';
     }
 
-    /**
-     * Kolom yang dapat diisi.
-     */
     protected $fillable = [
         'inspection_date',
         'shift',
+
+        // --- FIELD BARU (Identity & Location) ---
+        'plant_uuid',
+        'created_by',
+        'updated_by',
         
-        // Kolom Verifikasi Baru ditambahkan dari migrasi
+        // Field Verifikasi
         'status_spv',
         'catatan_spv',
         'verified_by',
         'verified_at',
     ];
 
-    /**
-     * Cast tipe data untuk kolom.
-     */
     protected $casts = [
         'inspection_date' => 'date',
-        'verified_at' => 'datetime', // Cast baru
+        'verified_at' => 'datetime',
     ];
 
     /**
-     * Mendapatkan semua item yang terkait dengan inspeksi ini.
+     * Relasi ke Items
      */
     public function items(): HasMany
     {
@@ -64,11 +57,28 @@ class PackagingInspection extends Model
     }
 
     /**
-     * Relasi ke user yang melakukan verifikasi. (Baru)
+     * Relasi ke User Verifikator
      */
     public function verifier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by');
     }
-}
 
+    /**
+     * Relasi ke User Pembuat (Creator)
+     */
+    public function creator(): BelongsTo
+    {
+        // Parameter 2: Foreign key di table ini ('created_by')
+        // Parameter 3: Owner key di table user ('uuid') -> INI PENTING
+        return $this->belongsTo(User::class, 'created_by', 'uuid');
+    }
+
+    /**
+     * Relasi ke User Pengupdate
+     */
+    public function updater(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by', 'uuid');
+    }
+}

@@ -25,7 +25,8 @@
         border-radius: 8px;
     }
     
-    /* Memastikan Select2 sesuai dengan tinggi Bootstrap */
+    /* Memastikan Select2 sesuai dengan tinggi Bootstrap dan Full Width */
+    .select2-container { width: 100% !important; } 
     .select2-container .select2-selection--single {
         height: calc(2.25rem + 2px); /* Match Bootstrap's input height */
         padding: .375rem .75rem;
@@ -151,7 +152,8 @@
             theme: "bootstrap-5",
             placeholder: "Ketik untuk mencari...",
             allowClear: true,
-            dropdownAutoWidth: true
+            width: '100%', // Pastikan full width
+            dropdownAutoWidth: false // Matikan auto width konten
         });
     });
 
@@ -163,7 +165,7 @@
         let detailIndex = 0;
 
         // Data dari PHP untuk dropdown
-        const vehicleConditions = @json($vehicleConditions);
+        const vehicleConditions = @json($vehicleConditions ?? []); // Pastikan variable ada
         // Buat string HTML untuk options
         const vehicleOptions = vehicleConditions.map(c => `<option value="${c}">${c}</option>`).join('');
 
@@ -197,7 +199,6 @@
             const newDetail = document.createElement('div');
             newDetail.classList.add('dynamic-item-card', 'border', 'p-3', 'mb-3', 'rounded', 'shadow-sm'); 
             
-            // --- INI BAGIAN YANG DIUBAH (URUTAN FIELD) ---
             newDetail.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Item #${i + 1}</h5>
@@ -206,7 +207,6 @@
                 
                 <div class="row g-3">
                     
-                    <!-- URUTAN BARU 1, 2, 3: Jenis, Supplier, Lot Batch -->
                     <div class="col-md-4">
                         <label class="form-label">Jenis Packaging</label>
                         <input type="text" name="items[${i}][packaging_type]" class="form-control" value="${packaging_type}" required>
@@ -220,29 +220,28 @@
                         <input type="text" name="items[${i}][lot_batch]" class="form-control" value="${lot_batch}" required>
                     </div>
 
-                    <!-- URUTAN BARU 4, 5, 6, 7: Kondisi & Dimensi -->
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label d-block">Kondisi Design</label>
                         <input type="hidden" name="items[${i}][condition_design]" id="design_${i}" value="${design_val}">
-                        <div class="btn-group btn-check-group" role="group">
-                            <button type="button" class="btn ${design_val === 'OK' ? 'btn-success' : 'btn-outline-success'}" data-value="OK" data-target-input="#design_${i}"><i class="bi bi-check-lg"></i> OK</button>
-                            <button type="button" class="btn ${design_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'}" data-value="Not OK" data-target-input="#design_${i}"><i class="bi bi-x-lg"></i> Not OK</button>
+                        <div class="btn-group btn-check-group w-100" role="group">
+                            <button type="button" class="btn ${design_val === 'OK' ? 'btn-success' : 'btn-outline-success'} w-50" data-value="OK" data-target-input="#design_${i}">OK</button>
+                            <button type="button" class="btn ${design_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'} w-50" data-value="Not OK" data-target-input="#design_${i}">Not OK</button>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label d-block">Kondisi Sealing</label>
                         <input type="hidden" name="items[${i}][condition_sealing]" id="sealing_${i}" value="${sealing_val}">
-                        <div class="btn-group btn-check-group" role="group">
-                            <button type="button" class="btn ${sealing_val === 'OK' ? 'btn-success' : 'btn-outline-success'}" data-value="OK" data-target-input="#sealing_${i}"><i class="bi bi-check-lg"></i> OK</button>
-                            <button type="button" class="btn ${sealing_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'}" data-value="Not OK" data-target-input="#sealing_${i}"><i class="bi bi-x-lg"></i> Not OK</button>
+                        <div class="btn-group btn-check-group w-100" role="group">
+                            <button type="button" class="btn ${sealing_val === 'OK' ? 'btn-success' : 'btn-outline-success'} w-50" data-value="OK" data-target-input="#sealing_${i}">OK</button>
+                            <button type="button" class="btn ${sealing_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'} w-50" data-value="Not OK" data-target-input="#sealing_${i}">Not OK</button>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label d-block">Kondisi Warna</label>
                         <input type="hidden" name="items[${i}][condition_color]" id="color_${i}" value="${color_val}">
-                        <div class="btn-group btn-check-group" role="group">
-                            <button type="button" class="btn ${color_val === 'OK' ? 'btn-success' : 'btn-outline-success'}" data-value="OK" data-target-input="#color_${i}"><i class="bi bi-check-lg"></i> OK</button>
-                            <button type="button" class="btn ${color_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'}" data-value="Not OK" data-target-input="#color_${i}"><i class="bi bi-x-lg"></i> Not OK</button>
+                        <div class="btn-group btn-check-group w-100" role="group">
+                            <button type="button" class="btn ${color_val === 'OK' ? 'btn-success' : 'btn-outline-success'} w-50" data-value="OK" data-target-input="#color_${i}">OK</button>
+                            <button type="button" class="btn ${color_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'} w-50" data-value="Not OK" data-target-input="#color_${i}">Not OK</button>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
@@ -250,20 +249,19 @@
                         <input type="text" name="items[${i}][condition_dimension]" class="form-control" value="${dimension}">
                     </div>
 
-                    <!-- URUTAN BARU 8, 9, 10, 11: Kuantitas & Penerimaan -->
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">Qty Barang</label>
                         <input type="number" name="items[${i}][quantity_goods]" class="form-control" value="${qty_goods}" min="0" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">Qty Sampel</label>
                         <input type="number" name="items[${i}][quantity_sample]" class="form-control" value="${qty_sample}" min="0" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">Qty Reject</label>
                         <input type="number" name="items[${i}][quantity_reject]" class="form-control" value="${qty_reject}" min="0" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                         <label class="form-label">Penerimaan</label>
                         <select name="items[${i}][acceptance_status]" class="form-select select2-dynamic" required>
                             <option value="OK" ${accept_val === 'OK' ? 'selected' : ''}>OK</option>
@@ -271,12 +269,11 @@
                         </select>
                     </div>
 
-                    <!-- URUTAN BARU 12, 13, 14: Info Kendaraan -->
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="form-label">No. Polisi</label>
                         <input type="text" name="items[${i}][no_pol]" class="form-control" value="${no_pol}" required>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <label class="form-label">Kondisi Kendaraan</label>
                         <select name="items[${i}][vehicle_condition]" class="form-select select2-dynamic" required>
                             <option></option> ${vehicleConditions.map(c => `<option value="${c}" ${vehicle_cond === c ? 'selected' : ''}>${c}</option>`).join('')}
@@ -287,18 +284,15 @@
                         <input type="text" name="items[${i}][pbb_op]" class="form-control" value="${pbb_op}">
                     </div>
                     
-                    <!-- URUTAN BARU 15: Keterangan -->
                     <div class="col-12">
                         <label class="form-label">Keterangan (Optional)</label>
                         <textarea name="items[${i}][notes]" class="form-control" rows="2">${notes}</textarea>
                     </div>
 
-                    <!-- Input Tersembunyi (Hidden) -->
                     <input type="hidden" name="items[${i}][id]" value="${data?.id || ''}">
                     <input type="hidden" name="items[${i}][condition_weight_pcs]" value="${data?.condition_weight_pcs || ''}">
                 </div>
             `;
-            // --- AKHIR DARI BAGIAN YANG DIUBAH ---
 
             container.appendChild(newDetail);
             
@@ -307,7 +301,8 @@
                 theme: "bootstrap-5",
                 placeholder: "Pilih...",
                 allowClear: true,
-                dropdownAutoWidth: true
+                width: '100%', // PENTING: Memaksa lebar penuh mengikuti kolom bootstrap
+                dropdownAutoWidth: false // Mematikan auto width berdasarkan konten text
             });
 
             detailIndex++;

@@ -1,152 +1,214 @@
-@extends('layouts.app') {{-- Sesuaikan dengan layout Anda --}}
+@extends('layouts.app')
 
-{{-- Menambahkan style khusus dan Font Awesome (dari contoh UI/UX) --}}
-@push('styles')
+@section('content')
+<div class="container-fluid py-0">
+
+    {{-- Alert Section (Copy from Reference) --}}
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i> {{ trim(session('success')) }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    {{-- Card Wrapper --}}
+    <div class="card card-custom shadow-sm">
+        <div class="card-body">
+
+            {{-- Header Section --}}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                {{-- Judul disesuaikan --}}
+                <h3 class="fw-bold"><i class="bi bi-clipboard-check me-2"></i> Data Pemeriksaan Retain</h3>
+                <a href="{{ route('pemeriksaan_retain.create') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Tambah
+                </a>
+            </div>
+
+            {{-- Filter dan Live Search (Style Magnet Trap - Persis Referensi) --}}
+            <form id="filterForm" method="GET" action="{{ route('pemeriksaan_retain.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
+
+                {{-- Input Tanggal (Menggunakan satu tanggal untuk menyamakan UI, sesuaikan controller jika butuh range) --}}
+                <div class="input-group" style="max-width: 220px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-calendar-date text-muted"></i>
+                    </span>
+                    <input type="date" name="date" id="filter_date" class="form-control border-start-0"
+                    value="{{ request('date') }}" placeholder="Tanggal">
+                </div>
+
+                {{-- Input Search --}}
+                <div class="input-group flex-grow-1" style="max-width: 450px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="search" id="search" class="form-control border-start-0"
+                    value="{{ request('search') }}" placeholder="Cari Keterangan / Dibuat Oleh...">
+                </div>
+
+                {{-- Tombol Reset (Optional: Agar UX lebih baik jika user ingin clear filter) --}}
+                @if(request('date') || request('search'))
+                <a href="{{ route('pemeriksaan_retain.index') }}" class="btn btn-secondary btn-sm ms-auto">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </a>
+                @endif
+
+            </form>
+
+            {{-- Script Auto Submit (Sama persis dengan referensi) --}}
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const search = document.getElementById('search');
+                    const date = document.getElementById('filter_date');
+                    const form = document.getElementById('filterForm');
+                    let timer;
+
+                    // Debounce search
+                    search.addEventListener('input', () => {
+                        clearTimeout(timer);
+                        timer = setTimeout(() => form.submit(), 500);
+                    });
+
+                    // Auto submit date
+                    date.addEventListener('change', () => form.submit());
+                });
+            </script>
+
+            {{-- Tabel Data --}}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>NO.</th>
+                            <th>Tanggal</th>
+                            <th>Hari</th>
+                            <th>Keterangan</th>
+                            <th>Jumlah Item</th>
+                            <th>Dibuat Oleh</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($pemeriksaanRetains as $p)
+                        <tr>
+                            {{-- Penomoran Halaman --}}
+                            <td class="text-center">{{ $loop->iteration + ($pemeriksaanRetains->currentPage() - 1) * $pemeriksaanRetains->perPage() }}</td>
+                            
+                            {{-- Tanggal --}}
+                            <td class="text-center align-middle">
+                                {{ \Carbon\Carbon::parse($p->tanggal)->format('d-m-Y') }}
+                            </td>
+
+                            {{-- Hari --}}
+                            <td class="text-center align-middle">{{ $p->hari }}</td>
+
+                            {{-- Keterangan --}}
+                            <td class="align-middle">{{ Str::limit($p->keterangan, 50) }}</td>
+
+                            {{-- Jumlah Item --}}
+                            <td class="text-center align-middle">
+                                <span class="align-middle">{{ $p->items_count ?? 0 }}</span>
+                            </td>
+
+                            {{-- Creator --}}
+                            <td class="text-center align-middle">{{ $p->creator->name ?? '-' }}</td>
+                            
+                            {{-- Aksi --}}
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center align-items-center">
+
+                                    {{-- 1. Detail --}}
+                                    <a href="{{ route('pemeriksaan_retain.show', $p->uuid) }}" class="btn btn-primary btn-sm fw-bold shadow-sm mx-1">
+                                        <i class="bi bi-eye me-1"></i> Detail
+                                    </a>
+
+                                    {{-- 2. Update (TOMBOL BARU - Hijau) --}}
+                                    <a href="{{ route('pemeriksaan_retain.edit-for-update', $p->uuid) }}" class="btn btn-success btn-sm fw-bold shadow-sm mx-1">
+                                        <i class="bi bi-clipboard-check me-1"></i> Update
+                                    </a>
+
+                                    {{-- 3. Edit --}}
+                                    <a href="{{ route('pemeriksaan_retain.edit', $p->uuid) }}" class="btn btn-warning btn-sm mx-1">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+
+                                    {{-- 4. Hapus --}}
+                                    <form action="{{ route('pemeriksaan_retain.destroy', $p->uuid) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data pemeriksaan retain ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm mx-1">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Belum ada data pemeriksaan retain.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Pagination --}}
+            <div class="mt-3">
+                {{ $pemeriksaanRetains->withQueryString()->links('pagination::bootstrap-5') }}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{-- Auto-hide alert script --}}
+<script>
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if(alert){
+            alert.classList.remove('show');
+            alert.classList.add('fade');
+        }
+    }, 3000);
+</script>
+
+{{-- Style Tambahan (Wajib dicopy agar tampilan sama persis) --}}
 <style>
+    /* Styling Font Tabel */
+    .table td, .table th {
+        font-size: 0.85rem;
+        white-space: nowrap; 
+    }
+    
+    /* Styling Card Custom */
     .card-custom {
         border: none;
         border-radius: 0.75rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-    .table-header-custom {
-        /* Menggunakan warna biru primary dari Bootstrap */
-        background-color: #0D6EFD; 
-        color: white;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-size: 0.85rem;
+    
+    /* Input Group Focus State */
+    .input-group:focus-within {
+        box-shadow: none;
     }
-    .table > tbody > tr > td,
-    .table > tbody > tr > th {
-        vertical-align: middle;
+    .form-control:focus, .input-group-text:focus {
+         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+         border-color: #86b7fe;
     }
-    .table-hover > tbody > tr:hover {
-        background-color: #f8f9fa;
-    }
-    .btn-group .btn {
-        margin: 0 !important;
-    }
-    .form-label {
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
+
+    body { background-color: #f8f9fa; }
+    
+    /* Memastikan link font bootstrap icons tersedia (jika belum ada di layout utama) */
+    @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
 </style>
-{{-- Font Awesome diperlukan untuk ikon --}}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" xintegrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-@endpush
-
-
-@section('content')
-<div class="container-fluid py-0">
-    <div class="card card-custom">
-        <div class="card-body p-4">
-
-            {{-- BAGIAN HEADER --}}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="card-title mb-0 fw-bold">
-                    {{-- Mengganti ikon dan judul sesuai konten Anda --}}
-                    <i class="fas fa-clipboard-check me-2"></i>Daftar Pemeriksaan Retain
-                </h4>
-                {{-- Menggunakan route dan teks dari file Anda --}}
-                <a href="{{ route('pemeriksaan_retain.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i>Tambah Data Baru
-                </a>
-            </div>
-
-            {{-- Notifikasi (dari file Anda) --}}
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
-            @endif
-            @if (session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
-
-            {{-- BAGIAN FILTER (dari contoh UI/UX) --}}
-            {{-- CATATAN: Ini butuh update di Controller Anda untuk berfungsi --}}
-            <form method="GET" action="{{ route('pemeriksaan_retain.index') }}" class="row g-3 align-items-end mb-4">
-                <div class="col-md-3">
-                    <label for="start_date" class="form-label small">Tanggal Awal</label>
-                    <input type="date" id="start_date" name="start_date" class="form-control" value="{{ request('start_date') }}">
-                </div>
-                <div class="col-md-3">
-                    <label for="end_date" class="form-label small">Tanggal Akhir</label>
-                    <input type="date" id="end_date" name="end_date" class="form-control" value="{{ request('end_date') }}">
-                </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter me-1"></i> Filter</button>
-                    <a href="{{ route('pemeriksaan_retain.index') }}" class="btn btn-secondary w-100"><i class="fas fa-sync-alt me-1"></i> Reset</a>
-                </div>
-            </form>
-        </div>
-        
-        <hr class="my-0">
-
-        {{-- BAGIAN TABEL DATA --}}
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-header-custom">
-                    <tr>
-                        {{-- Menggabungkan kolom dari kedua file --}}
-                        <th class="text-center">No</th>
-                        <th>Tanggal</th>
-                        <th>Hari</th>
-                        <th>Keterangan</th>
-                        <th class="text-center">Jumlah Item</th>
-                        <th>Dibuat Oleh</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{-- Menggunakan loop dan data dari file Anda --}}
-                    @forelse ($pemeriksaanRetains as $p)
-                    <tr>
-                        {{-- Nomor urut yang sadar paginasi (dari contoh UI/UX) --}}
-                        <td class="text-center fw-bold">{{ $loop->iteration + ($pemeriksaanRetains->currentPage() - 1) * $pemeriksaanRetains->perPage() }}</td>
-                        
-                        {{-- Data dari file Anda --}}
-                        <td>{{ \Carbon\Carbon::parse($p->tanggal)->format('d M Y') }}</td>
-                        <td>{{ $p->hari }}</td>
-                        <td>{{ Str::limit($p->keterangan, 40) }}</td>
-                        <td class="text-center">{{ $p->items_count }}</td> 
-                        <td>{{ $p->creator->name ?? 'N/A' }}</td> 
-                        
-                        {{-- Tombol Aksi dengan Ikon (dari contoh UI/UX) --}}
-                        <td class="text-center">
-                            <form action="{{ route('pemeriksaan_retain.destroy', $p->uuid) }}" method="POST" onsubmit="return confirm('Pindahkan data ini ke keranjang sampah?');">
-                                <div class="btn-group" role="group">
-                                    {{-- Tombol Detail / Show --}}
-                                    <a href="{{ route('pemeriksaan_retain.show', $p->uuid) }}" class="btn btn-sm btn-outline-primary" title="Detail"><i class="fas fa-eye"></i></a>
-                                    {{-- Tombol Edit --}}
-                                    <a href="{{ route('pemeriksaan_retain.edit', $p->uuid) }}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                                    {{-- Tombol Hapus --}}
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus"><i class="fas fa-trash-alt"></i></button>
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    {{-- Tampilan Data Kosong (dari contoh UI/UX) --}}
-                    <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Data tidak ditemukan</h5>
-                            <p class="small text-muted">Coba ubah filter pencarian Anda atau tambahkan data baru.</p>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        {{-- BAGIAN PAGINASI --}}
-        @if ($pemeriksaanRetains->hasPages())
-        <div class="card-footer bg-light">
-            {{-- Menambahkan withQueryString agar filter tetap ada saat ganti halaman --}}
-            {!! $pemeriksaanRetains->withQueryString()->links() !!}
-        </div>
-        @endif
-    </div>
-</div>
 @endsection

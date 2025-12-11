@@ -123,10 +123,6 @@
                                         <i class="bi bi-pencil"></i> Update
                                     </a>
 
-                                    <a href="{{ route('inspections.export_pdf', request()->query()) }}" class="btn btn-danger" target="_blank">
-                                        <i class="fas fa-file-pdf"></i> Export PDF
-                                    </a>
-
                                     {{-- 4. Hapus (Style tombol Danger - Icon Only) --}}
                                     <form action="{{ route('inspections.destroy', $item->uuid) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                         @csrf

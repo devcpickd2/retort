@@ -12,7 +12,6 @@ class LoadingProduk extends Model
 {
     use HasFactory, SoftDeletes;
 
-    // Nama tabel harus sesuai dengan migrasi Anda
     protected $table = 'loading_checks'; 
     protected $guarded = [];
 
@@ -20,62 +19,71 @@ class LoadingProduk extends Model
         'kondisi_mobil' => 'array',
     ];
 
+    /**
+     * Boot function untuk menangani Event Model
+     */
     protected static function boot()
     {
         parent::boot();
 
+        // Event saat data BARU akan dibuat (Creating)
         static::creating(function ($model) {
+            // 1. Generate UUID jika belum ada
             if (empty($model->uuid)) {
                 $model->uuid = (string) Str::uuid();
             }
-            if (Auth::check() && empty($model->created_by)) {
-                $model->created_by = Auth::id();
+
+            // 2. Isi created_by dan plant_uuid otomatis dari User yang Login
+            if (Auth::check()) {
+                if (empty($model->created_by)) {
+                    $model->created_by = Auth::id();
+                }
+                
+                // ISI PLANT_UUID DARI USER LOGIN
+                if (empty($model->plant_uuid)) {
+                    // Asumsi kolom di tabel users bernama 'plant'
+                    $model->plant_uuid = Auth::user()->plant ?? null; 
+                }
+            }
+        });
+
+        // Event saat data AKAN DIUPDATE (Updating)
+        static::updating(function ($model) {
+            if (Auth::check()) {
+                // Isi updated_by otomatis saat ada perubahan data
+                $model->updated_by = Auth::id();
             }
         });
     }
 
-    /**
-     * Memberitahu Laravel untuk menggunakan 'uuid' untuk Route Model Binding.
-     */
     public function getRouteKeyName()
     {
         return 'uuid';
     }
 
-    /**
-     * Relasi ke LoadingDetail
-     */
     public function details()
     {
-        // Sesuaikan foreign key jika berbeda
         return $this->hasMany(LoadingDetail::class, 'loading_check_id', 'id');
     }
 
-    /**
-     * Relasi ke User pembuat
-     */
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-     /* Ini akan otomatis memformat 'jam_mulai' saat dipanggil di view.
-     * Ia mengambil "10:30:00" dari DB dan mengubahnya jadi "10:30" untuk view.
-     */
+    // Relasi opsional untuk melihat siapa yang mengupdate terakhir
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     public function getJamMulaiAttribute($value)
     {
-        // Cek jika value-nya ada, lalu format ke H:i
         return $value ? \Carbon\Carbon::parse($value)->format('H:i') : null;
     }
 
-    /**
-     * Ini akan otomatis memformat 'jam_selesai' saat dipanggil di view.
-     * Ia mengambil "10:30:00" dari DB dan mengubahnya jadi "10:30" untuk view.
-     */
     public function getJamSelesaiAttribute($value)
     {
-        // Cek jika value-nya ada, lalu format ke H:i
         return $value ? \Carbon\Carbon::parse($value)->format('H:i') : null;
     }
 }
-

@@ -155,6 +155,35 @@
 </script>
 
 <script>
+    // Script untuk Auto-fill Tanggal dan Shift saat halaman dimuat
+    document.addEventListener("DOMContentLoaded", function () {
+        const dateInput = document.getElementById("dateInput");
+        const shiftInput = document.getElementById("shiftInput");
+
+        let now = new Date();
+        let yyyy = now.getFullYear();
+        let mm = String(now.getMonth() + 1).padStart(2, '0');
+        let dd = String(now.getDate()).padStart(2, '0');
+        let hh = String(now.getHours()).padStart(2, '0');
+
+        if(dateInput) {
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        if(shiftInput) {
+            let hour = parseInt(hh);
+            if (hour >= 7 && hour < 15) {
+                shiftInput.value = "1";
+            } else if (hour >= 15 && hour < 23) {
+                shiftInput.value = "2";
+            } else {
+                shiftInput.value = "3"; 
+            }
+        }
+    });
+</script>
+
+<script>
     $(document).ready(function(){
 
     // =================== VALIDASI KODE BATCH ===================
@@ -193,7 +222,10 @@
 
         function showError(input, message) {
             input.addClass("is-invalid");
-            input.after(`<div class="invalid-feedback">${message}</div>`);
+            // Cek agar tidak duplikat pesan error
+            if(input.next(".invalid-feedback").length === 0){
+                input.after(`<div class="invalid-feedback">${message}</div>`);
+            }
         }
 
         $(document).on("input blur", 'input[name$="[kode_batch]"]', function () {
@@ -202,76 +234,110 @@
 
     // =================== TAMBAH BARIS ===================
         let index = 0;
+        // Variabel mesinOptions diambil dari Blade
         const mesinOptions = `{!! collect($mesins)->map(fn($m) => "<option value='{$m->nama_mesin}'>{$m->nama_mesin}</option>")->implode('') !!}`;
 
         $('#addRow').on('click', function () {
             index++;
             $('#pvdcBody').append(`
-        <tr>
-            <td>
-                <select name="data_pvdc[${index}][mesin]" class="form-control form-control-sm" required>
-                    <option value="">-- Pilih Mesin --</option>${mesinOptions}
-                </select>
-            </td>
-            <td>
-                <input type="text" name="data_pvdc[${index}][kode_batch]" class="form-control form-control-sm" required>
-            </td>
-            <td>
-                <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*">
-                <div class="preview mt-2"></div>
-            </td>
-            <td>
-                <input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm">
-            </td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    <select name="data_pvdc[${index}][mesin]" class="form-control form-control-sm" required>
+                        <option value="">-- Pilih Mesin --</option>${mesinOptions}
+                    </select>
+                </td>
+                <td>
+                    <input type="text" name="data_pvdc[${index}][kode_batch]" class="form-control form-control-sm" required>
+                </td>
+                <td>
+                    {{-- PERBAIKAN: Menambahkan 'required' pada input file dinamis --}}
+                    <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*" required>
+                    <div class="preview mt-2"></div>
+                </td>
+                <td>
+                    <input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm">
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
+                </td>
+            </tr>
             `);
         });
 
     // =================== HAPUS BARIS ===================
         $('#pvdcBody').on('click', '.removeRow', function () {
-            $(this).closest('tr').remove();
+            // Cek sisa baris, jangan hapus jika tinggal satu (opsional)
+            // if($('#pvdcBody tr').length > 1) { 
+                $(this).closest('tr').remove();
+            // }
         });
 
+    // =================== SIMPAN DATA (AJAX) ===================
         $('#saveBtn').click(function () {
             const btn = $(this);
-            const form = $('#pvdcForm')[0];
-    const formData = new FormData(form); // ambil semua input langsung dari form
+            const form = $('#pvdcForm')[0]; // Ambil elemen DOM form
+            
+            // Validasi HTML5 Native sebelum kirim AJAX (Cek required field)
+            if (!form.checkValidity()) {
+                form.reportValidity(); // Tampilkan popup error browser standard
+                return;
+            }
 
-    let hasData = false;
-    $('#pvdcBody tr').each(function(){
-        const mesin = $(this).find('select[name$="[mesin]"]').val();
-        const kodeBatch = $(this).find('input[name$="[kode_batch]"]').val();
-        if(mesin && kodeBatch){
-            hasData = true;
-        }
-    });
+            const formData = new FormData(form);
 
-    if(!hasData){
-        alert('Belum ada data PVDC yang diinputkan!');
-        return;
-    }
+            // Validasi manual tambahan (opsional, karena checkValidity sudah menangani required)
+            let hasData = false;
+            $('#pvdcBody tr').each(function(){
+                const mesin = $(this).find('select[name$="[mesin]"]').val();
+                if(mesin) hasData = true;
+            });
 
-    btn.prop('disabled', true).html('Menyimpan...');
+            if(!hasData){
+                alert('Belum ada data PVDC yang diinputkan!');
+                return;
+            }
 
-    $.ajax({
-        url: "{{ route('labelisasi_pvdc.storeFinal') }}",
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(res){
-            if(res.success) window.location.href = res.redirect_url;
-            else alert(res.message);
-        },
-        complete: function(){
-            btn.prop('disabled', false).html('Simpan');
-        }
-    });
-});
+            // Ubah tombol jadi loading
+            const originalText = btn.html();
+            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
 
+            $.ajax({
+                url: "{{ route('labelisasi_pvdc.storeFinal') }}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(res){
+                    if(res.success) {
+                        window.location.href = res.redirect_url;
+                    } else {
+                        alert(res.message);
+                        btn.prop('disabled', false).html(originalText);
+                    }
+                },
+                error: function(xhr) {
+                    // PERBAIKAN: Handle error agar tombol kembali aktif
+                    btn.prop('disabled', false).html(originalText);
+
+                    let errorMessage = 'Terjadi kesalahan sistem.';
+
+                    if (xhr.status === 422) { // Error Validasi Laravel
+                        let errors = xhr.responseJSON.errors;
+                        errorMessage = 'Mohon periksa inputan Anda:\n';
+                        $.each(errors, function(key, value) {
+                            errorMessage += '- ' + value[0] + '\n';
+                        });
+                    } else if (xhr.status === 413) {
+                        errorMessage = 'File gambar terlalu besar. Maksimum upload server terlampaui.';
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+
+                    alert(errorMessage);
+                    console.error(xhr.responseText);
+                }
+            });
+        });
 
     });
 </script>
