@@ -15,7 +15,7 @@ class WashingController extends Controller
         $date       = $request->input('date');
         $userPlant  = Auth::user()->plant;
 
-        $data = Washing::query()
+        $data = Washing::with('mincing')  
         ->where('plant', $userPlant)
         ->when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {

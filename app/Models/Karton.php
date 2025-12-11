@@ -22,4 +22,11 @@ class Karton extends Model
         'nama_operator', 'status_operator', 'tgl_update_operator', 'nama_koordinator', 'status_koordinator', 'tgl_update_koordinator', 
         'username', 'username_updated',  'nama_spv', 'status_spv', 'catatan_spv', 'tgl_update_spv'
     ];
+    
+    //relasi kode batch     
+    public function mincing()
+    {
+        return $this->belongsTo(Mincing::class, 'kode_produksi', 'uuid');
+        // ->where('plant', Auth::user()->plant);  
+    }
 }

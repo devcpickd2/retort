@@ -57,18 +57,14 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Kode Batch</label>
-
                                 <select name="kode_produksi" id="kode_produksi"
                                     class="form-control @error('kode_produksi') is-invalid @enderror" required disabled>
                                     <option value="">Pilih Varian Terlebih Dahulu</option>
                                 </select>
-
                                 <small id="kodeError" class="text-danger">
                                     @error('kode_produksi') {{ $message }} @enderror
                                 </small>
                             </div>
-
-
                             <div class="col-md-6 mt-3">
                                 <label class="form-label">Exp. Date</label>
                                 <input type="date" name="exp_date" id="exp_date"
@@ -251,7 +247,6 @@
 <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
-
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {

@@ -1,4 +1,9 @@
 @extends('layouts.app')
+@if (session('error'))
+<div class="alert alert-danger">
+    {{ session('error') }}
+</div>
+@endif
 
 @section('content')
 <div class="container-fluid py-4">
@@ -78,12 +83,12 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Jumlah Tray</label>
+                                <label class="form-label">Jumlah Tray <span class="text-danger">*</span></label>
                                 <input type="number" name="jumlah_tray[]" class="form-control jumlah_tray" required>
-                                <small class="text-danger">Standar: 28 tray</small>
+                                <small class="text-danger">Total Standart: 28 tray</small>
                             </div>
 
-                            <div class="col-md-2 d-flex align-items-end">
+                            <div class="col-md-2 d-flex align-items-center">
                                 <button type="button" class="btn btn-success w-100 addRow">
                                     <i class="bi bi-plus-circle"></i> Tambah
                                 </button>
@@ -95,16 +100,18 @@
                         <div id="batchContainer"></div>
 
 
+
                         {{-- ====== Baris 4: Suhu Produk & Jumlah Tray ====== --}}
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Suhu Produk (°C)</label><br>
+                                <label class="form-label">Suhu Produk (°C) <span
+                                        class="text-danger">*</span></label><br>
                                 <input type="number" name="suhu_produk" id="suhu_produk" class="form-control" step="0.1"
                                     required>
                                 <small class="text-danger">Standar: 19 ± 1 °C</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Berat Produk (gram)</label>
+                                <label class="form-label">Berat Produk (gram) <span class="text-danger">*</span></label>
                                 <input type="number" name="berat_produk" id="berat_produk" class="form-control"
                                     step="0.1" required>
                             </div>
@@ -835,19 +842,17 @@ $(document).on('click', '.addRow', function () {
     <div class="row mb-3 batch-row">
 
         <div class="col-md-6">
-            <label class="form-label">Kode Produksi <span class="text-danger">*</span></label>
             <select name="kode_produksi[]" class="form-control kode_produksi" disabled required>
                 <option value="">Pilih Varian Terlebih Dahulu</option>
             </select>
         </div>
 
         <div class="col-md-4">
-            <label class="form-label">Jumlah Tray</label>
             <input type="number" name="jumlah_tray[]" class="form-control jumlah_tray" required>
-            <small class="text-danger">Standar: 28 tray</small>
+            <small id="traySummary" class="fw-bold"></small>
         </div>
 
-        <div class="col-md-2 d-flex align-items-end">
+        <div class="col-md-2 d-flex align-items-center">
             <button type="button" class="btn btn-danger w-100 removeRow">
                 <i class="bi bi-trash"></i> Hapus
             </button>
@@ -860,30 +865,51 @@ $(document).on('click', '.addRow', function () {
 
     // setelah append, panggil ulang fungsi untuk refresh opsi
     produkSelect.dispatchEvent(new Event('change'));
+    hitungTotalTray();
 });
 
 
     // HAPUS ROW
     $(document).on('click', '.removeRow', function () {
         $(this).closest('.batch-row').remove();
+        hitungTotalTray();
     });
 
 // ==== JUMLAH TRAY (bisa pisahkan dengan '+') ====
-    const jumlahInput = document.getElementById('jumlah_tray');
-    const trayTotal = document.getElementById('trayTotal');
+$(document).on('input', '.jumlah_tray', function () {
+    hitungTotalTray();
+});
 
-    jumlahInput.addEventListener('input', function() {
-        const total = this.value
-        .split('+')
-        .map(v => parseInt(v.trim()) || 0)
-        .reduce((a, b) => a + b, 0);
+    function hitungTotalTray() {
+    let total = 0;
 
-        if (this.value.includes('+')) {
-            trayTotal.textContent = `Total: ${total} tray`;
+    document.querySelectorAll('.jumlah_tray').forEach(input => {
+        let val = input.value.trim();
+
+        if (val.includes('+')) {
+            let sum = val.split('+')
+                .map(v => parseInt(v.trim()) || 0)
+                .reduce((a, b) => a + b, 0);
+            total += sum;
         } else {
-            trayTotal.textContent = '';
+            total += parseInt(val) || 0;
         }
     });
+
+    const summary = document.getElementById('traySummary');
+
+    if (total === 0) {
+        summary.textContent = '';
+        return;
+    }
+
+    if (total > 28) {
+        summary.innerHTML = `<span class="text-danger">Total: ${total} tray (MELEBIHI standar 28!)</span>`;
+    } else {
+        summary.innerHTML = `<span class="text-success">Total: ${total} tray (Maks: 28)</span>`;
+    }
+}
+
 });
 </script>
 

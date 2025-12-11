@@ -173,6 +173,7 @@ Route::resource('area_sanitasi', Area_sanitasiController::class)->parameters([
 
 // UMUM
 Route::get('/lookup/batch/{nama_produk}', [LookupController::class, 'getBatchByProduk']);
+Route::get('/lookup/batch-packing/{nama_produk}', [LookupController::class, 'getAllBatchByProduk']);
 
 // GMP
 Route::get('gmp/verification', [GmpController::class, 'verification'])->name('gmp.verification');
