@@ -6,6 +6,7 @@ use App\Models\Sampling;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use TCPDF;
 
 class SamplingController extends Controller
 {
@@ -13,6 +14,8 @@ class SamplingController extends Controller
     {
      $search     = $request->input('search');
      $date = $request->input('date');
+     $shift = $request->input('shift');
+     $nama_produk = $request->input('nama_produk');
      $userPlant  = Auth::user()->plant;
 
      $data = Sampling::query()
@@ -28,12 +31,18 @@ class SamplingController extends Controller
     ->when($date, function ($query) use ($date) {
         $query->whereDate('date', $date);
     })
+    ->when($shift, function ($query) use ($shift) {
+        $query->where('shift', $shift);
+    })
+    ->when($nama_produk, function ($query) use ($nama_produk) {
+        $query->where('nama_produk', $nama_produk);
+    })
      ->orderBy('date', 'desc')
      ->orderBy('created_at', 'desc')
      ->paginate(10)
      ->appends($request->all());
 
-     return view('form.sampling.index', compact('data', 'search', 'date'));
+     return view('form.sampling.index', compact('data', 'search', 'date', 'shift', 'nama_produk'));
  }
 
  public function create()
@@ -318,5 +327,82 @@ public function destroy($uuid)
 
     return redirect()->route('sampling.verification')
     ->with('success', 'Data Sampling Produk berhasil dihapus.');
+}
+
+public function exportPdf(Request $request)
+{
+    $date = $request->input('date');
+    $shift = $request->input('shift');
+    $nama_produk = $request->input('nama_produk');
+    $userPlant = Auth::user()->plant;
+
+    $samplings = Sampling::query()
+        ->where('plant', $userPlant)
+        ->when($date, function ($query) use ($date) {
+            $query->whereDate('date', $date);
+        })
+        ->when($shift, function ($query) use ($shift) {
+            $query->where('shift', $shift);
+        })
+        ->when($nama_produk, function ($query) use ($nama_produk) {
+            $query->where('nama_produk', $nama_produk);
+        })
+        ->orderBy('date', 'asc')
+        ->orderBy('shift', 'asc')
+        ->get();
+
+    // Clear any previous output buffers to prevent "TCPDF ERROR: Some data has already been output"
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // Create new TCPDF object
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+    // Set document information
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor('Your Name/Company');
+    $pdf->SetTitle('Data Sampling Produk');
+    $pdf->SetSubject('Data Sampling Produk');
+
+    $pdf->SetPrintHeader(false);
+    $pdf->SetPrintFooter(false);
+
+    // Set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+    // Set margins
+    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+    // Set auto page breaks
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+    // Set image scale factor
+    $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+    // Set some language-dependent strings (optional)
+    if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+        require_once(dirname(__FILE__).'/lang/eng.php');
+        $pdf->setLanguageArray($l);
+    }
+
+    // Set font
+    $pdf->SetFont('helvetica', '', 8);
+
+    // Add a page
+    $pdf->AddPage('L', 'A3'); // Landscape A3 for many columns
+
+    // Convert the Blade view to HTML
+    $html = view('reports.data-sampling-produk', compact('samplings', 'request'))->render();
+
+    // Print text using writeHTMLCell()
+    $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+    // Close and output PDF document (Inline/Preview)
+    $pdf->Output('Data_Sampling_Produk_' . date('Ymd_His') . '.pdf', 'I');
+
+    exit();
 }
 }

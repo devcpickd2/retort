@@ -22,30 +22,47 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Kontrol Labelisasi Karton</h3>
-                @can('can access add button')
-                <a href="{{ route('karton.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
-                </a>
-                @endcan
+                <div>
+                    @can('can access add button')
+                    <a href="{{ route('karton.create') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle"></i> Tambah
+                    </a>
+                    @endcan
+                    <a href="{{ route('karton.exportPdf', ['date' => request('date'), 'nama_produk' => request('nama_produk')]) }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
             </div>
 
             {{-- Filter dan Live Search --}}
             <form id="filterForm" method="GET" action="{{ route('karton.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
 
-                <div class="input-group" style="max-width: 220px;">
+                <div class="input-group" style="max-width: 200px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-calendar-date text-muted"></i>
                     </span>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
-                    value="{{ request('date') }}" placeholder="Tanggal Produksi">
+                    value="{{ request('date') }}">
                 </div>
 
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
+                <div class="input-group" style="max-width: 200px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-box-seam text-muted"></i>
+                    </span>
+                    <select name="nama_produk" id="filter_nama_produk" class="form-select form-control border-start-0">
+                        <option value="">Semua Nama Produk</option>
+                        @foreach(\App\Models\Produk::where('plant', Auth::user()->plant)->pluck('nama_produk')->unique() as $produk)
+                        <option value="{{ $produk }}" {{ request('nama_produk') == $produk ? 'selected' : '' }}>{{ $produk }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="input-group flex-grow-1" style="max-width: 300px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
-                    value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
+                    value="{{ request('search') }}" placeholder="Cari...">
                 </div>
             </form>
 
@@ -53,6 +70,7 @@
                 document.addEventListener('DOMContentLoaded', () => {
                     const search = document.getElementById('search');
                     const date = document.getElementById('filter_date');
+                    const nama_produk = document.getElementById('filter_nama_produk');
                     const form = document.getElementById('filterForm');
                     let timer;
 
@@ -62,6 +80,7 @@
                     });
 
                     date.addEventListener('change', () => form.submit());
+                    nama_produk.addEventListener('change', () => form.submit());
                 });
             </script>
 
