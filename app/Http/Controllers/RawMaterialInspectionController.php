@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class RawMaterialInspectionController extends Controller
 {
@@ -368,40 +367,5 @@ class RawMaterialInspectionController extends Controller
         return view('raw_material.UpdateRawMaterial', compact('inspection'));
     }
 
-    public function exportPdf(Request $request)
-    {
-        // 1. Copy logika Query Builder dari function index()
-        $query = RawMaterialInspection::with(['creator', 'updater', 'productDetails']);
 
-        if (Auth::check() && !empty(Auth::user()->plant)) {
-            $query->where('plant_uuid', Auth::user()->plant);
-        }
-
-        $query->when($request->filled('start_date'), function ($q) use ($request) {
-            $q->whereDate('setup_kedatangan', '>=', $request->start_date);
-        });
-
-        $query->when($request->filled('end_date'), function ($q) use ($request) {
-            $q->whereDate('setup_kedatangan', '<=', $request->end_date);
-        });
-
-        $query->when($request->filled('search'), function ($q) use ($request) {
-            $search = $request->search;
-            $q->where(function ($subQuery) use ($search) {
-                $subQuery->where('bahan_baku', 'like', "%{$search}%")
-                        ->orWhere('supplier', 'like', "%{$search}%");
-            });
-        });
-
-        // 2. Ambil semua data (get) bukan paginate
-        $inspections = $query->latest()->get();
-
-        // 3. Load View PDF dengan orientation Landscape
-        $pdf = Pdf::loadView('raw_material.export_pdf', compact('inspections'))
-            ->setPaper('a4', 'landscape'); // Set kertas A4 Landscape agar muat
-
-        // 4. Download file
-        $fileName = 'Pemeriksaan-Bahan-Baku-' . date('Y-m-d') . '.pdf';
-        return $pdf->stream($fileName); // Gunakan stream() untuk preview, download() untuk unduh langsung
-    }
 }

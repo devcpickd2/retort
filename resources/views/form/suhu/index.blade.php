@@ -104,101 +104,94 @@
                             @endphp
 
                             @if(!empty($hasilSuhu))
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#suhuModal{{ $dep->uuid }}"
-                             style="font-weight: bold; text-decoration: underline;">
-                             Lihat Suhu Area
-                         </a>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm mb-0 text-center align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 50%" class="text-left">Area</th>
+                                            @foreach($areaList as $area)
+                                            <th>{{ $area->area }}</th>
+                                            @endforeach
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{-- Baris Standar --}}
+                                        <tr>
+                                            <td class="fw-bold text-left"><b>Standar (°C)</b></td>
+                                            @foreach($areaList as $area)
+                                            <td class="text-center" style="font-weight: 700;">{{ $area->standar ?? '-' }}</td>
+                                            @endforeach
+                                        </tr>
 
-                         <div class="modal fade" id="suhuModal{{ $dep->uuid }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header bg-info text-white">
-                                        <h5 class="modal-title">Detail Suhu Area</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
+                                        {{-- Baris Aktual --}}
+                                        <tr>
+                                            <td class="fw-bold text-left"><b>Aktual (°C)</b></td>
+                                            @foreach($areaList as $area)
+                                            @php
+                                            // Cocokkan nilai aktual berdasarkan area
+                                            $matched = collect($hasilSuhu)->firstWhere('area', $area->area);
+                                            $nilai = floatval($matched['nilai'] ?? 0);
+                                            $standarStr = trim($area->standar ?? '');
+                                            $outOfRange = false;
 
-                                    <div class="modal-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-sm mb-0 text-center align-middle">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th style="width: 50%" class="text-left">Area</th>
-                                                        @foreach($areaList as $area)
-                                                        <th>{{ $area->area }}</th>
-                                                        @endforeach
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {{-- Baris Standar --}}
-                                                    <tr>
-                                                        <td class="fw-bold text-left"><b>Standar (°C)</b></td>
-                                                        @foreach($areaList as $area)
-                                                        <td class="text-center" style="font-weight: 700;">{{ $area->standar ?? '-' }}</td>
-                                                        @endforeach
-                                                    </tr>
+                                            if ($standarStr !== '') {
+                                                if (preg_match('/^<\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
+                                                    $max = floatval($m[1]);
+                                                    $outOfRange = $nilai >= $max;
+                                                } elseif (preg_match('/^>\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
+                                                    $min = floatval($m[1]);
+                                                    $outOfRange = $nilai <= $min;
+                                                } elseif (preg_match('/^(\d+(\.\d+)?)\s*-\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
+                                                    $min = floatval($m[1]);
+                                                    $max = floatval($m[3]);
+                                                    $outOfRange = $nilai < $min || $nilai > $max;
+                                                }
+                                            }
+                                            @endphp
 
-
-                                                    {{-- Baris Aktual --}}
-                                                    <tr>
-                                                        <td class="fw-bold text-left"><b>Aktual (°C)</b></td>
-                                                        @foreach($areaList as $area)
-                                                        @php
-                                                        // Cocokkan nilai aktual berdasarkan area
-                                                        $matched = collect($hasilSuhu)->firstWhere('area', $area->area);
-                                                        $nilai = floatval($matched['nilai'] ?? 0);
-                                                        $standarStr = trim($area->standar ?? '');
-                                                        $outOfRange = false;
-
-                                                        if ($standarStr !== '') {
-                                                            if (preg_match('/^<\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
-                                                                $max = floatval($m[1]);
-                                                                $outOfRange = $nilai >= $max;
-                                                            } elseif (preg_match('/^>\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
-                                                                $min = floatval($m[1]);
-                                                                $outOfRange = $nilai <= $min;
-                                                            } elseif (preg_match('/^(\d+(\.\d+)?)\s*-\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
-                                                                $min = floatval($m[1]);
-                                                                $max = floatval($m[3]);
-                                                                $outOfRange = $nilai < $min || $nilai > $max;
-                                                            }
-                                                        }
-                                                        @endphp
-
-                                                        <td class="fw-bold text-center {{ $outOfRange ? 'text-danger' : 'text-success' }}">
-                                                            {{ $matched['nilai'] ?? '-' }}
-                                                        </td>
-                                                        @endforeach
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                                    </div>
-                                </div>
+                                            <td class="fw-bold text-center {{ $outOfRange ? 'text-danger' : 'text-success' }}">
+                                                {{ $matched['nilai'] ?? '-' }}
+                                            </td>
+                                            @endforeach
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                        @else
-                        <span>-</span>
-                        @endif
-                    </td>
+                            @else
+                            <span>-</span>
+                            @endif
+                        </td>
+                        <td class="text-center align-middle">{{ !empty($dep->keterangan) ? $dep->keterangan : '-' }}</td>
+                        <td class="text-center align-middle">{{ $dep->username }}</td>
+                        <td class="text-center align-middle">{{ $dep->nama_produksi }}</td>
+                        <td class="text-center align-middle">
+                            @if ($dep->status_spv == 0)
+                            <span class="fw-bold text-secondary">Created</span>
+                            @elseif ($dep->status_spv == 1)
+                            <span class="fw-bold text-success">Verified</span>
+                            @elseif ($dep->status_spv == 2)
+                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
+                             class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
+                             @endif
+                         </td>
 
-                    <td class="text-center align-middle">{{ !empty($dep->keterangan) ? $dep->keterangan : '-' }}</td>
-                    <td class="text-center align-middle">{{ $dep->username }}</td>
-                    <td class="text-center align-middle">{{ $dep->nama_produksi }}</td>
-                    <td class="text-center align-middle">
-                        @if ($dep->status_spv == 0)
-                        <span class="fw-bold text-secondary">Created</span>
-                        @elseif ($dep->status_spv == 1)
-                        <span class="fw-bold text-success">Verified</span>
-                        @elseif ($dep->status_spv == 2)
-                        <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
-                         class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
-                         @endif
-                     </td>
+                         <td class="text-center align-middle">
+                             <a href="{{ route('suhu.update.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
+                                <i class="bi bi-pencil"></i> Update
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="10" class="text-center">Belum ada data suhu.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
 
+<<<<<<< HEAD
+        </div>
+=======
                      <td class="text-center align-middle">
                         @can('can access verification button')
                         <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
@@ -310,14 +303,13 @@
             @endforelse
         </tbody>
     </table>
+>>>>>>> 545d16d29a68d4c7c28634d30da33929df90bf89
 
+        {{-- Pagination --}}
+        <div class="mt-3">
+            {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
+        </div>
     </div>
-
-    {{-- Pagination --}}
-    <div class="mt-3">
-        {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
-    </div>
-</div>
 </div>
 </div>
 

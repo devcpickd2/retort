@@ -15,28 +15,45 @@ class PenyimpanganKualitasController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PenyimpanganKualitas::with('creator', 'verifierDiketahui', 'verifierDisetujui')->latest();
+        // 1. Base Query dengan Eager Loading
+        // Memuat semua relasi yang diperlukan untuk efisiensi
+        $query = PenyimpanganKualitas::with([
+            'creator', 
+            'updater', 
+            'verifierDiketahui', 
+            'verifierDisetujui'
+        ]);
 
-        // Filter Tanggal
-        if ($request->filled('start_date')) {
-            $query->where('tanggal', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->where('tanggal', '<=', $request->end_date);
+        // 2. Filter Tanggal (Single Date)
+        // Menggunakan 'date' sesuai name="date" di View baru
+        if ($request->filled('date')) {
+            $query->whereDate('tanggal', $request->date);
         }
 
-        // Filter Pencarian
+        // 3. Filter Search (Pencarian Global)
         if ($request->filled('search')) {
             $search = $request->search;
+
+            // Grouping query agar logika OR tidak merusak filter tanggal (AND)
             $query->where(function ($q) use ($search) {
                 $q->where('nomor', 'like', "%{$search}%")
-                    ->orWhere('ditujukan_untuk', 'like', "%{$search}%")
-                    ->orWhere('nama_produk', 'like', "%{$search}%")
-                    ->orWhere('lot_kode', 'like', "%{$search}%");
+                ->orWhere('nama_produk', 'like', "%{$search}%")
+                ->orWhere('lot_kode', 'like', "%{$search}%")
+                ->orWhere('ditujukan_untuk', 'like', "%{$search}%")
+                
+                // Tambahan: Cari juga berdasarkan nama User pembuat
+                ->orWhereHas('creator', function($subQuery) use ($search) {
+                    $subQuery->where('name', 'like', "%{$search}%");
+                });
             });
         }
 
-        $penyimpanganKualitasItems = $query->paginate(15)->appends($request->query());
+        // 4. Sorting & Pagination
+        // Menggunakan latest() untuk urutan terbaru
+        // Menggunakan withQueryString() agar filter tetap ada saat ganti halaman
+        $penyimpanganKualitasItems = $query->latest()
+                                        ->paginate(15)
+                                        ->withQueryString();
 
         return view('penyimpangan-kualitas.index', compact('penyimpanganKualitasItems'));
     }
@@ -209,5 +226,11 @@ class PenyimpanganKualitasController extends Controller
             Log::error('Error verifikasi (Disetujui): ' . $e->getMessage());
             return redirect()->route('penyimpangan-kualitas.verification.disetujui')->with('error', 'Terjadi kesalahan.');
         }
+    }
+
+    public function showUpdateForm(PenyimpanganKualitas $penyimpanganKualitas)
+    {
+        // Menggunakan view baru khusus update restricted
+        return view('penyimpangan-kualitas.update_view', compact('penyimpanganKualitas'));
     }
 }

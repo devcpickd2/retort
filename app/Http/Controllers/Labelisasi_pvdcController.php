@@ -12,30 +12,41 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use App\Models\User;
+use Illuminate\Support\Facades\Response;
+use TCPDF;
 
 class Labelisasi_pvdcController extends Controller
 {
+
     public function index(Request $request)
     {
-        $search     = $request->input('search');
-        $date = $request->input('date');
-        $userPlant  = Auth::user()->plant;
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
 
         $data = Labelisasi_pvdc::query()
-        ->where('plant', $userPlant)
-        ->when($search, fn($q) => $q->where(function ($sub) use ($search) {
-            $sub->where('username', 'like', "%{$search}%")
-            ->orWhere('nama_produk', 'like', "%{$search}%");
-        }))
-        ->when($date, function ($query) use ($date) {
-            $query->whereDate('date', $date);
-        })
-        ->orderBy('date', 'desc')
-        ->orderBy('created_at', 'desc')
-        ->paginate(10)
-        ->appends($request->all());
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%")
+                      ->orWhere('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('nama_operator', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends($request->all());
 
-        return view('form.labelisasi_pvdc.index', compact('data', 'search', 'date'));
+        return view('form.labelisasi_pvdc.index', compact('data', 'search', 'date', 'shift'));
     }
 
     public function create()
@@ -112,39 +123,47 @@ class Labelisasi_pvdcController extends Controller
             'shift' => 'required|string',
             'nama_produk' => 'required|string',
             'nama_operator' => 'required|string',
+            'data_pvdc' => 'required|array|min:1',
+            'data_pvdc.*.mesin' => 'required|string',
+            'data_pvdc.*.kode_batch' => 'required|string',
+            'data_pvdc.*.kode_produksi' => 'required|file|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $tempData = session()->get('pvdc_temp', []);
+        $dataPvdc = [];
+        foreach($request->data_pvdc as $item) {
+            $file = $item['kode_produksi'];
+            $filename = time().'_'.Str::random(8).'.'.$file->getClientOriginalExtension();
+            $path = $file->storeAs('public/uploads/pvdc', $filename);
+            $url = Storage::url($path);
 
-        if (empty($tempData)) {
-            return response()->json(['success' => false, 'message' => 'Belum ada data PVDC yang diinputkan!']);
+            $dataPvdc[] = [
+                'mesin' => $item['mesin'],
+                'kode_batch' => $item['kode_batch'],
+                'file' => $url,
+                'keterangan' => $item['keterangan'] ?? null,
+            ];
         }
 
-        try {
-            Labelisasi_pvdc::create([
-                'uuid' => $uuid,
-                'date' => $request->date,
-                'shift' => $request->shift,
-                'nama_produk' => $request->nama_produk,
-                'nama_operator' => $request->nama_operator,
-                'username' => $username,
-                'plant' => $userPlant,
-                'status_operator' => "1",
-                'status_spv' => "0",
-                'labelisasi' => json_encode($tempData, JSON_UNESCAPED_UNICODE),
-            ]);
+        Labelisasi_pvdc::create([
+            'uuid' => $uuid,
+            'date' => $request->date,
+            'shift' => $request->shift,
+            'nama_produk' => $request->nama_produk,
+            'nama_operator' => $request->nama_operator,
+            'username' => $username,
+            'plant' => $userPlant,
+            'status_operator' => "1",
+            'status_spv' => "0",
+            'labelisasi' => json_encode($dataPvdc, JSON_UNESCAPED_UNICODE),
+        ]);
 
-            session()->forget('pvdc_temp');
-
-            return response()->json([
-                'success' => true,
-                'redirect_url' => route('labelisasi_pvdc.index'),
-                'message' => 'Data Labelisasi PVDC berhasil disimpan.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Gagal menyimpan data: ' . $e->getMessage()]);
-        }
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('labelisasi_pvdc.index'),
+            'message' => 'Data Labelisasi PVDC berhasil disimpan.'
+        ]);
     }
+
 
     public function update($uuid)
     {
@@ -391,4 +410,58 @@ class Labelisasi_pvdcController extends Controller
 
         Storage::put("{$path}/{$filename}", (string) $image);
     }
+<<<<<<< HEAD
 }
+=======
+
+    public function exportPdf(Request $request)
+    {
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        // Ambil data (Get Collection)
+        $produks = Labelisasi_pvdc::query() // Variabel dinamakan $produks agar mirip Mincing
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('username', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc')
+            ->get();
+
+        if (ob_get_length()) ob_end_clean();
+
+        $pdf = new TCPDF('L', PDF_UNIT, 'LEGAL', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('PT. Charoen Pokphand Indonesia');
+        $pdf->SetTitle('Laporan Labelisasi PVDC');
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(TRUE, 10);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->AddPage();
+
+        // Render View ke HTML
+        // Pastikan Anda membuat file view ini (kode ada di bawah)
+        $html = view('reports.labelisasi-pvdc', compact('produks', 'request'))->render();
+
+        $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+        $pdf->Output('Labelisasi_PVDC_' . date('Ymd_His') . '.pdf', 'I');
+        exit();
+    }
+
+}
+>>>>>>> dev

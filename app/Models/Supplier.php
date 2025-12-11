@@ -10,5 +10,5 @@ class Supplier extends Model
 {
     use HasFactory, HasUuid;
     
-    protected $fillable = ['nama_supplier', 'jenis_barang', 'username', 'plant', 'uuid'];
+    protected $fillable = ['nama_supplier', 'jenis_barang', 'alamat', 'username', 'plant', 'uuid'];
 }

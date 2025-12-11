@@ -119,8 +119,10 @@
                                                             <th>Waktu</th>
                                                             <th>Kondisi</th>
                                                             <th>Keterangan</th>
-                                                            <th>Tindakan</th>
-                                                            <th>Waktu Koreksi</th>
+                                                            <th>Rencana Tindakan</th>
+                                                            <th>Waktu Pengerjaan</th>
+                                                            <th>Dikerjakan Oleh</th>
+                                                            <th>Waktu Verifikasi</th>
                                                         </tr>
                                                     </thead>
                                                     @php
@@ -150,6 +152,8 @@
                                                             <td>{{ $item['keterangan'] ?? '-' }}</td>
                                                             <td>{{ $item['tindakan'] ?? '-' }}</td>
                                                             <td>{{ $item['waktu_koreksi'] ?? '-' }}</td>
+                                                            <td>{{ $item['dikerjakan_oleh'] ?? '-' }}</td>
+                                                            <td>{{ $item['waktu_verifikasi'] ?? '-' }}</td>
                                                         </tr>
                                                         @endforeach
                                                     </tbody>

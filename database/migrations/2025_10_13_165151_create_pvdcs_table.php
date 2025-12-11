@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique(); 
             $table->string('username');
-            $table->string('username_updated');
+            $table->string('username_updated')->nullable();
             $table->date('date');
             $table->string('plant');
             $table->string('shift');

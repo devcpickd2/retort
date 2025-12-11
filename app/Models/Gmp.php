@@ -18,16 +18,12 @@ class Gmp extends Model
     protected $keyType   = 'string';
 
     protected $fillable = [
-        'date', 'area', 'mp_chamber', 'karantina_packing', 'filling_susun', 'sampling_fg', 'pemeriksaan',
+        'date', 'area', 'pemeriksaan',
         'username', 'nama_produksi', 'status_produksi',  'nama_spv', 'status_spv', 'catatan_spv', 
         'username_updated', 'tgl_update_produksi', 'tgl_update_spv', 'plant'
     ];
 
     protected $casts = [
-        'mp_chamber'  => 'array',
-        'karantina_packing'  => 'array',
-        'filling_susun'  => 'array',
-        'sampling_fg'  => 'array',
         'pemeriksaan'  => 'array',
     ];
 }

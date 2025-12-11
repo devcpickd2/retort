@@ -136,13 +136,15 @@
         table.classList.add('table', 'table-bordered', 'mb-3');
         table.innerHTML = `
         <thead class="table-secondary">
-            <tr><th colspan="5">${b}</th></tr>
+            <tr><th colspan="7">${b}</th></tr>
             <tr>
                 <th>Waktu</th>
                 <th>Kondisi</th>
                 <th>Keterangan</th>
                 <th>Rencana Tindakan</th>
-                <th>Waktu Tindakan</th>
+                <th>Waktu Pengerjaan</th>
+                <th>Dikerjakan Oleh</th>
+                <th>Waktu Verifikasi</th>
             </tr>
         </thead>
         <tbody>
@@ -157,6 +159,8 @@
                 <td><input type="text" name="pemeriksaan[${b}][keterangan]" class="form-control"></td>
                 <td><input type="text" name="pemeriksaan[${b}][tindakan]" class="form-control"></td>
                 <td><input type="time" name="pemeriksaan[${b}][waktu_koreksi]" class="form-control"></td>
+                <td><input type="text" name="pemeriksaan[${b}][dikerjakan_oleh]" class="form-control"></td>
+                <td><input type="time" name="pemeriksaan[${b}][waktu_verifikasi]" class="form-control"></td>
             </tr>
         </tbody>
         `;

@@ -22,11 +22,16 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Pemeriksaan Mincing - Emulsifying - Aging</h3>
-                @can('can access add button')
-                    <a href="{{ route('mincing.create') }}" class="btn btn-success">
-                        <i class="bi bi-plus-circle"></i> Tambah
-                    </a>
-                @endcan
+                <div class="btn-group" role="group">
+                    @can('can access add button')
+                        <a href="{{ route('mincing.create') }}" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Tambah
+                        </a>
+                    @endcan
+                    <button type="button" class="btn btn-danger" id="exportPdfBtn">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </button>
+                </div>
             </div>
 
             {{-- Filter dan Live Search --}}
@@ -40,6 +45,18 @@
                     value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
 
+                <div class="input-group" style="max-width: 200px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-hourglass-split text-muted"></i>
+                    </span>
+                    <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
+                        <option value="">Semua Shift</option>
+                        <option value="1" {{ request("shift") == "Shift 1" ? "selected" : "" }}>Shift 1</option>
+                        <option value="2" {{ request("shift") == "Shift 2" ? "selected" : "" }}>Shift 2</option>
+                        <option value="3" {{ request("shift") == "Shift 3" ? "selected" : "" }}>Shift 3</option>
+                    </select>
+                </div>
+
                 <div class="input-group flex-grow-1" style="max-width: 350px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
@@ -47,21 +64,37 @@
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                     value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
                 </div>
+
+                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
+                <a href="{{ route('mincing.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
             </form>
 
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
                     const search = document.getElementById('search');
                     const date = document.getElementById('filter_date');
+                    const shift = document.getElementById('filter_shift');
                     const form = document.getElementById('filterForm');
+                    const exportPdfBtn = document.getElementById('exportPdfBtn');
+
                     let timer;
 
+                    // Apply filter on search input with debounce
                     search.addEventListener('input', () => {
                         clearTimeout(timer);
                         timer = setTimeout(() => form.submit(), 500);
                     });
 
+                    // Apply filter on date or shift change
                     date.addEventListener('change', () => form.submit());
+                    shift.addEventListener('change', () => form.submit());
+
+                    // Handle PDF export button click
+                    exportPdfBtn.addEventListener('click', function() {
+                        const formData = new FormData(form);
+                        const exportUrl = "{{ route('mincing.exportPdf') }}?" + new URLSearchParams(formData).toString();
+                        window.open(exportUrl, '_blank');
+                    });
                 });
             </script>
 

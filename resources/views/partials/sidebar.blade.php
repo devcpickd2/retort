@@ -1,4 +1,4 @@
-@php
+@php 
 $type_user = auth()->user()->type_user;
 @endphp
 
@@ -16,7 +16,7 @@ $type_user = auth()->user()->type_user;
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-    </li>
+    </li> 
 
     <hr class="sidebar-divider">
 
@@ -53,10 +53,8 @@ $type_user = auth()->user()->type_user;
                         href="{{ route('produk.index') }}">List Produk</a>
                     <a class="collapse-item {{ request()->routeIs('mesin.*') ? 'active' : '' }}"
                         href="{{ route('mesin.index') }}">List Mesin</a>
-                    <!-- <a class="collapse-item {{ request()->routeIs('list_chamber.*') ? 'active' : '' }}" href="{{ route('list_chamber.index') }}">List Chamber</a> -->
                     <a class="collapse-item {{ request()->routeIs('supplier.*') ? 'active' : '' }}"
                         href="{{ route('supplier.index') }}">List Supplier</a>
-                    <!-- <a class="collapse-item {{ request()->routeIs('supplier_rm.*') ? 'active' : '' }}" href="{{ route('supplier_rm.index') }}">List Supplier RM</a> -->
                     <a class="collapse-item {{ request()->routeIs('area_hygiene.*') ? 'active' : '' }}"
                         href="{{ route('area_hygiene.index') }}">Area GMP</a>
                     <a class="collapse-item {{ request()->routeIs('area_suhu.*') ? 'active' : '' }}"
@@ -67,8 +65,6 @@ $type_user = auth()->user()->type_user;
                         href="{{ route('produksi.index') }}">Karyawan Produksi</a>
                     <a class="collapse-item {{ request()->routeIs('operator.*') ? 'active' : '' }}"
                         href="{{ route('operator.index') }}">Karyawan Pendukung</a>
-                    <!--  <a class="collapse-item {{ request()->routeIs('engineer.*') ? 'active' : '' }}" href="{{ route('engineer.index') }}">Engineer</a>
-                <a class="collapse-item {{ request()->routeIs('koordinator.*') ? 'active' : '' }}" href="{{ route('koordinator.index') }}">Koordinator</a> -->
                 </div>
             </div>
         </li>
@@ -405,276 +401,11 @@ $type_user = auth()->user()->type_user;
 
     @endcan
 
-    {{-- @if(in_array($type_user, [0,2]))
-    <div class="sidebar-heading">Verification SPV</div>
-    @php
-    // Logika active untuk Verif Suhu & GMP
-    $suhuActive = request()->routeIs('suhu.verification');
-    $gmpActive = request()->routeIs('gmp.verification');
-    $collapseVerifShow = $suhuActive || $gmpActive ;
+<hr class="sidebar-divider d-none d-md-block">
 
-    // Logika active untuk Verif Meat Prep
-    $verifMeatPrepActive = request()->routeIs('checklistmagnettrap.verification');
-
-    // Logika active untuk Verif Warehouse
-    $verifWarehouseActive = request()->routeIs('inspections.verification') ||
-    request()->routeIs('packaging-inspections.verification');
-
-    // ==========================================================
-    // == PERUBAHAN 1: Menambahkan logika 'active' untuk Verif Cikande ==
-    // ==========================================================
-    $verifCikandeActive = request()->routeIs('pemeriksaan_retain.verification');
-
-    // Logika active untuk Verif Stuffing
-    $PvdcActive = request()->routeIs('pvdc.verification');
-    $collapseVerifStuffing = $PvdcActive ;
-    $gmpActive = request()->routeIs('gmp.verification');
-    $SuhuActive = request()->routeIs('suhu.verification') || request()->routeIs('suhu.edit');
-    $SanitasiActive = request()->routeIs('sanitasi.verification') || request()->routeIs('sanitasi.edit');
-
-    $collapseVerifShow = $gmpActive || $SuhuActive || $SanitasiActive ;
-    @endphp --}}
-
-    {{-- 1. Verif Suhu & Kebersihan --}}
-    {{-- <li class="nav-item">
-        <a class="nav-link {{ $collapseVerifShow ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#collapseVerif" aria-expanded="{{ $collapseVerifShow ? 'true' : 'false' }}"
-            aria-controls="collapseVerif">
-            <i class="fas fa-clipboard-list"></i>
-            <span>Suhu & Kebersihan</span>
-        </a>
-        <div id="collapseVerif" class="collapse {{ $collapseVerifShow ? 'show' : '' }}"
-            data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ $gmpActive ? 'active' : '' }}" href="{{ route('gmp.verification') }}">
-                    GMP Karyawan
-                    Pemeriksaan Personal Hygiene dan Kesehatan Karyawan
-                </a>
-                <a class="collapse-item {{ $SuhuActive ? 'active' : '' }}" href="{{ route('suhu.verification') }}">
-                    Pemeriksaan Suhu dan RH
-                </a>
-                <a class="collapse-item {{ $SanitasiActive ? 'active' : '' }}"
-                    href="{{ route('sanitasi.verification') }}">
-                    Kontrol Sanitasi
-                </a>
-            </div>
-        </div>
-    </li> --}}
-
-    {{-- 2. Verif MEAT PREPARATION --}}
-    {{-- <li class="nav-item">
-        <a class="nav-link {{ $verifMeatPrepActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#collapseVerifMeatPrep" aria-expanded="{{ $verifMeatPrepActive ? 'true' : 'false' }}"
-            aria-controls="collapseVerifMeatPrep">
-            <i class="fas fa-clipboard-list"></i>
-            <span>MEAT PREPARATION</span>
-        </a>
-        <div id="collapseVerifMeatPrep" class="collapse {{ $verifMeatPrepActive ? 'show' : '' }}"
-            data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ $verifMeatPrepActive ? 'active' : '' }}"
-                    href="{{ route('checklistmagnettrap.verification') }}">
-                    Checklist Cleaning Magnet Trap
-                </a>
-            </div>
-        </div>
-    </li> --}}
-
-    {{-- 3. Verif Warehouse --}}
-    {{-- <li class="nav-item">
-        <a class="nav-link {{ $verifWarehouseActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#collapseVerifWarehouse" aria-expanded="{{ $verifWarehouseActive ? 'true' : 'false' }}"
-            aria-controls="collapseVerifWarehouse">
-            <i class="fas fa-clipboard-list"></i>
-            <span>Warehouse</span>
-        </a>
-        <div id="collapseVerifWarehouse" class="collapse {{ $verifWarehouseActive ? 'show' : '' }}"
-            data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('inspections.verification') ? 'active' : '' }}"
-                    href="{{ route('inspections.verification') }}">Pemeriksaan Input Bahan Baku</a>
-            </div>
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('packaging-inspections.verification') ? 'active' : '' }}"
-                    href="{{ route('packaging-inspections.verification') }}">Pemeriksaan Packaging</a>
-            </div>
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('packaging-inspections.verification') ? 'active' : '' }}"
-                    href="{{ route('loading-produks.verification') }}">Pemeriksaan Loading-Unloading Produk</a>
-                @php
-                $RetainrteActive = request()->routeIs('retain_rte.verification') ||
-                request()->routeIs('retain_rte.edit');
-                $ReleasepackingRTEActive = request()->routeIs('release_packing_rte.verification') ||
-                request()->routeIs('release_packing_rte.edit');
-                $PemasakanRTEActive = request()->routeIs('pemasakan_rte.verification') ||
-                request()->routeIs('pemasakan_rte.edit');
-
-                $collapseVerifRTE = $RetainrteActive || $ReleasepackingRTEActive || $PemasakanRTEActive ;
-                @endphp
-    <li class="nav-item">
-        <a class="nav-link {{ $collapseVerifRTE ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#collapseVerifRTEY" aria-expanded="{{ $collapseVerifRTE ? 'true' : 'false' }}"
-            aria-controls="collapseVerifRTEY">
-            <i class="fas fa-utensils"></i>
-            <span>RTE</span>
-        </a>
-        <div id="collapseVerifRTEY" class="collapse {{ $collapseVerifRTE ? 'show' : '' }}"
-            data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ $RetainrteActive ? 'active' : '' }}"
-                    href="{{ route('retain_rte.verification') }}">Pemeriksaan Sample Retain RTE</a>
-                <a class="collapse-item {{ $ReleasepackingRTEActive ? 'active' : '' }}"
-                    href="{{ route('release_packing_rte.verification') }}">Data Release Packing RTE</a>
-                <a class="collapse-item {{ $PemasakanRTEActive ? 'active' : '' }}"
-                    href="{{ route('pemasakan_rte.verification') }}">Pengecekan Pemasakan RTE</a>
-            </div>
-        </div>
-    </li> --}}
-
-    {{-- ========================================================== --}}
-    {{-- == PERUBAHAN 2: Menambahkan Blok Menu Verif Cikande == --}}
-    {{-- ========================================================== --}}
-    {{-- <li class="nav-item">
-        <a class="nav-link {{ $verifCikandeActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#collapseVerifCikande" aria-expanded="{{ $verifCikandeActive ? 'true' : 'false' }}"
-            aria-controls="collapseVerifCikande">
-            <i class="fas fa-clipboard-list"></i>
-            <span>Cikande</span>
-        </a>
-        <div id="collapseVerifCikande" class="collapse {{ $verifCikandeActive ? 'show' : '' }}"
-            data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('pemeriksaan_retain.verification') ? 'active' : '' }}"
-                    href="{{ route('pemeriksaan_retain.verification') }}">Verifikasi Retain Sampel</a>
-            </div>
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('dispositions-verification') ? 'active' : '' }}"
-                    href="{{ route('dispositions.verification') }}">Verifikasi Disposisi Produk dan Prosedur</a>
-            </div>
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('berita-acara.verification.spv') ? 'active' : '' }}"
-                    href="{{ route('berita-acara.verification.spv') }}">
-                    Verifikasi Berita Acara
-                </a>
-            </div>
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('pemeriksaan-kekuatan-magnet-trap.verification.spv') ? 'active' : '' }}"
-                    href="{{ route('pemeriksaan-kekuatan-magnet-trap.verification.spv') }}">
-                    Verifikasi Pemeriksaan Kekuatan Magnet Trap
-                </a>
-            </div>
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('penyimpangan-kualitas.verification.diketahui') ? 'active' : '' }}"
-                    href="{{ route('penyimpangan-kualitas.verification.diketahui') }}">
-                    Verifikasi Penyimpangan (Diketahui)
-                </a>
-            </div>
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ request()->routeIs('penyimpangan-kualitas.verification.disetujui') ? 'active' : '' }}"
-                    href="{{ route('penyimpangan-kualitas.verification.disetujui') }}">
-                    Verifikasi Penyimpangan (Disetujui)
-                </a>
-            </div>
-        </div>
-    </li> --}}
-    {{-- ========================================================== --}}
-    {{-- == AKHIR PERUBAHAN == --}}
-    {{-- ========================================================== --}}
-
-
-    {{-- 4. Verif Stuffing (Sekarang menjadi #5) --}}
-    {{-- @php
-    $StuffingActive = request()->routeIs('stuffing.verification') || request()->routeIs('stuffing.edit');
-    $SamplingfgActive = request()->routeIs('sampling_fg.verification') || request()->routeIs('sampling_fg.edit');
-    $WireActive = request()->routeIs('wire.verification') || request()->routeIs('wire.edit');
-    $ChamberActive = request()->routeIs('chamber.verification') || request()->routeIs('chamber.edit');
-    $ThermometerActive = request()->routeIs('thermometer.verification') || request()->routeIs('thermometer.edit');
-    $TimbanganActive = request()->routeIs('timbangan.verification') || request()->routeIs('timbangan.edit');
-    $KartonActive = request()->routeIs('karton.verification') || request()->routeIs('karton.edit');
-    $SamplingActive = request()->routeIs('sampling.verification') || request()->routeIs('sampling.edit');
-    $PackingActive = request()->routeIs('packing.verification') || request()->routeIs('packing.edit');
-    $KlorinActive = request()->routeIs('klorin.verification') || request()->routeIs('klorin.edit');
-    $OrganoleptikActive = request()->routeIs('organoleptik.verification') || request()->routeIs('organoleptik.edit');
-    $SampelActive = request()->routeIs('sampel.verification') || request()->routeIs('sampel.edit');
-    $PvdcActive = request()->routeIs('pvdc.verification') || request()->routeIs('pvdc.edit');
-    $LabelpvdcActive = request()->routeIs('labelisasi_pvdc.verification') || request()->routeIs('labelisasi_pvdc.edit');
-    $MincingActive = request()->routeIs('mincing.verification') || request()->routeIs('mincing.edit');
-    $MetalActive = request()->routeIs('metal.verification') || request()->routeIs('metal.edit');
-    $PemasakanActive = request()->routeIs('pemasakan.verification') || request()->routeIs('pemasakan.edit');
-    $PrepackingActive = request()->routeIs('prepacking.verification') || request()->routeIs('prepacking.edit');
-    $WashingActive = request()->routeIs('washing.verification') || request()->routeIs('washing.edit');
-    $PemusnahanActive = request()->routeIs('pemusnahan.verification') || request()->routeIs('pemusnahan.edit');
-    $ReleasepackingActive = request()->routeIs('release_packing.verification') ||
-    request()->routeIs('release_packing.edit');
-
-    $collapseVerifStuffing = $PvdcActive || $LabelpvdcActive || $MincingActive || $MetalActive || $StuffingActive ||
-    $SampelActive || $OrganoleptikActive || $KlorinActive || $PackingActive || $SamplingActive || $KartonActive ||
-    $TimbanganActive || $ThermometerActive || $ChamberActive || $WireActive || $SamplingfgActive || $PemasakanActive ||
-    $PrepackingActive || $WashingActive || $PemusnahanActive || $ReleasepackingActive ;
-    @endphp --}}
-    {{-- <li class="nav-item">
-        <a class="nav-link {{ $collapseVerifStuffing ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-            data-bs-target="#collapseVerifStuff" aria-expanded="{{ $collapseVerifStuffing ? 'true' : 'false' }}"
-            aria-controls="collapseVerifStuff">
-            <i class="fas fa-utensils"></i>
-            <span>Stuffing</span>
-        </a>
-        <div id="collapseVerifStuff" class="collapse {{ $collapseVerifStuffing ? 'show' : '' }}"
-            data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
-                <a class="collapse-item {{ $PvdcActive ? 'active' : '' }}" href="{{ route('pvdc.verification') }}"> Data
-                    No. Lot PVDC </a>
-                <a class="collapse-item {{ $LabelpvdcActive ? 'active' : '' }}"
-                    href="{{ route('labelisasi_pvdc.verification') }}"> Kontrol Labelisasi PVDC </a>
-                <a class="collapse-item {{ $MincingActive ? 'active' : '' }}"
-                    href="{{ route('mincing.verification') }}"> Pemeriksaan Mincing - Emulsifying - Aging </a>
-                <a class="collapse-item {{ $MetalActive ? 'active' : '' }}"
-                    href="{{ route('metal.verification') }}">Pengecekan Metal Detektor</a>
-                <a class="collapse-item {{ $StuffingActive ? 'active' : '' }}"
-                    href="{{ route('stuffing.verification') }}">Pemeriksaan Stuffing Sosis Retort</a>
-                <a class="collapse-item {{ $SampelActive ? 'active' : '' }}"
-                    href="{{ route('sampel.verification') }}">Pengambilan Sampel</a>
-                <a class="collapse-item {{ $OrganoleptikActive ? 'active' : '' }}"
-                    href="{{ route('organoleptik.verification') }}">Pemeriksaan Organoleptik</a>
-                <a class="collapse-item {{ $KlorinActive ? 'active' : '' }}"
-                    href="{{ route('klorin.verification') }}">Pengecekan Klorin</a>
-                <a class="collapse-item {{ $PackingActive ? 'active' : '' }}"
-                    href="{{ route('packing.verification') }}">Pemeriksaan Proses Packing</a>
-                <a class="collapse-item {{ $SamplingActive ? 'active' : '' }}"
-                    href="{{ route('sampling.verification') }}">Data Sampling Produk</a>
-                <a class="collapse-item {{ $KartonActive ? 'active' : '' }}"
-                    href="{{ route('karton.verification') }}">Kontrol Labelisasi Karton</a>
-                <a class="collapse-item {{ $TimbanganActive ? 'active' : '' }}"
-                    href="{{ route('timbangan.verification') }}">Peneraan Timbangan</a>
-                <a class="collapse-item {{ $ThermometerActive ? 'active' : '' }}"
-                    href="{{ route('thermometer.verification') }}">Peneraan Thermometer</a>
-                <a class="collapse-item {{ $ChamberActive ? 'active' : '' }}"
-                    href="{{ route('chamber.verification') }}">Verifikasi Timer Chamber</a>
-                <a class="collapse-item {{ $WireActive ? 'active' : '' }}" href="{{ route('wire.verification') }}">Data
-                    No. Lot PVDC</a>
-                <a class="collapse-item {{ $SamplingfgActive ? 'active' : '' }}"
-                    href="{{ route('sampling_fg.verification') }}">Pemeriksaan Proses Sampling Finish Good</a>
-                <a class="collapse-item {{ $PemasakanActive ? 'active' : '' }}"
-                    href="{{ route('pemasakan.verification') }}">Pengecekan Pemasakan</a>
-                <a class="collapse-item {{ $PrepackingActive ? 'active' : '' }}"
-                    href="{{ route('prepacking.verification') }}">Pengecekan Pre Packing</a>
-                <a class="collapse-item {{ $WashingActive ? 'active' : '' }}"
-                    href="{{ route('washing.verification') }}">Pemeriksaan Washing - Drying</a>
-                <a class="collapse-item {{ $PemusnahanActive ? 'active' : '' }}"
-                    href="{{ route('pemusnahan.verification') }}">Pemusnahan Barang / Produk</a>
-                <a class="collapse-item {{ $ReleasepackingActive ? 'active' : '' }}"
-                    href="{{ route('release_packing.verification') }}">Data Release Packing</a>
-            </div>
-        </div>
-    </li> --}}
-
-    {{-- @endif --}}
-
-    <hr class="sidebar-divider d-none d-md-block">
-
-    <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
-    </div>
+<div class="text-center d-none d-md-inline">
+    <button class="rounded-circle border-0" id="sidebarToggle"></button>
+</div>
 
 </ul>
 

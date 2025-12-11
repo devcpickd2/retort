@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
 
-            <h3 class="mb-4">✏️ Edit Supplier</h3>
+            <h3 class="mb-4">✏️ Edit Supplier / Distributor </h3>
 
             {{-- Alert error jika validasi gagal --}}
             @if ($errors->any())
@@ -27,7 +27,7 @@
                         @method('PUT') {{-- Gunakan method PUT untuk update --}}
 
                         <div class="mb-3">
-                            <label for="nama_supplier" class="form-label">Nama Supplier</label>
+                            <label for="nama_supplier" class="form-label">Nama Supplier / Distributor</label>
                             <input
                             type="text"
                             name="nama_supplier"
@@ -52,6 +52,7 @@
                             <option value="">-- Pilih Jenis Barang --</option>
                             <option value="Packaging" {{ old('jenis_barang', $supplier->jenis_barang) == 'Packaging' ? 'selected' : '' }}>Packaging</option>
                             <option value="Raw Material" {{ old('jenis_barang', $supplier->jenis_barang) == 'Raw Material' ? 'selected' : '' }}>Raw Material</option>
+                            <option value="Distributor" {{ old('jenis_barang', $supplier->jenis_barang) == 'Distributor' ? 'selected' : '' }}>Distributor</option>
                         </select>
                         @error('jenis_barang')
                         <div class="invalid-feedback">
@@ -59,6 +60,20 @@
                         </div>
                         @enderror
                     </div>
+
+                    <div class="mb-3">
+                        <label class="col-md-3 col-form-label fw-bold">Alamat</label>
+
+                        <input type="text" 
+                        name="alamat"
+                        class="form-control @error('alamat') is-invalid @enderror"
+                        value="{{ old('alamat', $supplier->alamat) }}">
+
+                        @error('alamat')
+                        <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
 
                     <div class="d-flex justify-content-between">
                         <button type="submit" class="btn btn-success">💾 Update</button>

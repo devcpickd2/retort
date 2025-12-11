@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\MagnetTrapModel;
@@ -8,7 +7,8 @@ use Illuminate\Support\Str;
 use App\Models\Produk;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Operator;
+
 
 class MagnetTrapController extends Controller
 {
@@ -56,7 +56,12 @@ class MagnetTrapController extends Controller
     {
         // Ganti 'magnet_trap.create' jika nama file view Anda berbeda
         $produks = Produk::orderBy('nama_produk', 'asc')->get();
-        return view('magnet_trap.CreateMagnetTrap ', compact('produks'));
+        $operators = Operator::where('bagian', 'Operator')
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
+        $engineers = Operator::where('bagian', 'Engineer')
+                         ->orderBy('nama_karyawan', 'asc')->get();
+        return view('magnet_trap.CreateMagnetTrap ', compact('produks', 'operators', 'engineers'));
     }
 
     /**
@@ -65,7 +70,7 @@ class MagnetTrapController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-public function store(Request $request)
+    public function store(Request $request)
     {
         $validatedData = $request->validate([
             'nama_produk' => 'required',
@@ -116,8 +121,12 @@ public function store(Request $request)
     public function edit(MagnetTrapModel $checklistmagnettrap)
     {
         $produks = Produk::orderBy('nama_produk', 'asc')->get();
-        
-        return view('magnet_trap.EditMagnetTrap', compact('checklistmagnettrap', 'produks'));
+        $operators = Operator::where('bagian', 'Operator')
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
+        $engineers = Operator::where('bagian', 'Engineer')
+                         ->orderBy('nama_karyawan', 'asc')->get();
+        return view('magnet_trap.EditMagnetTrap', compact('checklistmagnettrap', 'produks', 'operators', 'engineers'));
     }
 
     /**
@@ -247,9 +256,13 @@ public function store(Request $request)
     {
         // Ambil data produk (sama seperti di method edit biasa)
         $produks = Produk::orderBy('nama_produk', 'asc')->get();
-        
+        $operators = Operator::where('bagian', 'Operator')
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
+        $engineers = Operator::where('bagian', 'Engineer')
+                         ->orderBy('nama_karyawan', 'asc')->get();
         // Bedanya DISINI: Arahkan ke view 'UpdateMagnetTrap'
-        return view('magnet_trap.UpdateMagnetTrap', compact('checklistmagnettrap', 'produks'));
+        return view('magnet_trap.UpdateMagnetTrap', compact('checklistmagnettrap', 'produks', 'operators', 'engineers'));
     }
 
     public function searchBatchMincing(Request $request)
@@ -271,29 +284,5 @@ public function store(Request $request)
         return response()->json([]);
     }
 
-    public function exportPdf(Request $request)
-    {
-        // 1. Ambil ID/UUID yang dikirim dari checkbox "Check All"
-        $ids = $request->input('ids'); 
-
-        // Validasi jika tidak ada data yang dipilih
-        if (empty($ids)) {
-            return redirect()->back()->with('error', 'Pilih setidaknya satu data untuk diexport.');
-        }
-
-        // 2. Ambil data dari database berdasarkan UUID yang dipilih
-        // Kita urutkan berdasarkan created_at atau pukul agar rapi
-        $data = MagnetTrapModel::whereIn('uuid', $ids)
-                    ->orderBy('created_at', 'ASC')
-                    ->get();
-
-        // 3. Load View PDF
-        // setPaper('a4', 'landscape') agar tabel memanjang ke samping sesuai gambar
-        $pdf = Pdf::loadView('magnet_trap.export_pdf', compact('data'))
-                    ->setPaper('a4', 'landscape');
-
-        // 4. Stream (tampilkan di browser) atau Download
-        return $pdf->stream('Checklist-Cleaning-Magnet-Trap.pdf');
-    }
 }
 

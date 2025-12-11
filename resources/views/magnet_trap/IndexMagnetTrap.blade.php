@@ -137,20 +137,12 @@
                                         <i class="bi bi-pencil"></i> Update
                                     </a>
                                     @endcan
-                                    <form action="{{ route('checklistmagnettrap.exportPdf') }}" method="POST" target="_blank" class="d-inline">
-                                        @csrf
-                                        <input type="hidden" name="ids[]" value="{{ $item->uuid }}">
-                                        
-                                        <button type="submit" class="btn btn-secondary btn-sm mx-1" title="Download PDF">
-                                            <i class="bi bi-file-earmark-pdf"></i> 
-                                        </button>
-                                    </form>
                                     @can('can access delete button')
                                     <form action="{{ route('checklistmagnettrap.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm mx-1">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="bi bi-trash"></i> Hapus
                                         </button>
                                     </form>
                                     @endcan

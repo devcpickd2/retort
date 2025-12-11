@@ -250,4 +250,13 @@ class LoadingProdukController extends Controller
             return back()->with('error', 'Gagal memverifikasi data. Error: ' . $e->getMessage());
         }
     }
+
+    public function updateDetails(LoadingProduk $loadingProduk)
+    {
+        // Pastikan relasi details dimuat
+        $loadingProduk->load('details');
+        
+        // Return ke view dengan nama 'update-details'
+        return view('loading-produks.update-details', compact('loadingProduk'));
+    }
 }

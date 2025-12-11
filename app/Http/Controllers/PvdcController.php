@@ -9,36 +9,64 @@ use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\User;
+use Illuminate\Support\Facades\Response;
+use TCPDF;
 
 class PvdcController extends Controller
 {
     public function index(Request $request)
     {
-        $search     = $request->input('search');
-        $date = $request->input('date');
-        $userPlant  = Auth::user()->plant;
+        $search        = $request->input('search');
+        $date          = $request->input('date');
+        $shift         = $request->input('shift');
+        $namaProduk    = $request->input('nama_produk');
+        $userPlant     = Auth::user()->plant;
 
+    // Ambil list produk untuk dropdown
+        $produks = Pvdc::where('plant', $userPlant)
+        ->select('nama_produk')
+        ->distinct()
+        ->orderBy('nama_produk')
+        ->get();
+
+    // Query utama PVDC
         $data = Pvdc::query()
-        ->where('plant', $userPlant) 
+        ->where('plant', $userPlant)
+
+        // Filter pencarian bebas
         ->when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('username', 'like', "%{$search}%")
                 ->orWhere('nama_produk', 'like', "%{$search}%")
-                ->orWhere('kode_produksi', 'like', "%{$search}%")
                 ->orWhere('nama_supplier', 'like', "%{$search}%")
-                ->orWhere('no_lot', 'like', "%{$search}%");
+                ->orWhere('catatan', 'like', "%{$search}%");
             });
         })
+
+        // Filter berdasarkan tanggal
         ->when($date, function ($query) use ($date) {
             $query->whereDate('date', $date);
         })
+
+        // Filter shift
+        ->when($shift, function ($query) use ($shift) {
+            $query->where('shift', $shift);
+        })
+
+        // Filter nama produk
+        ->when($namaProduk, function ($query) use ($namaProduk) {
+            $query->where('nama_produk', $namaProduk);
+        })
+
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.pvdc.index', compact('data', 'search', 'date'));
+        return view('form.pvdc.index', compact('data', 'produks', 'search', 'date', 'shift', 'namaProduk'));
     }
+
 
     public function create()
     {
@@ -261,4 +289,76 @@ class PvdcController extends Controller
         return redirect()->route('pvdc.verification')
         ->with('success', 'Data No. Lot PVDC berhasil dihapus');
     }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Parameter Filter
+        $search     = $request->input('search');
+        $date       = $request->input('date');
+        $shift      = $request->input('shift');
+        $userPlant  = Auth::user()->plant;
+
+        // 2. Query Data (Harus sama logikanya dengan Index)
+        $datalist = Pvdc::query()
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%")
+                      ->orWhere('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('nama_supplier', 'like', "%{$search}%")
+                      ->orWhere('catatan', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc') // Urutan laporan biasanya Ascending berdasarkan tanggal
+            ->orderBy('shift', 'asc')
+            ->get();
+
+            
+        // 3. Bersihkan Output Buffer (Penting agar TCPDF tidak error)
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 4. Inisialisasi TCPDF
+        $pdf = new TCPDF('P', PDF_UNIT, 'LEGAL', true, 'UTF-8', false);
+        
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Charoen Pokphand Indonesia');
+        $pdf->SetTitle('Laporan Data No. Lot PVDC');
+
+        // Hilangkan Header/Footer bawaan TCPDF (Kita buat custom di Blade)
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Margin & Auto Page Break
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(TRUE, 10);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        
+        // Font
+        $pdf->SetFont('helvetica', '', 9);
+
+        // Tambah Halaman
+        $pdf->AddPage();
+
+        // 5. Render HTML dari Blade View
+        // Pastikan file 'reports.pvdc' sudah ada (kode view PDF ada di jawaban sebelumnya)
+        $html = view('reports.pvdc', compact('datalist', 'request'))->render();
+
+        // 6. Tulis HTML ke PDF
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        // 7. Output PDF ke Browser (Inline)
+        $pdf->Output('Laporan_PVDC_' . date('Ymd_His') . '.pdf', 'I');
+
+        exit();
+    }
+       
+
 }

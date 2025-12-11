@@ -174,7 +174,7 @@
         {{-- TOMBOL SIMPAN --}}
         <div class="d-flex justify-content-between mt-3">
             <button type="button" id="saveBtn" class="btn btn-success"><i class="bi bi-save"></i> Simpan</button>
-            <a href="{{ route('labelisasi_pvdc.verification') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+            <a href="{{ route('labelisasi_pvdc.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
         </div>
     </form>
 
@@ -270,7 +270,6 @@
             </td>
             <td><input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm"><div class="invalid-feedback"></div></td>
             <td>
-                <button type="button" class="btn btn-primary btn-sm saveRow">Simpan</button>
                 <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
             </td>
         </tr>
