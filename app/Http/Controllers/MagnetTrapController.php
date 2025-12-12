@@ -72,9 +72,10 @@ class MagnetTrapController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $validatedData = $request->validate([
             'nama_produk' => 'required',
-            'kode_batch' => 'required|string|max:10', // Max 10 sesuai request
+            'kode_batch' => 'required|string', // Max 10 sesuai request
             'pukul' => 'required',
             'jumlah_temuan' => 'required|integer|min:0',
             'status' => 'required|in:v,x',

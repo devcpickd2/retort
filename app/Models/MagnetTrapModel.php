@@ -68,7 +68,7 @@ class MagnetTrapModel extends Model
 
     public function mincing()
     {
-        return $this->belongsTo(Mincing::class, 'kode_produksi', 'uuid');
+        return $this->belongsTo(Mincing::class, 'kode_batch', 'uuid');
         // ->where('plant', Auth::user()->plant);  
     }
 

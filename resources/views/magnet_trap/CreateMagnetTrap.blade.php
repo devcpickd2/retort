@@ -127,12 +127,10 @@
 
                         <div class="mb-3">
                             <label for="kode_batch" class="form-label">{{ __('Kode Batch') }}</label>
-                            <input id="kode_batch" type="text"
-                                class="form-control @error('kode_batch') is-invalid @enderror" name="kode_batch"
-                                value="{{ old('kode_batch') }}" required autocomplete="off"
-                                placeholder="Sesuai data mincing" maxlength="10" list="batch_suggestions">
-                            <datalist id="batch_suggestions"></datalist>
-
+                            <select name="kode_batch" id="kode_batch"
+                                class="form-control @error('kode_batch') is-invalid @enderror" required disabled>
+                                <option value="">Pilih Varian Terlebih Dahulu</option>
+                            </select>
                             @error('kode_batch')
                             <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -261,17 +259,26 @@
 
 <script>
     $(document).ready(function() {
+
+        // --- BAGIAN 1: KODE SELECT2 ANDA (TETAP AMAN) ---
+        $('.select2').select2({
+            theme: "bootstrap-5", 
+            width: '100%', 
+            placeholder: "Ketik untuk mencari produk...",
+            allowClear: true
+        });
     
-    const produkSelect = document.querySelector('select[name="nama_produk"]');
-    const batchSelect = document.getElementById('kode_produksi');
+    // const produkSelect = document.querySelector('select[name="nama_produk"]');
+    const batchSelect = document.getElementById('kode_batch');
 
     // Disable batch saat awal load (jika tidak ada old value)
-    if (!produkSelect.value) {
-        batchSelect.disabled = true;
-    }
+    // if (!produkSelect.value) {
+    //     batchSelect.disabled = true;
+    // }
 
-    produkSelect.addEventListener('change', function () {
-        let namaProduk = this.value;
+    $('select[name="nama_produk"]').on('change', function (e) {
+        let namaProduk = $(this).val();
+        console.log("Selected produk:", namaProduk);
         if (!namaProduk) {
             batchSelect.innerHTML = '<option value="">Pilih Varian Terlebih Dahulu</option>';
             batchSelect.disabled = true;
