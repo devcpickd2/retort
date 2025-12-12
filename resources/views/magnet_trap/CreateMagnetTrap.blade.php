@@ -7,7 +7,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 {{-- Select2 CSS --}}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
 
 <style>
     /* Mengubah font utama */
@@ -23,39 +24,69 @@
     }
 
     /* Kustomisasi input, select, dan textarea */
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
         border-radius: 8px;
     }
-    
+
     /* PERBAIKAN CSS SELECT2 AGAR TINGGI SAMA DENGAN INPUT BOOTSTRAP */
     .select2-container--bootstrap-5 .select2-selection {
         min-height: calc(2.25rem + 2px) !important;
         border-radius: 8px !important;
-        align-items: center; /* Menengahkan teks secara vertikal */
+        align-items: center;
+        /* Menengahkan teks secara vertikal */
     }
-    
+
     /* Memastikan dropdown arrow berada di tengah */
     .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
-        margin-top: -2px; 
+        margin-top: -2px;
     }
 
     /* Kustomisasi Radio Button */
-    .status-selector { display: flex; gap: 1rem; }
-    .status-selector input[type="radio"] { opacity: 0; position: fixed; width: 0; }
+    .status-selector {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .status-selector input[type="radio"] {
+        opacity: 0;
+        position: fixed;
+        width: 0;
+    }
+
     .status-selector label {
-        display: flex; align-items: center; justify-content: center;
-        width: 100%; padding: 0.75rem; background-color: #f8f9fa;
-        border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer;
-        transition: all 0.3s ease; font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
     }
-    .status-selector input[type="radio"]:checked + label { color: #fff; border-color: transparent; }
-    .status-selector input#status_v:checked + label {
-        background-color: #198754; box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+
+    .status-selector input[type="radio"]:checked+label {
+        color: #fff;
+        border-color: transparent;
     }
-    .status-selector input#status_x:checked + label {
-        background-color: #dc3545; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+
+    .status-selector input#status_v:checked+label {
+        background-color: #198754;
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
     }
-    .status-selector label:hover { background-color: #e9ecef; border-color: #ced4da; }
+
+    .status-selector input#status_x:checked+label {
+        background-color: #dc3545;
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+
+    .status-selector label:hover {
+        background-color: #e9ecef;
+        border-color: #ced4da;
+    }
 </style>
 @endpush
 
@@ -77,55 +108,53 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="nama_produk" class="form-label">{{ __('Nama Produk') }}</label>
-                            
-                            {{-- PERBAIKAN: class "form-select" bisa konflik dengan Select2 di beberapa kasus, 
-                                 tapi dengan theme bootstrap-5 biasanya aman. 
-                                 Kuncinya ada di script javascript di bawah. --}}
-                            <select class="form-select select2 @error('nama_produk') is-invalid @enderror" id="nama_produk" name="nama_produk" required>
+
+                            {{-- PERBAIKAN: class "form-select" bisa konflik dengan Select2 di beberapa kasus,
+                            tapi dengan theme bootstrap-5 biasanya aman.
+                            Kuncinya ada di script javascript di bawah. --}}
+                            <select class="form-select select2 @error('nama_produk') is-invalid @enderror"
+                                id="nama_produk" name="nama_produk" required>
                                 <option></option> {{-- Placeholder for Select2 --}}
                                 @foreach($produks as $produk)
-                                    <option value="{{ $produk->nama_produk }}" {{ old('nama_produk') == $produk->nama_produk ? 'selected' : '' }}>{{ $produk->nama_produk }}</option>
+                                <option value="{{ $produk->nama_produk }}" {{ old('nama_produk')==$produk->nama_produk ?
+                                    'selected' : '' }}>{{ $produk->nama_produk }}</option>
                                 @endforeach
                             </select>
                             @error('nama_produk')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
 
                         <div class="mb-3">
                             <label for="kode_batch" class="form-label">{{ __('Kode Batch') }}</label>
-                            <input 
-                                id="kode_batch" 
-                                type="text" 
-                                class="form-control @error('kode_batch') is-invalid @enderror" 
-                                name="kode_batch" 
-                                value="{{ old('kode_batch') }}" 
-                                required 
-                                autocomplete="off" 
-                                placeholder="Sesuai data mincing"
-                                maxlength="10" 
-                                list="batch_suggestions"
-                            >
+                            <input id="kode_batch" type="text"
+                                class="form-control @error('kode_batch') is-invalid @enderror" name="kode_batch"
+                                value="{{ old('kode_batch') }}" required autocomplete="off"
+                                placeholder="Sesuai data mincing" maxlength="10" list="batch_suggestions">
                             <datalist id="batch_suggestions"></datalist>
 
                             @error('kode_batch')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="pukul" class="form-label">{{ __('Pukul') }}</label>
-                                <input id="pukul" type="time" class="form-control @error('pukul') is-invalid @enderror" name="pukul" value="{{ old('pukul') }}" required>
+                                <input id="pukul" type="time" class="form-control @error('pukul') is-invalid @enderror"
+                                    name="pukul" value="{{ old('pukul') }}" required>
                                 @error('pukul')
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="jumlah_temuan" class="form-label">{{ __('Jumlah Temuan') }}</label>
-                                <input id="jumlah_temuan" type="number" class="form-control @error('jumlah_temuan') is-invalid @enderror" name="jumlah_temuan" value="{{ old('jumlah_temuan') }}" required placeholder="Contoh: 0" min="0">
+                                <input id="jumlah_temuan" type="number"
+                                    class="form-control @error('jumlah_temuan') is-invalid @enderror"
+                                    name="jumlah_temuan" value="{{ old('jumlah_temuan') }}" required
+                                    placeholder="Contoh: 0" min="0">
                                 @error('jumlah_temuan')
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
                             </div>
                         </div>
@@ -141,18 +170,22 @@
                         <div class="mb-3">
                             <label class="form-label">{{ __('Status') }}</label>
                             <div class="status-selector">
-                                <input type="radio" name="status" id="status_v" value="v" {{ old('status', 'v') == 'v' ? 'checked' : '' }}>
+                                <input type="radio" name="status" id="status_v" value="v" {{ old('status', 'v' )=='v'
+                                    ? 'checked' : '' }}>
                                 <label for="status_v">✓ OK</label>
-                                
-                                <input type="radio" name="status" id="status_x" value="x" {{ old('status') == 'x' ? 'checked' : '' }}>
+
+                                <input type="radio" name="status" id="status_x" value="x" {{ old('status')=='x'
+                                    ? 'checked' : '' }}>
                                 <label for="status_x">✗ NOT OK</label>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label for="keterangan" class="form-label">{{ __('Keterangan') }}</label>
-                            <textarea id="keterangan" class="form-control @error('keterangan') is-invalid @enderror" name="keterangan" rows="3" placeholder="Tambahkan catatan jika diperlukan...">{{ old('keterangan') }}</textarea>
+                            <textarea id="keterangan" class="form-control @error('keterangan') is-invalid @enderror"
+                                name="keterangan" rows="3"
+                                placeholder="Tambahkan catatan jika diperlukan...">{{ old('keterangan') }}</textarea>
                             @error('keterangan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
                         </div>
                     </div>
@@ -166,38 +199,42 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="produksi" class="form-label">{{ __('Operator Produksi') }}</label>
-                                <select class="form-select @error('produksi_id') is-invalid @enderror" id="produksi" name="produksi_id" required>
+                                <select class="form-select @error('produksi_id') is-invalid @enderror" id="produksi"
+                                    name="produksi_id" required>
                                     <option selected disabled value="">Pilih Operator...</option>
-                                    
+
                                     @foreach($operators as $operator)
-                                        <option value="{{ $operator->id }}" 
-                                            {{-- Logic Selected: Cek old input dulu, jika tidak ada cek data dari database (untuk edit), jika cocok beri 'selected' --}}
-                                            {{ old('produksi_id', $checklistmagnettrap->produksi_id ?? '') == $operator->id ? 'selected' : '' }}>
-                                            
-                                            {{ $operator->nama_karyawan }}
-                                        </option>
+                                    <option value="{{ $operator->id }}" {{-- Logic Selected: Cek old input dulu, jika
+                                        tidak ada cek data dari database (untuk edit), jika cocok beri 'selected' --}}
+                                        {{ old('produksi_id', $checklistmagnettrap->produksi_id ?? '') == $operator->id
+                                        ? 'selected' : '' }}>
+
+                                        {{ $operator->nama_karyawan }}
+                                    </option>
                                     @endforeach
 
                                 </select>
-                                
+
                                 @error('produksi_id')
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="engineer" class="form-label">{{ __('Engineer') }}</label>
-                                <select class="form-select @error('engineer_id') is-invalid @enderror" id="engineer" name="engineer_id" required>
+                                <select class="form-select @error('engineer_id') is-invalid @enderror" id="engineer"
+                                    name="engineer_id" required>
                                     <option selected disabled value="">Pilih Engineer...</option>
-                                    
+
                                     @foreach($engineers as $engineer)
-                                        <option value="{{ $engineer->id }}" {{ old('engineer_id') == $engineer->id ? 'selected' : '' }}>
-                                            {{ $engineer->nama_karyawan }}
-                                        </option>
+                                    <option value="{{ $engineer->id }}" {{ old('engineer_id')==$engineer->id ?
+                                        'selected' : '' }}>
+                                        {{ $engineer->nama_karyawan }}
+                                    </option>
                                     @endforeach
 
                                 </select>
                                 @error('engineer_id')
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                                 @enderror
                             </div>
                         </div>
@@ -206,7 +243,8 @@
 
                 <div class="d-flex justify-content-between mt-4">
                     <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Simpan Data</button>
-                    <a href="{{ route('checklistmagnettrap.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    <a href="{{ route('checklistmagnettrap.index') }}" class="btn btn-secondary"><i
+                            class="bi bi-arrow-left"></i> Kembali</a>
                 </div>
 
             </form>
@@ -223,67 +261,55 @@
 
 <script>
     $(document).ready(function() {
-        
-        // --- BAGIAN 1: KODE SELECT2 ANDA (TETAP AMAN) ---
-        $('.select2').select2({
-            theme: "bootstrap-5", 
-            width: '100%', 
-            placeholder: "Ketik untuk mencari produk...",
-            allowClear: true
-        });
+    
+    const produkSelect = document.querySelector('select[name="nama_produk"]');
+    const batchSelect = document.getElementById('kode_produksi');
 
-        // --- BAGIAN 2: LOGIC BARU UNTUK KODE BATCH ---
-        $('#kode_batch').on('input', function() {
-            let input = $(this);
-            let value = input.val();
+    // Disable batch saat awal load (jika tidak ada old value)
+    if (!produkSelect.value) {
+        batchSelect.disabled = true;
+    }
 
-            // 1. Auto Uppercase
-            value = value.toUpperCase();
+    produkSelect.addEventListener('change', function () {
+        let namaProduk = this.value;
+        if (!namaProduk) {
+            batchSelect.innerHTML = '<option value="">Pilih Varian Terlebih Dahulu</option>';
+            batchSelect.disabled = true;
+            expDateInput.value = '';
+            return;
+        }
 
-            // 2. Hapus Karakter Terlarang (Space, $, %, #, *)
-            value = value.replace(/[\s$#%*]/g, '');
+        fetch(`/lookup/batch/${namaProduk}`)
+        .then(response => response.json())
+        .then(data => {
+            batchSelect.disabled = false; 
+            batchSelect.innerHTML = ""; // bersihkan dulu
 
-            // 3. Batasi Maksimal 10 Karakter (Logic tambahan selain maxlength HTML)
-            if (value.length > 10) {
-                value = value.substring(0, 10);
+            if (data.length === 0) {
+                batchSelect.innerHTML = '<option value="">Batch Tidak Ditemukan</option>';
+                batchSelect.disabled = true;
+                return;
             }
 
-            // Update nilai di input field real-time
-            input.val(value);
+            // Jika ada data, baru tampilkan default option
+            batchSelect.innerHTML = '<option value="">-- Pilih Batch --</option>';
 
-            // 4. Auto Suggestion (AJAX ke Controller)
-            // Hanya trigger jika sudah mengetik minimal 2 huruf agar hemat resource
-            if (value.length >= 2) {
-                $.ajax({
-                    // Pastikan route ini sudah dibuat di web.php
-                    url: "{{ route('ajax.search.batch') }}", 
-                    type: "GET",
-                    data: { q: value },
-                    success: function(data) {
-                        let dataList = $('#batch_suggestions');
-                        dataList.empty(); // Reset list sebelumnya
-                        
-                        $.each(data, function(key, item) {
-                            // Masukkan data mincing ke option
-                            dataList.append('<option value="' + item + '">');
-                        });
-                    }
-                });
-            }
+            data.forEach(batch => {
+                batchSelect.innerHTML += `<option value="${batch.uuid}">${batch.kode_produksi}</option>`;
+            });
         });
-
-        // 5. Validasi Minimal 10 Karakter saat user selesai mengetik (Blur)
-        $('#kode_batch').on('blur', function() {
-            let value = $(this).val();
-            // Jika ada isi tapi kurang dari 10 karakter
-            if(value.length > 0 && value.length < 10) {
-                alert('Format Salah: Kode Batch harus tepat 10 karakter!');
-                $(this).addClass('is-invalid'); // Tambah border merah
-            } else {
-                $(this).removeClass('is-invalid'); // Hapus border merah jika benar
-            }
-        });
-
     });
+
+    // ============ OTOMATIS TANGGAL & SHIFT ============
+    const dateInput = document.getElementById("dateInput");
+
+    let now = new Date();
+    let yyyy = now.getFullYear();
+    let mm = String(now.getMonth() + 1).padStart(2, '0');
+    let dd = String(now.getDate()).padStart(2, '0');
+    let hh = now.getHours();
+
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
+});
 </script>
 @endpush

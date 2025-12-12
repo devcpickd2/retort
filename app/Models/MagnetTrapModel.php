@@ -66,5 +66,11 @@ class MagnetTrapModel extends Model
     //     return $this->belongsTo(User::class, 'engineer_id');
     // }
 
+    public function mincing()
+    {
+        return $this->belongsTo(Mincing::class, 'kode_produksi', 'uuid');
+        // ->where('plant', Auth::user()->plant);  
+    }
+
 
 }

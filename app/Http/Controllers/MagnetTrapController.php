@@ -20,7 +20,7 @@ class MagnetTrapController extends Controller
     public function index(Request $request)
     {
         // Eager load updater untuk performa
-        $query = MagnetTrapModel::query()->with('updater');
+        $query = MagnetTrapModel::query()->with(['updater', 'mincing']);
 
         // 0. Filter Plant (Data Isolation)
         // Menampilkan data hanya sesuai Plant user yang login
@@ -285,4 +285,3 @@ class MagnetTrapController extends Controller
     }
 
 }
-
