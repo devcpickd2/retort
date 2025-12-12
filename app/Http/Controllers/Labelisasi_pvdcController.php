@@ -45,7 +45,6 @@ class Labelisasi_pvdcController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10)
             ->appends($request->all());
-
         return view('form.labelisasi_pvdc.index', compact('data', 'search', 'date', 'shift'));
     }
 
@@ -410,9 +409,6 @@ class Labelisasi_pvdcController extends Controller
 
         Storage::put("{$path}/{$filename}", (string) $image);
     }
-<<<<<<< HEAD
-}
-=======
 
     public function exportPdf(Request $request)
     {
@@ -464,4 +460,3 @@ class Labelisasi_pvdcController extends Controller
     }
 
 }
->>>>>>> dev

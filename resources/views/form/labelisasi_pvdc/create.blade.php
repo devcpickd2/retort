@@ -206,7 +206,6 @@
     // =================== VALIDASI KODE BATCH ===================
     const produkSelect = $("#nama_produk");
 
-<<<<<<< HEAD
     // Trigger saat produk diganti
     produkSelect.on("change", function () {
         loadBatchForAllRows();
@@ -255,36 +254,6 @@
         let kode = $(this).find(":selected").data("kode") ?? "";
         $(this).closest("tr").find(".kodeBatchText").val(kode);
     });
-=======
-            input.next(".invalid-feedback").remove();
-            input.removeClass("is-invalid");
-
-            if (value.length !== 10) {
-                showError(input, "Kode produksi harus terdiri dari 10 karakter.");
-                return false;
-            }
-
-            const format = /^[A-Z0-9]+$/;
-            if (!format.test(value)) {
-                showError(input, "Kode produksi hanya boleh huruf besar dan angka.");
-                return false;
-            }
-
-            const bulanChar = value.charAt(1);
-            if (!/^[A-L]$/.test(bulanChar)) {
-                showError(input, "Karakter ke-2 harus huruf bulan (A–L).");
-                return false;
-            }
-
-            const rework = value.charAt(9);
-            if (!["0","1"].includes(rework)) {
-                showError(input, "Karakter terakhir harus 0 (belum rework) atau 1 (rework).");
-                return false;
-            }
-
-            return true;
-        }
->>>>>>> dev
 
         function showError(input, message) {
             input.addClass("is-invalid");
@@ -294,13 +263,7 @@
             }
         }
 
-<<<<<<< HEAD
     // Jalankan validasi saat input berubah
-=======
-        $(document).on("input blur", 'input[name$="[kode_batch]"]', function () {
-            validateKodeBatch($(this));
-        });
->>>>>>> dev
 
     // =================== TAMBAH BARIS ===================
         let index = 0;
@@ -310,7 +273,6 @@
         $('#addRow').on('click', function () {
             index++;
             $('#pvdcBody').append(`
-<<<<<<< HEAD
         <tr>
             <td>
                 <select name="data_pvdc[${index}][mesin]" class="form-control form-control-sm" required>
@@ -335,29 +297,6 @@
                 <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
             </td>
         </tr>
-=======
-            <tr>
-                <td>
-                    <select name="data_pvdc[${index}][mesin]" class="form-control form-control-sm" required>
-                        <option value="">-- Pilih Mesin --</option>${mesinOptions}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="data_pvdc[${index}][kode_batch]" class="form-control form-control-sm" required>
-                </td>
-                <td>
-                    {{-- PERBAIKAN: Menambahkan 'required' pada input file dinamis --}}
-                    <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*" required>
-                    <div class="preview mt-2"></div>
-                </td>
-                <td>
-                    <input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm">
-                </td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
-                </td>
-            </tr>
->>>>>>> dev
             `);
         });
 
@@ -382,94 +321,6 @@
 
             const formData = new FormData(form);
 
-<<<<<<< HEAD
-    btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Menyimpan...');
-
-    $.ajax({
-        url: "{{ route('labelisasi_pvdc.saveRowTemp') }}",
-        type: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(res) {
-            if(res.success){
-                const preview = `
-                <a href="${res.file}" target="_blank" class="d-block mt-2">
-                    <img src="${res.file}" width="100" class="img-thumbnail"><br>
-                </a>`;
-                row.find('.preview').html(preview);
-                btn.removeClass('btn-primary').addClass('btn-success')
-                .html('<i class="bi bi-check-circle"></i> Tersimpan');
-            } else {
-                row.find('input[type="file"]').after('<div class="invalid-feedback d-block">'+res.message+'</div>');
-                btn.prop('disabled', false).html('Simpan');
-            }
-        },
-        error: function(err){
-            let errors = err.responseJSON?.errors || {};
-            if(errors.kode_batch){
-                row.find('input[name$="[kode_batch]"]').after('<div class="invalid-feedback d-block">'+errors.kode_batch[0]+'</div>');
-            }
-            if(errors.file){
-                row.find('input[type="file"]').after('<div class="invalid-feedback d-block">'+errors.file[0]+'</div>');
-            }
-            btn.prop('disabled', false).html('Simpan');
-        }
-    });
-});
-
-
-    // =================== SIMPAN FINAL ===================
-        $('#saveBtn').click(function () {
-            const btn = $(this);
-            const rows = $('#pvdcBody tr');
-            let isValid = true;
-
-            rows.each(function () {
-                const kodeBatchInput = $(this).find('input[name$="[kode_batch]"]');
-                console.log (kodeBatchInput);
-                const fileInput = $(this).find('input[type="file"]');
-                const mesinSelect = $(this).find('select[name^="data_pvdc"]');
-
-    // VALIDASI HANYA MESIN, KODE BATCH, FILE
-                // if (!validateKodeBatch(kodeBatchInput)) isValid = false;
-                if (!validateFile(fileInput)) isValid = false;
-                if (!mesinSelect.val()) {
-                    mesinSelect.addClass("is-invalid")
-                    .next(".invalid-feedback").remove();
-                    mesinSelect.after(`<div class="invalid-feedback">Mesin wajib dipilih!</div>`);
-                    isValid = false;
-                }
-
-    // Jangan cek keterangan sama sekali
-                if (!isValid) $(this).addClass('table-danger');
-                else $(this).removeClass('table-danger');
-            });
-
-
-        if (!isValid) return; // Jangan lanjut jika ada error
-
-        // AJAX simpan final
-        btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Menyimpan...');
-        const formData = new FormData($('#pvdcForm')[0]);
-
-        $.ajax({
-            url: "{{ route('labelisasi_pvdc.storeFinal') }}",
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (res) {
-                if (res.success) window.location.href = res.redirect_url;
-                else $('#resultArea').html(`<div class="alert alert-danger">${res.message}</div>`);
-            },
-            error: function (res) {
-                $('#resultArea').html(`<div class="alert alert-danger">Terjadi kesalahan saat menyimpan data.</div>`);
-                console.log(res);
-            },
-            complete: function () {
-                btn.prop('disabled', false).html('<i class="bi bi-save"></i> Simpan');
-=======
             // Validasi manual tambahan (opsional, karena checkValidity sudah menangani required)
             let hasData = false;
             $('#pvdcBody tr').each(function(){
@@ -480,7 +331,6 @@
             if(!hasData){
                 alert('Belum ada data PVDC yang diinputkan!');
                 return;
->>>>>>> dev
             }
 
             // Ubah tombol jadi loading
@@ -527,5 +377,4 @@
 
     });
 </script>
-<<<<<<< HEAD=======>>>>>>> dev
-    @endsection
+@endsection
