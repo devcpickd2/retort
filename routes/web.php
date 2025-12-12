@@ -57,6 +57,7 @@ use App\Http\Controllers\{
     Release_packingController,
     SuhuController,
     SanitasiController,
+    LookupController,
     WithdrawlController,
     TraceabilityController,
     RecallController,
@@ -173,6 +174,18 @@ Route::resource('area_suhu', Area_suhuController::class)->parameters([
 // Area Sanitasi
 Route::resource('area_sanitasi', Area_sanitasiController::class)->parameters([
     'area_sanitasi' => 'uuid'
+]);
+
+// UMUM
+Route::get('/lookup/batch/{nama_produk}', [LookupController::class, 'getBatchByProduk']);
+Route::get('/lookup/batch-packing/{nama_produk}', [LookupController::class, 'getAllBatchByProduk']);
+
+// GMP
+Route::get('gmp/verification', [GmpController::class, 'verification'])->name('gmp.verification');
+Route::put('gmp/verification/{uuid}', [GmpController::class, 'updateVerification'])->name('gmp.verification.update');
+Route::get('/gmp/export', [GmpController::class, 'export'])->name('gmp.export');
+Route::resource('gmp', GmpController::class)->parameters([
+    'gmp' => 'uuid'
 ]);
 
 // Form QC

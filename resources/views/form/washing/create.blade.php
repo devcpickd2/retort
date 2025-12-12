@@ -24,33 +24,44 @@
                                 <label class="form-label">Shift</label>
                                 <select name="shift" id="shiftInput" class="form-control" required>
                                     <option value="">-- Pilih Shift --</option>
-                                    <option value="1">Shift 1</option>
-                                    <option value="2">Shift 2</option>
-                                    <option value="3">Shift 3</option>
+                                    <option value="1" {{ old('shift')=='1' ? 'selected' : '' }}>Shift 1</option>
+                                    <option value="2" {{ old('shift')=='2' ? 'selected' : '' }}>Shift 2</option>
+                                    <option value="3" {{ old('shift')=='3' ? 'selected' : '' }}>Shift 3</option>
                                 </select>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Produk</label>
-                                <select name="nama_produk" class="form-control selectpicker" data-live-search="true" required>
+                                <select name="nama_produk"
+                                    class="form-control @error('nama_produk') is-invalid @enderror"
+                                    data-live-search="true" required>
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach($produks as $produk)
-                                    <option value="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</option>
+                                    <option value="{{ $produk->nama_produk }}" {{ old('nama_produk')==$produk->
+                                        nama_produk ? 'selected' : '' }}>
+                                        {{ $produk->nama_produk }}
+                                    </option>
                                     @endforeach
                                 </select>
+                                <small class="text-danger">@error('nama_produk') {{ $message }} @enderror</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Kode Produksi</label>
-                                <input type="text" name="kode_produksi" id="kode_produksi" class="form-control" maxlength="10" required>
-                                <small id="kodeError" class="text-danger d-none"></small>
+                                <label class="form-label">Kode Batch</label>
+                                <select name="kode_produksi" id="kode_produksi"
+                                    class="form-control @error('kode_produksi') is-invalid @enderror" required disabled>
+                                    <option value="">Pilih Varian Terlebih Dahulu</option>
+                                </select>
+                                <small id="kodeError" class="text-danger">
+                                    @error('kode_produksi') {{ $message }} @enderror
+                                </small>
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Pukul</label>
-                                <input type="time" id="timeInput" name="pukul" class="form-control"
-                                value="{{ old('pukul', $data->pukul ?? '') }}" required>
+                                <input type="time" id="jamMulaiInput" name="pukul" class="form-control"
+                                    value="{{ old('pukul', $data->pukul ?? '') }}" required>
                             </div>
                         </div>
                     </div>
@@ -67,19 +78,22 @@
                                     <tr>
                                         <td class="text-left align-middle">Panjang Produk Akhir (Cm)</td>
                                         <td>
-                                            <input type="number" name="panjang_produk" id="panjang_produk" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="panjang_produk" id="panjang_produk"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Diameter Produk Akhir (Mm)</td>
                                         <td>
-                                            <input type="number" name="diameter_produk" id="diameter_produk" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="diameter_produk" id="diameter_produk"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Airtrap</td>
                                         <td>
-                                            <select name="airtrap" id="airtrap" class="form-control form-control-sm text-center">
+                                            <select name="airtrap" id="airtrap"
+                                                class="form-control form-control-sm text-center">
                                                 <option value="Ada">Ada</option>
                                                 <option value="Tidak Ada">Tidak Ada</option>
                                             </select>
@@ -88,7 +102,8 @@
                                     <tr>
                                         <td class="text-left align-middle">Lengket</td>
                                         <td>
-                                            <select name="lengket" id="lengket" class="form-control form-control-sm text-center">
+                                            <select name="lengket" id="lengket"
+                                                class="form-control form-control-sm text-center">
                                                 <option value="Ada">Ada</option>
                                                 <option value="Tidak Ada">Tidak Ada</option>
                                             </select>
@@ -97,7 +112,8 @@
                                     <tr>
                                         <td class="text-left align-middle">Sisa Adonan</td>
                                         <td>
-                                            <select name="sisa_adonan" id="sisa_adonan" class="form-control form-control-sm text-center">
+                                            <select name="sisa_adonan" id="sisa_adonan"
+                                                class="form-control form-control-sm text-center">
                                                 <option value="Ada">Ada</option>
                                                 <option value="Tidak Ada">Tidak Ada</option>
                                             </select>
@@ -106,7 +122,8 @@
                                     <tr>
                                         <td class="text-left align-middle">Cek Kebocoran / Vacuum</td>
                                         <td>
-                                            <select name="kebocoran" id="kebocoran" class="form-control form-control-sm text-center">
+                                            <select name="kebocoran" id="kebocoran"
+                                                class="form-control form-control-sm text-center">
                                                 <option value="Ok">Ok</option>
                                                 <option value="Tidak Ok">Tidak Ok</option>
                                             </select>
@@ -115,7 +132,8 @@
                                     <tr>
                                         <td class="text-left align-middle">Kekuatan Seal</td>
                                         <td>
-                                            <select name="kekuatan_seal" id="kekuatan_seal" class="form-control form-control-sm text-center">
+                                            <select name="kekuatan_seal" id="kekuatan_seal"
+                                                class="form-control form-control-sm text-center">
                                                 <option value="Ok">Ok</option>
                                                 <option value="Tidak Ok">Tidak Ok</option>
                                             </select>
@@ -124,7 +142,8 @@
                                     <tr>
                                         <td class="text-left align-middle">Print Kode Produksi</td>
                                         <td>
-                                            <select name="print_kode" id="print_kode" class="form-control form-control-sm text-center">
+                                            <select name="print_kode" id="print_kode"
+                                                class="form-control form-control-sm text-center">
                                                 <option value="Ok">Ok</option>
                                                 <option value="Tidak Ok">Tidak Ok</option>
                                             </select>
@@ -157,31 +176,36 @@
                                     <tr>
                                         <td class="text-left align-middle">Konsentrasi PC Kleer 1 (%)</td>
                                         <td>
-                                            <input type="number" name="konsentrasi_pckleer" id="konsentrasi_pckleer" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="konsentrasi_pckleer" id="konsentrasi_pckleer"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Suhu PC Kleer 1 (°C)</td>
                                         <td>
-                                            <input type="number" name="suhu_pckleer_1" id="suhu_pckleer_1" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="suhu_pckleer_1" id="suhu_pckleer_1"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Suhu PC Kleer 2 (°C)</td>
                                         <td>
-                                            <input type="number" name="suhu_pckleer_2" id="suhu_pckleer_2" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="suhu_pckleer_2" id="suhu_pckleer_2"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">pH PC Kleer</td>
                                         <td>
-                                            <input type="number" name="ph_pckleer" id="ph_pckleer" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="ph_pckleer" id="ph_pckleer"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Kondisi Air PC Kleer</td>
                                         <td>
-                                            <select name="kondisi_air_pckleer" id="kondisi_air_pckleer" class="form-control form-control-sm text-center">
+                                            <select name="kondisi_air_pckleer" id="kondisi_air_pckleer"
+                                                class="form-control form-control-sm text-center">
                                                 <option value="OK">OK</option>
                                                 <option value="Tidak OK">Tidak OK</option>
                                             </select>
@@ -210,25 +234,29 @@
                                     <tr>
                                         <td class="text-left align-middle">Konsentrasi Pottasium Sorbate (%)</td>
                                         <td>
-                                            <input type="number" name="konsentrasi_pottasium" id="konsentrasi_pottasium" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="konsentrasi_pottasium" id="konsentrasi_pottasium"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Suhu Pottasium Sorbate (°C)</td>
                                         <td>
-                                            <input type="number" name="suhu_pottasium" id="suhu_pottasium" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="suhu_pottasium" id="suhu_pottasium"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">pH Pottasium Sorbate</td>
                                         <td>
-                                            <input type="number" name="ph_pottasium" id="ph_pottasium" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="ph_pottasium" id="ph_pottasium"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Kondisi Air Pottasium Sorbate</td>
                                         <td>
-                                            <select name="kondisi_pottasium" id="kondisi_pottasium" class="form-control form-control-sm text-center">
+                                            <select name="kondisi_pottasium" id="kondisi_pottasium"
+                                                class="form-control form-control-sm text-center">
                                                 <option value="OK">OK</option>
                                                 <option value="Tidak OK">Tidak OK</option>
                                             </select>
@@ -248,7 +276,7 @@
                             <i class="bi bi-info-circle"></i>
                             <strong> Standar Pemeriksaan:</strong>
                             <ul class="mb-2 mt-2">
-                                <li>Suhu Heater   : 125 - 135 °C</li>                           
+                                <li>Suhu Heater : 125 - 135 °C</li>
                             </ul>
                         </div>
                         <div class="table-responsive">
@@ -257,31 +285,36 @@
                                     <tr>
                                         <td class="text-left align-middle">Suhu Heater (°C)</td>
                                         <td>
-                                            <input type="number" name="suhu_heater" id="suhu_heater" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="suhu_heater" id="suhu_heater"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Speed Conv. Drying 1</td>
                                         <td>
-                                            <input type="number" name="speed_1" id="speed_1" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="speed_1" id="speed_1"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Speed Conv. Drying 2</td>
                                         <td>
-                                            <input type="number" name="speed_2" id="speed_2" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="speed_2" id="speed_2"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Speed Conv. Drying 3</td>
                                         <td>
-                                            <input type="number" name="speed_3" id="speed_3" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="speed_3" id="speed_3"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Speed Conv. Drying 4</td>
                                         <td>
-                                            <input type="number" name="speed_4" id="speed_4" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="speed_4" id="speed_4"
+                                                class="form-control form-control-sm text-center" step="0.01">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -294,14 +327,16 @@
                 <div class="card mb-4">
                     <div class="card-header bg-light"><strong>Catatan</strong></div>
                     <div class="card-body">
-                        <textarea name="catatan" class="form-control" rows="3" placeholder="Tambahkan catatan bila ada">{{ old('catatan', $data->catatan ?? '') }}</textarea>
+                        <textarea name="catatan" class="form-control" rows="3"
+                            placeholder="Tambahkan catatan bila ada">{{ old('catatan', $data->catatan ?? '') }}</textarea>
                     </div>
                 </div>
 
                 {{-- TOMBOL --}}
                 <div class="d-flex justify-content-between mt-3">
                     <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Simpan</button>
-                    <a href="{{ route('washing.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    <a href="{{ route('washing.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i>
+                        Kembali</a>
                 </div>
             </form>
 
@@ -310,85 +345,71 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 <script>
-    $(document).ready(function(){
-        $('.selectpicker').selectpicker();
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const dateInput = document.getElementById("dateInput");
-        const shiftInput = document.getElementById("shiftInput");
-        const timeInput = document.getElementById("timeInput");
-
-        let now = new Date();
-        let yyyy = now.getFullYear();
-        let mm = String(now.getMonth() + 1).padStart(2, '0');
-        let dd = String(now.getDate()).padStart(2, '0');
-        let hh = String(now.getHours()).padStart(2, '0');
-        let min = String(now.getMinutes()).padStart(2, '0'); 
-
-        dateInput.value = `${yyyy}-${mm}-${dd}`;
-        timeInput.value = `${hh}:${min}`; 
-
-        let hour = parseInt(hh);
-        if (hour >= 7 && hour < 15) {
-            shiftInput.value = "1";
-        } else if (hour >= 15 && hour < 23) {
-            shiftInput.value = "2";
-        } else {
-            shiftInput.value = "3"; 
-        }
-    });
-
-</script>
-<script>
     $(document).ready(function(){ 
-    // Validasi kode produksi
-        const kodeInput = $('#kode_produksi');
-        const kodeError = $('#kodeError');
-        const form = $('#washingForm');
+        
+    // $('.selectpicker').selectpicker();
 
-        function validateKode() {
-            let value = kodeInput.val().toUpperCase().replace(/\s+/g, '');
-            kodeInput.val(value);
-            kodeError.text('').addClass('d-none');
+    const dateInput = document.getElementById("dateInput");
+    const shiftInput = document.getElementById("shiftInput");
+    const timeInput = document.getElementById("jamMulaiInput");
 
-            if(value.length !== 10) {
-                kodeError.text('Kode produksi harus terdiri dari 10 karakter').removeClass('d-none');
-                return false;
-            }
+    if(!dateInput.value){
+        let now = new Date();
+        dateInput.value = now.toISOString().slice(0,10);
+        timeInput.value = now.toTimeString().slice(0,5);
 
-            if(!/^[A-Z0-9]+$/.test(value)) {
-                kodeError.text('Kode produksi hanya boleh huruf besar dan angka').removeClass('d-none');
-                return false;
-            }
+        let hour = now.getHours();
+        if(hour >= 7 && hour < 15) shiftInput.value = "1";
+        else if(hour >= 15 && hour < 23) shiftInput.value = "2";
+        else shiftInput.value = "3";
+    }
 
-            if(!/^[A-L]$/.test(value.charAt(1))) {
-                kodeError.text('Karakter ke-2 harus huruf bulan (A-L)').removeClass('d-none');
-                return false;
-            }
+    const produkSelect = document.querySelector('select[name="nama_produk"]');
+    const batchSelect = document.getElementById('kode_produksi');
+    const expDateInput = document.getElementById('exp_date');
 
-            let hari = parseInt(value.substr(2,2),10);
-            if(isNaN(hari) || hari < 1 || hari > 31) {
-                kodeError.text('Karakter ke-3 dan ke-4 harus tanggal valid (01-31)').removeClass('d-none');
-                return false;
-            }
+    // Disable batch saat awal load (jika tidak ada old value)
+    if (!produkSelect.value) {
+        batchSelect.disabled = true;
+    }
 
-            return true;
+    produkSelect.addEventListener('change', function () {
+        let namaProduk = this.value;
+        // console.log("Nama Produk dipilih:", namaProduk);
+
+        // Jika user mengosongkan nama produk
+        if (!namaProduk) {
+            batchSelect.innerHTML = '<option value="">Pilih Varian Terlebih Dahulu</option>';
+            batchSelect.disabled = true;
+            expDateInput.value = '';
+            return;
         }
 
-        kodeInput.on('input', validateKode);
+        fetch(`/lookup/batch/${namaProduk}`)
+        .then(response => response.json())
+        .then(data => {
+            batchSelect.disabled = false; 
+            batchSelect.innerHTML = ""; // bersihkan dulu
 
-        form.on('submit', function(e){
-            if(!validateKode()){
-                e.preventDefault();
-                alert('Kode produksi tidak valid! Periksa kembali sebelum menyimpan.');
-                kodeInput.focus();
+            if (data.length === 0) {
+                batchSelect.innerHTML = '<option value="">Batch Tidak Ditemukan</option>';
+                batchSelect.disabled = true;
+                return;
             }
+
+            // Jika ada data, baru tampilkan default option
+            batchSelect.innerHTML = '<option value="">-- Pilih Batch --</option>';
+
+            data.forEach(batch => {
+                batchSelect.innerHTML += `<option value="${batch.uuid}">${batch.kode_produksi}</option>`;
+            });
         });
+    });
+
     });
 </script>
 @endsection

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pemasakan;
+use App\Models\Stuffing;
 use App\Models\Produk;
 use App\Models\Mesin;
 use Illuminate\Http\Request;
@@ -12,44 +13,50 @@ class PemasakanController extends Controller
 {
     public function index(Request $request)
     {
-       $search    = $request->input('search');
-       $date      = $request->input('date');
-       $userPlant  = Auth::user()->plant;
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $userPlant = Auth::user()->plant;
 
-       $data = Pemasakan::query()
-       ->where('plant', $userPlant)
-       ->when($search, function ($query) use ($search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('username', 'like', "%{$search}%")
-            ->orWhere('nama_produk', 'like', "%{$search}%")
-            ->orWhere('kode_produksi', 'like', "%{$search}%");
-        });
-    })
-       ->when($date, function ($query) use ($date) {
-        $query->whereDate('date', $date);
-    })
-       ->orderBy('date', 'desc')
-       ->orderBy('created_at', 'desc')
-       ->paginate(10)
-       ->appends($request->all());
+        $data = Pemasakan::where('plant', $userPlant)
+            ->when($search, function ($q) use ($search) {
+                $q->where('username', 'like', "%{$search}%")
+                ->orWhere('nama_produk', 'like', "%{$search}%");
+            })
+            ->when($date, fn($q) => $q->whereDate('date', $date))
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends($request->all());
 
-       return view('form.pemasakan.index', compact('data', 'search', 'date'));
-   }
+        $allUUID = [];
+        foreach ($data as $row) {
+            if (is_array($row->kode_produksi)) {
+                $allUUID = array_merge($allUUID, $row->kode_produksi);
+            }
+        }
+        $allUUID = array_unique($allUUID);
+        $stuffingData = Stuffing::whereIn('uuid', $allUUID)->get()->keyBy('uuid');
+
+        return view('form.pemasakan.index', compact('data', 'search', 'date', 'stuffingData'));
+    }
+
 
    public function create()
    {
     $userPlant = Auth::user()->plant;
     $produks = Produk::where('plant', $userPlant)->get();
+    $batches = Stuffing::latest()->take(3)->get();
     $list_chambers = Mesin::where('plant', $userPlant)
     ->where('jenis_mesin', 'Chamber')
     ->orderBy('nama_mesin')
     ->get(['uuid', 'nama_mesin']);
 
-    return view('form.pemasakan.create', compact('produks', 'list_chambers'));
+    return view('form.pemasakan.create', compact('produks', 'list_chambers', 'batches'));
 }
 
 public function store(Request $request)
 {
+    // dd($request->all());
     $username   = Auth::user()->username ?? 'User RTM';
     $userPlant  = Auth::user()->plant;
     $nama_produksi = session()->has('selected_produksi')
@@ -60,11 +67,11 @@ public function store(Request $request)
         'date'          => 'required|date',
         'shift'         => 'required',
         'nama_produk'   => 'required',
-        'kode_produksi' => 'required|string',
+        'kode_produksi' => 'required|array',
+        'jumlah_tray'   => 'required|array',
         'no_chamber'    => 'required',
         'berat_produk'  => 'required|numeric',
         'suhu_produk'   => 'required|numeric',
-        'jumlah_tray'   => 'required|string',
         'total_reject'  => 'nullable|numeric',
         'catatan'       => 'nullable|string',
         'cooking'       => 'nullable|array',
@@ -82,7 +89,6 @@ public function store(Request $request)
     $data['status_produksi']     = "1";
     $data['tgl_update_produksi'] = now()->addHour();
     $data['status_spv']          = "0";
-    $data['cooking']             = json_encode($request->input('cooking', []), JSON_UNESCAPED_UNICODE);
 
     Pemasakan::create($data);
 

@@ -12,7 +12,7 @@
                 @csrf
 
                 {{-- ===================== IDENTITAS ===================== --}}
-                <div class="card mb-4"> 
+                <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
                         <strong>Identitas Data PVDC</strong>
                     </div>
@@ -21,6 +21,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal</label>
                                 <input type="date" name="date" id="dateInput" class="form-control" required>
+                                <span class="invalid-feedback" id="error-date"></span>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Shift</label>
@@ -30,28 +31,36 @@
                                     <option value="2">Shift 2</option>
                                     <option value="3">Shift 3</option>
                                 </select>
+                                <span class="invalid-feedback" id="error-shift"></span>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Produk</label>
-                                <select name="nama_produk" class="form-control selectpicker" data-live-search="true" required>
+                                <select name="nama_produk" id="nama_produk" class="form-control selectpicker"
+                                    data-live-search="true" required>
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach($produks as $produk)
                                     <option value="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</option>
                                     @endforeach
                                 </select>
+                                <span class="invalid-feedback" id="error-nama_produk"></span>
+
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Nama Operator</label>
-                                <select id="nama_operator" name="nama_operator" class="form-control selectpicker"  data-live-search="true" required>
+                                <select id="nama_operator" name="nama_operator" class="form-control selectpicker"
+                                    data-live-search="true" required>
                                     <option value="">-- Pilih Operator --</option>
                                     @foreach($operators as $operator)
-                                    <option value="{{ $operator->nama_karyawan }}">{{ $operator->nama_karyawan }}</option>
+                                    <option value="{{ $operator->nama_karyawan }}">{{ $operator->nama_karyawan }}
+                                    </option>
                                     @endforeach
                                 </select>
+                                <span class="invalid-feedback" id="error-nama_operator"></span>
+
                             </div>
                         </div>
                     </div>
@@ -79,7 +88,8 @@
                             <tbody id="pvdcBody">
                                 <tr>
                                     <td>
-                                        <select name="data_pvdc[0][mesin]" class="form-control form-control-sm" required>
+                                        <select name="data_pvdc[0][mesin]" class="form-control form-control-sm"
+                                            required>
                                             <option value="">-- Pilih Mesin --</option>
                                             @foreach($mesins as $mesin)
                                             <option value="{{ $mesin->nama_mesin }}">{{ $mesin->nama_mesin }}</option>
@@ -87,14 +97,20 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="text" name="data_pvdc[0][kode_batch]" class="form-control form-control-sm" required>
+                                        <select name="data_pvdc[0][kode_batch]"
+                                            class="form-control form-control-sm batchSelect" required disabled>
+                                            <option value="">Pilih Produk Terlebih Dahulu</option>
+                                        </select>
                                     </td>
+
                                     <td>
-                                        <input type="file" name="data_pvdc[0][kode_produksi]" class="form-control form-control-sm" accept="image/*" required>
+                                        <input type="file" name="data_pvdc[0][kode_produksi]"
+                                            class="form-control form-control-sm" accept="image/*" required>
                                         <div class="preview mt-2"></div>
                                     </td>
                                     <td>
-                                        <input type="text" name="data_pvdc[0][keterangan]" class="form-control form-control-sm">
+                                        <input type="text" name="data_pvdc[0][keterangan]"
+                                            class="form-control form-control-sm">
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
@@ -122,7 +138,8 @@
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 <script>
     $(document).ready(function(){
@@ -187,38 +204,56 @@
     $(document).ready(function(){
 
     // =================== VALIDASI KODE BATCH ===================
-        function validateKodeBatch(input) {
-            let value = input.val().toUpperCase().replace(/\s+/g, '');
-            input.val(value);
+    const produkSelect = $("#nama_produk");
 
-            input.next(".invalid-feedback").remove();
-            input.removeClass("is-invalid");
+    // Trigger saat produk diganti
+    produkSelect.on("change", function () {
+        loadBatchForAllRows();
+    });
 
-            if (value.length !== 10) {
-                showError(input, "Kode produksi harus terdiri dari 10 karakter.");
-                return false;
+    function loadBatchForAllRows() {
+        let produk = produkSelect.val();
+        let batchSelects = $(".batchSelect");
+
+        batchSelects.each(function () {
+            let select = $(this);
+            select.html("");
+            select.prop("disabled", true);
+
+            if (!produk) {
+                select.html('<option value="">Pilih Produk Terlebih Dahulu</option>');
+                return;
             }
 
-            const format = /^[A-Z0-9]+$/;
-            if (!format.test(value)) {
-                showError(input, "Kode produksi hanya boleh huruf besar dan angka.");
-                return false;
-            }
+            fetch(`/lookup/batch/${produk}`)
+                .then(res => res.json())
+                .then(data => {
 
-            const bulanChar = value.charAt(1);
-            if (!/^[A-L]$/.test(bulanChar)) {
-                showError(input, "Karakter ke-2 harus huruf bulan (A–L).");
-                return false;
-            }
+                    if (data.length === 0) {
+                        select.html('<option value="">Batch Tidak Ditemukan</option>');
+                        select.prop("disabled", true);
+                        return;
+                    }
 
-            const rework = value.charAt(9);
-            if (!["0","1"].includes(rework)) {
-                showError(input, "Karakter terakhir harus 0 (belum rework) atau 1 (rework).");
-                return false;
-            }
+                    select.prop("disabled", false);
+                    select.html('<option value="">-- Pilih Batch --</option>');
 
-            return true;
-        }
+                    data.forEach(batch => {
+                        select.append(`
+                            <option value="${batch.uuid}" kode_batch="${batch.kode_produksi}">
+                                ${batch.kode_produksi}
+                            </option>
+                        `);
+                    });
+                });
+        });
+    }
+
+    // Trigger saat batch dipilih → isi kode batch pada input text (jika dipakai)
+    $(document).on("change", ".batchSelect", function () {
+        let kode = $(this).find(":selected").data("kode") ?? "";
+        $(this).closest("tr").find(".kodeBatchText").val(kode);
+    });
 
         function showError(input, message) {
             input.addClass("is-invalid");
@@ -228,9 +263,7 @@
             }
         }
 
-        $(document).on("input blur", 'input[name$="[kode_batch]"]', function () {
-            validateKodeBatch($(this));
-        });
+    // Jalankan validasi saat input berubah
 
     // =================== TAMBAH BARIS ===================
         let index = 0;
@@ -240,27 +273,30 @@
         $('#addRow').on('click', function () {
             index++;
             $('#pvdcBody').append(`
-            <tr>
-                <td>
-                    <select name="data_pvdc[${index}][mesin]" class="form-control form-control-sm" required>
-                        <option value="">-- Pilih Mesin --</option>${mesinOptions}
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="data_pvdc[${index}][kode_batch]" class="form-control form-control-sm" required>
-                </td>
-                <td>
-                    {{-- PERBAIKAN: Menambahkan 'required' pada input file dinamis --}}
-                    <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*" required>
-                    <div class="preview mt-2"></div>
-                </td>
-                <td>
-                    <input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm">
-                </td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                <select name="data_pvdc[${index}][mesin]" class="form-control form-control-sm" required>
+                    <option value="">-- Pilih Mesin --</option>${mesinOptions}
+                </select>
+            </td>
+            <td>
+                <select name="data_pvdc[${index}][kode_batch]"
+                    class="form-control form-control-sm batchSelect" required disabled>
+                    <option value="">Pilih Produk Terlebih Dahulu</option>
+                </select>
+            </td>
+            <td>
+                <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*" required>
+            </td>
+            <td>
+                <input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm">
+                <div class="preview mt-2"></div>
+            </td>
+            <td>
+                <button type="button" class="btn btn-primary btn-sm saveRow">Simpan</button>
+                <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
+            </td>
+        </tr>
             `);
         });
 

@@ -23,6 +23,29 @@ class Labelisasi_pvdc extends Model
     ];
 
     protected $casts = [
-        'labelisasi'  => 'array',
+        'labelisasi'  => 'json',
     ];
+    
+    public function getLabelisasiDetailAttribute()
+    {
+
+        $items = $this->labelisasi ?? [];
+
+if (!is_array($items)) {
+    $items = json_decode($items, true) ?: [];
+}
+
+        return collect($items)->map(function ($item) {
+            $mincing = Mincing::where('uuid', $item['kode_batch'] ?? null)->first();
+
+            return [
+                'mesin'      => $item['mesin'] ?? null,
+                'kode_batch' => $item['kode_batch'] ?? null,
+                'file'       => $item['file'] ?? null,
+                'keterangan' => $item['keterangan'] ?? null,
+                'mincing'    => $mincing,
+            ];
+        });
+    }
+
 }
