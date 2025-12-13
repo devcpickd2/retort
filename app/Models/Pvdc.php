@@ -25,4 +25,10 @@ class Pvdc extends Model
     protected $casts = [
         'data_pvdc'  => 'array',
     ];
+
+    //relasi kode batch 
+    public function mincing()
+    {
+        return $this->belongsTo(Mincing::class);
+    }
 }

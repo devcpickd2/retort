@@ -23,7 +23,7 @@ class KartonController extends Controller
         $nama_produk = $request->input('nama_produk');
         $userPlant  = Auth::user()->plant;
 
-        $data = Karton::query()
+        $data = Karton::with('mincing')  
         ->where('plant', $userPlant)
         ->when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {
@@ -74,6 +74,8 @@ class KartonController extends Controller
 
     public function store(Request $request)
     {
+
+        // dd($request->all());
         $username  = Auth::user()->username ?? 'None';
         $userPlant = Auth::user()->plant;
 
@@ -90,12 +92,12 @@ class KartonController extends Controller
             'nama_produk'     => 'required|string',
             'kode_produksi'     => 'required|string',
             'kode_karton' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'waktu_mulai'     => 'required',
+            'waktu_mulai'     => 'nullable',
             'waktu_selesai'     => 'nullable',
-            'jumlah'     => 'required',
-            'tgl_kedatangan'     => 'required|date',
-            'nama_supplier'     => 'required|string',
-            'no_lot'     => 'required|string',
+            'jumlah'     => 'nullable',
+            'tgl_kedatangan'     => 'nullable|date',
+            'nama_supplier'     => 'nullable|string',
+            'no_lot'     => 'nullable|string',
             'nama_operator'     => 'nullable|string',
             'nama_koordinator'     => 'nullable|string',
             'keterangan'   => 'nullable|string',
