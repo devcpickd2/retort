@@ -84,7 +84,7 @@ class Pemasakan_rteController extends Controller
         }
 
         $pdf->SetFont('helvetica', '', 10);
-        $pdf->AddPage('L', 'A4'); 
+        $pdf->AddPage('P', 'A4'); 
 
         $html = view('reports.pemasakan-rte', compact('data', 'request'))->render();
         $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);

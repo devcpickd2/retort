@@ -38,7 +38,18 @@
 
 <body>
 
-@foreach ($data as $produk)
+@foreach ($data->count() ? $data : [null] as $produk)
+@php
+    $produk = $produk ?? (object) [
+        'nama_produk' => '-',
+        'kode_produksi' => '-',
+        'analisa' => '[]',
+        'username_updated' => '',
+        'username' => '',
+        'nama_spv' => ''
+    ];
+@endphp
+
     {{-- HEADER --}}
     <table width="100%" style="border: none; border-collapse: collapse;">
     <tr>
@@ -55,7 +66,7 @@
     {{-- INFO --}}
     <table width="100%" class="tbl-header" style="border: none; border-collapse: collapse;">
         <tr>
-            <td width="50%" style="border: none;">
+            <td width="34.5%" style="border: none;">
                 Nama Produk : {{ $produk->nama_produk }}
             </td>
             <td width="50%" style="border: none;">
@@ -67,7 +78,7 @@
     <br>
     <br>
 
-    {{-- TABLE UTAMA RETAIN --}}
+    {{-- TABLE UTAMA RETAIN RTE--}}
     @php
         $analisa = json_decode($produk->analisa ?? '[]', true);
         $labels = [
@@ -84,10 +95,10 @@
             <tr>
                 <th rowspan="2" style="border:1px solid black; text-align:center; vertical-align: middle;">No</th>
                 <th rowspan="2" style="border:1px solid black; text-align:center; vertical-align: middle;">Hasil Analisa</th>
-                <th colspan="10" style="border:1px solid black; text-align:center;">Bulan</th>
+                <th colspan="12" style="border:1px solid black; text-align:center;">Bulan</th>
             </tr>
             <tr>
-                @for ($col = 1; $col <= 10; $col++)
+                @for ($col = 1; $col <= 12; $col++)
                     <th style="border:1px solid black; text-align:center;">{{ $col }}</th>
                 @endfor
             </tr>
@@ -97,7 +108,7 @@
                 <tr>
                     <td style="border:1px solid black; text-align:center; vertical-align: middle;">{{ $loop->iteration }}</td>
                     <td style="border:1px solid black; vertical-align: middle;">{{ $index }}</td>
-                    @for ($col = 0; $col < 10; $col++)
+                    @for ($col = 0; $col < 12; $col++)
                         @php
                             $val = $analisa[$col][$key] ?? '';
                         @endphp

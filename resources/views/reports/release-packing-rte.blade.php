@@ -38,21 +38,27 @@
 
 <body>
 
-@foreach ($data as $produk)
-    {{-- HEADER --}}
-    <table width="100%" style="border: none; border-collapse: collapse;">
-    <tr>
-        <td style="border: none;">
-            PT Charoen Pokphand Indonesia<br>
-            Food Division
-        </td>
-    </tr>
-</table>
+@foreach ($data->count() ? $data : [null] as $produk)
+    @php
+        $produk = $produk ?? (object) [
+            'date' => '-',
+            'username_updated' => '-',
+            'username' => '-',
+            'nama_spv' => '-'
+        ];
+    @endphp
 
+    <table width="100%" style="border: none; border-collapse: collapse;">
+        <tr>
+            <td style="border: none;">
+                PT Charoen Pokphand Indonesia<br>
+                Food Division
+            </td>
+        </tr>
+    </table>
 
     <h3 class="center">DATA RELEASE PACKING RTE</h3>
 
-    {{-- INFO --}}
     <table width="100%" class="tbl-header" style="border: none; border-collapse: collapse;">
         <tr>
             <td width="100%" style="border: none;">
@@ -61,10 +67,8 @@
         </tr>
     </table>
 
-    <br>
-    <br>
+    <br><br>
 
-    {{-- TABLE UTAMA RELEASE RTE --}}
     <table width="100%" border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; font-size: 10px;">
         <thead>
             <tr>
@@ -81,56 +85,45 @@
             </tr>
         </thead>
         <tbody>
-            @for($i=1; $i<=7; $i++)
-            <tr>
-                <td style="border:1px solid #000; text-align:center;">{{ $i }}</td>
-                <td style="border:1px solid #000;">&nbsp;</td>
-                <td style="border:1px solid #000;">&nbsp;</td>
-                <td style="border:1px solid #000;">&nbsp;</td>
-                <td style="border:1px solid #000;">&nbsp;</td>
-                <td style="border:1px solid #000;">&nbsp;</td>
-                <td style="border:1px solid #000;">&nbsp;</td>
-            </tr>
-            @endfor
-        </tbody>
+        <tr>
+            <td style="border:1px solid #000; text-align:center;">1</td>
+            <td style="border:1px solid #000; text-align:center;">{{ $produk->nama_produk ?? '-' }}</td>
+            <td style="border:1px solid #000; text-align:center;">{{ $produk->kode_produksi ?? '-' }}</td>
+            <td style="border:1px solid #000; text-align:center;">{{ $produk->expired_date ?? '-' }}</td>
+            <td style="border:1px solid #000; text-align:center;">{{ $produk->reject ?? '-' }}</td>
+            <td style="border:1px solid #000; text-align:center;">{{ $produk->release ?? '-' }}</td>
+            <td style="border:1px solid #000; text-align:center;">{{ $produk->keterangan ?? '-' }}</td>
+        </tr>
+</tbody>
+
     </table>
 
     <div style="text-align:right; font-size:10px;">QT 34 / 00</div>
 
-   
-    <br>
-
     <br><br>
 
-    <table width="100%" style="border:none; border-collapse:collapse; font-size:10px;">
+     <table width="100%" style="border:none; border-collapse:collapse; font-size:10px;">
         <tr>
             <td width="50%" style="border:none; text-align:center;">Diperiksa oleh</td>
             <td width="50%" style="border:none; text-align:center;">Disetujui oleh</td>
         </tr>
-
         <tr>
             <td style="border:none; text-align:center;"><br><br></td>
             <td style="border:none; text-align:center;"><br><br></td>
         </tr>
-
         <tr>
             <td style="border:none; text-align:center;">(___________________)</td>
             <td style="border:none; text-align:center;">(___________________)</td>
         </tr>
-
         <tr>
             <td style="border:none; text-align:center;">{{ $produk->username_updated ?? $produk->username }}</td>
             <td style="border:none; text-align:center;">{{ $produk->nama_spv }}</td>
         </tr>
-
         <tr>
             <td style="border:none; text-align:center;">QC</td>
             <td style="border:none; text-align:center;">QC SPV</td>
         </tr>
     </table>
-
-
-   
 
     @if (!$loop->last)
         <div style="page-break-after: always;"></div>
