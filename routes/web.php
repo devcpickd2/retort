@@ -185,6 +185,7 @@ Route::get('checklistmagnettrap/update-form/{checklistmagnettrap}', [MagnetTrapC
     ->name('checklistmagnettrap.showUpdateForm');
 Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'showVerificationPage'])->name('checklistmagnettrap.verification');
 Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
+Route::get('checklistmagnettrap/export-pdf', [MagnetTrapController::class, 'exportPdf'])->name('checklistmagnettrap.exportPdf');
 Route::resource('checklistmagnettrap', MagnetTrapController::class);
 
 Route::get('/inspections/{inspection}/form-update', [RawMaterialInspectionController::class, 'showUpdateForm'])
@@ -540,6 +541,7 @@ Route::put('/prepacking/edit_spv/{uuid}', [PrepackingController::class, 'edit_sp
 Route::get('/prepacking/verification', [PrepackingController::class, 'verification'])->name('prepacking.verification');
 Route::put('/prepacking/verification/{uuid}', [PrepackingController::class, 'updateVerification'])
 ->name('prepacking.verification.update');
+Route::get('/prepacking/export-pdf', [PrepackingController::class, 'exportPdf'])->name('prepacking.exportPdf');
 Route::delete('/prepacking/{uuid}', [PrepackingController::class, 'destroy'])->name('prepacking.destroy');
 
 // Washing

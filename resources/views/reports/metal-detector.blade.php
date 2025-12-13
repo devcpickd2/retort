@@ -39,30 +39,38 @@ $dates = $metals->groupBy(function ($item) {
 @endphp
 
 @foreach ($dates as $date => $dataPerDate)
+
+{{-- HEADER LOGO + TITLE --}}
 <table width="100%">
     <tr>
-        <td width="40%" class="small">
+        <td class="small" width="40%">
             PT Charoen Pokphand Indonesia<br>
             Food Division
         </td>
-        <td width="60%" class="title">
-            PENGECEKAN METAL DETECTOR
-        </td>
+        
     </tr>
 </table>
+<h2 class="title">PENGECEKAN METAL DETECTOR</h2>
+<br>
+<br>
 
+@php
+    $dateFilter = request('date') ? \Carbon\Carbon::parse(request('date'))->format('d-m-Y') : 'All Dates';
+@endphp
+
+<table width="100%" class="tbl-header">
+    <tr>
+        <td>Hari/ Tanggal : {{ $dateFilter }}</td>
+    </tr>
+</table>
 <br>
 
 <table width="100%" class="tbl-main small">
     <tr>
-        <th rowspan="3" width="10%" class="center">Pukul</th>
-        <th colspan="4">Hari / Tanggal : <span style="font-weight: normal;">{{ \Carbon\Carbon::parse($date)->format('l, d-m-Y') }}</span></th>
-    </tr>
-    <tr>
-        
-        <th rowspan="2" class="center">FE 1.0<br>mm</th>
-        <th rowspan="2" class="center">NFE 1.5<br>mm</th>
-        <th rowspan="2" class="center">SUS {{ Auth::user()->plant == '2debd595-89c4-4a7e-bf94-e623cc220ca6' ? '2.5' : '2.0' }}<br>mm</th>
+        <th rowspan="2" class="center">Pukul</th>
+        <th rowspan="2" class="center">FE 1.0 mm</th>
+        <th rowspan="2" class="center">NFE 1.5 mm</th>
+        <th rowspan="2" class="center">SUS {{ Auth::user()->plant == '2debd595-89c4-4a7e-bf94-e623cc220ca6' ? '2.5' : '2.0' }} mm</th>
         <th colspan="2" class="center">Paraf</th>
     </tr>
     <tr>
@@ -87,35 +95,38 @@ $dates = $metals->groupBy(function ($item) {
 
 </table>
 
-<div style="text-align:right; font-size:8px;">QT 26 / 00</div>
+<div style="text-align:right; font-size:8px;font-style:italic">QT 26 / 00</div>
 
 <br>
-
-<table width="100%" class="small">
+<table>
     <tr>
-        <td width="40%">Keterangan : ✓ terdeteksi</td>
-        <td width="60%"></td>
-    </tr>
-    <tr>
-        <td colspan="2">
-            Catatan :
-            @php
-                $notes = $dataPerDate->pluck('catatan')->filter()->join('; ');
-            @endphp
-            {{ $notes ?? '_________________________________________________' }}<br><br>
-            _________________________________________________________
+        <td width="50%">
+            <table width="100%" class="small">
+                <tr>
+                    <td>Keterangan : ✓ terdeteksi</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td >
+                        Catatan :
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td width="50%">
+            <table width="100%" class="sign small">
+                <tr><td>Disetujui Oleh,</td></tr>
+                <tr><td><br><br></td></tr>
+                <tr><td>(___________________)</td></tr>
+                <tr><td>QC SPV</td></tr>
+            </table>
         </td>
     </tr>
 </table>
 
-<br><br>
 
-<table width="100%" class="sign small">
-    <tr><td>Disetujui Oleh,</td></tr>
-    <tr><td><br><br></td></tr>
-    <tr><td>(___________________)</td></tr>
-    <tr><td>QC SPV</td></tr>
-</table>
+
+
 
 
 
