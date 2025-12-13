@@ -20,26 +20,47 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Data Release Packing</h3>
-                @can('can access add button')
-                <a href="{{ route('release_packing.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
-                </a>
-                @endcan
+                <div>
+                    @can('can access add button')
+                    <a href="{{ route('release_packing.create') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle"></i> Tambah
+                    </a>
+                    @endcan
+                    <a href="{{ route('release_packing.exportPdf', ['date' => request('date'), 'jenis_kemasan' => request('jenis_kemasan')]) }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
             </div>
 
             {{-- Filter dan Live Search --}}
             <form id="filterForm" method="GET" action="{{ route('release_packing.index') }}"
                 class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
 
-                <div class="input-group" style="max-width: 220px;">
+                <div class="input-group" style="max-width: 200px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-calendar-date text-muted"></i>
                     </span>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
+<<<<<<< HEAD
+                    value="{{ request('date') }}">
+=======
                         value="{{ request('date') }}" placeholder="Tanggal Produksi">
+>>>>>>> dev
                 </div>
 
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
+                <div class="input-group" style="max-width: 200px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-box-seam text-muted"></i>
+                    </span>
+                    <select name="jenis_kemasan" id="filter_jenis_kemasan" class="form-select border-start-0 form-control">
+                        <option value="">Semua Jenis Kemasan</option>
+                        <option value="Pouch" {{ request('jenis_kemasan') == 'Pouch' ? 'selected' : '' }}>Pouch</option>
+                        <option value="Toples" {{ request('jenis_kemasan') == 'Toples' ? 'selected' : '' }}>Toples</option>
+                        <option value="Box" {{ request('jenis_kemasan') == 'Box' ? 'selected' : '' }}>Box</option>
+                    </select>
+                </div>
+
+                <div class="input-group flex-grow-1" style="max-width: 300px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
@@ -52,6 +73,7 @@
                 document.addEventListener('DOMContentLoaded', () => {
                     const search = document.getElementById('search');
                     const date = document.getElementById('filter_date');
+                    const jenis_kemasan = document.getElementById('filter_jenis_kemasan');
                     const form = document.getElementById('filterForm');
                     let timer;
 
@@ -61,6 +83,7 @@
                     });
 
                     date.addEventListener('change', () => form.submit());
+                    jenis_kemasan.addEventListener('change', () => form.submit());
                 });
             </script>
 

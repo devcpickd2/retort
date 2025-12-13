@@ -198,6 +198,7 @@ Route::get('checklistmagnettrap/update-form/{checklistmagnettrap}', [MagnetTrapC
     ->name('checklistmagnettrap.showUpdateForm');
 Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'showVerificationPage'])->name('checklistmagnettrap.verification');
 Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
+Route::get('checklistmagnettrap/export-pdf', [MagnetTrapController::class, 'exportPdf'])->name('checklistmagnettrap.exportPdf');
 Route::resource('checklistmagnettrap', MagnetTrapController::class);
 
 Route::get('/inspections/{inspection}/form-update', [RawMaterialInspectionController::class, 'showUpdateForm'])
@@ -400,6 +401,7 @@ Route::put('/karton/edit_spv/{uuid}', [KartonController::class, 'edit_spv'])->na
 Route::get('/karton/verification', [KartonController::class, 'verification'])->name('karton.verification');
 Route::put('/karton/verification/{uuid}', [KartonController::class, 'updateVerification'])
 ->name('karton.verification.update');
+Route::get('/karton/export-pdf', [KartonController::class, 'exportPdf'])->name('karton.exportPdf');
 Route::delete('/karton/{uuid}', [KartonController::class, 'destroy'])->name('karton.destroy');
 
 // Sampling
@@ -413,6 +415,7 @@ Route::put('/sampling/edit_spv/{uuid}', [SamplingController::class, 'edit_spv'])
 Route::get('/sampling/verification', [SamplingController::class, 'verification'])->name('sampling.verification');
 Route::put('/sampling/verification/{uuid}', [SamplingController::class, 'updateVerification'])
 ->name('sampling.verification.update');
+Route::get('/sampling/export-pdf', [SamplingController::class, 'exportPdf'])->name('sampling.exportPdf');
 Route::delete('/sampling/{uuid}', [SamplingController::class, 'destroy'])->name('sampling.destroy');
 
 // Packing
@@ -426,6 +429,7 @@ Route::put('/packing/edit_spv/{uuid}', [PackingController::class, 'edit_spv'])->
 Route::get('/packing/verification', [PackingController::class, 'verification'])->name('packing.verification');
 Route::put('/packing/verification/{uuid}', [PackingController::class, 'updateVerification'])
 ->name('packing.verification.update');
+Route::get('/packing/export-pdf', [PackingController::class, 'exportPdf'])->name('packing.exportPdf');
 Route::delete('/packing/{uuid}', [PackingController::class, 'destroy'])->name('packing.destroy');
 
 // Pengecekan Klorin
@@ -452,6 +456,7 @@ Route::put('/organoleptik/edit_spv/{uuid}', [OrganoleptikController::class, 'edi
 Route::get('/organoleptik/verification', [OrganoleptikController::class, 'verification'])->name('organoleptik.verification');
 Route::put('/organoleptik/verification/{uuid}', [OrganoleptikController::class, 'updateVerification'])
 ->name('organoleptik.verification.update');
+Route::get('/organoleptik/export-pdf', [OrganoleptikController::class, 'exportPdf'])->name('organoleptik.exportPdf');
 Route::delete('/organoleptik/{uuid}', [OrganoleptikController::class, 'destroy'])->name('organoleptik.destroy');
 
 // Sampel
@@ -522,6 +527,7 @@ Route::put('/metal/edit_spv/{uuid}', [MetalController::class, 'edit_spv'])->name
 Route::get('/metal/verification', [MetalController::class, 'verification'])->name('metal.verification');
 Route::put('/metal/verification/{uuid}', [MetalController::class, 'updateVerification'])
 ->name('metal.verification.update');
+Route::get('/metal/export-pdf', [MetalController::class, 'exportPdf'])->name('metal.exportPdf');
 Route::delete('/metal/{uuid}', [MetalController::class, 'destroy'])->name('metal.destroy');
 
 // Pemasakan
@@ -548,6 +554,7 @@ Route::put('/prepacking/edit_spv/{uuid}', [PrepackingController::class, 'edit_sp
 Route::get('/prepacking/verification', [PrepackingController::class, 'verification'])->name('prepacking.verification');
 Route::put('/prepacking/verification/{uuid}', [PrepackingController::class, 'updateVerification'])
 ->name('prepacking.verification.update');
+Route::get('/prepacking/export-pdf', [PrepackingController::class, 'exportPdf'])->name('prepacking.exportPdf');
 Route::delete('/prepacking/{uuid}', [PrepackingController::class, 'destroy'])->name('prepacking.destroy');
 
 // Washing
@@ -587,6 +594,7 @@ Route::put('/release_packing/edit_spv/{uuid}', [Release_packingController::class
 Route::get('/release_packing/verification', [Release_packingController::class, 'verification'])->name('release_packing.verification');
 Route::put('/release_packing/verification/{uuid}', [Release_packingController::class, 'updateVerification'])
 ->name('release_packing.verification.update');
+Route::get('/release_packing/export-pdf', [Release_packingController::class, 'exportPdf'])->name('release_packing.exportPdf');
 Route::delete('/release_packing/{uuid}', [Release_packingController::class, 'destroy'])->name('release_packing.destroy');
 
 /*FORM RTE CIKANDE*/

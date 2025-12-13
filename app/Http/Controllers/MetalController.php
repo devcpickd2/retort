@@ -6,6 +6,7 @@ use App\Models\Metal;
 use App\Models\Operator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use TCPDF;
 
 class MetalController extends Controller
 {
@@ -226,5 +227,74 @@ class MetalController extends Controller
 
         return redirect()->route('metal.verification')
         ->with('success', 'Data Pengecekan Metal Detector berhasil dihapus');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $date = $request->input('date');
+        $userPlant = Auth::user()->plant;
+
+        $metals = Metal::query()
+            ->where('plant', $userPlant)
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->orderBy('date', 'asc')
+            ->orderBy('pukul', 'asc')
+            ->get();
+
+        // Clear any previous output buffers to prevent "TCPDF ERROR: Some data has already been output"
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // Create new TCPDF object
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // Set document information
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Your Name/Company');
+        $pdf->SetTitle('Pengecekan Metal Detector');
+        $pdf->SetSubject('Pengecekan Metal');
+
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set default monospaced font
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+        // Set margins
+        $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+        // Set auto page breaks
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+        // Set image scale factor
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+        // Set some language-dependent strings (optional)
+        if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+            require_once(dirname(__FILE__).'/lang/eng.php');
+            $pdf->setLanguageArray($l);
+        }
+
+        // Set font
+        $pdf->SetFont('helvetica', '', 10);
+
+        // Add a page
+        $pdf->AddPage('P', 'A4');
+
+        // Convert the Blade view to HTML
+        $html = view('reports.metal-detector', compact('metals', 'request'))->render();
+
+        // Print text using writeHTMLCell()
+        $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+        // Close and output PDF document (Inline/Preview)
+        $pdf->Output('Pengecekan_Metal_Detector_' . date('Ymd_His') . '.pdf', 'I');
+
+        exit();
     }
 }

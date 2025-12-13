@@ -6,6 +6,7 @@ use App\Models\Prepacking;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use TCPDF;
 
 class PrepackingController extends Controller
 {
@@ -232,5 +233,74 @@ public function destroy($uuid)
 
     return redirect()->route('prepacking.verification')
     ->with('success', 'Pengecekan Pre Packing berhasil dihapus');
+}
+
+public function exportPdf(Request $request)
+{
+    $date = $request->input('date');
+    $userPlant = Auth::user()->plant;
+
+    $prepackings = Prepacking::query()
+        ->where('plant', $userPlant)
+        ->when($date, function ($query) use ($date) {
+            $query->whereDate('date', $date);
+        })
+        ->orderBy('date', 'asc')
+        ->orderBy('created_at', 'asc')
+        ->get();
+
+    // Clear any previous output buffers to prevent "TCPDF ERROR: Some data has already been output"
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // Create new TCPDF object
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+    // Set document information
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor('Your Name/Company');
+    $pdf->SetTitle('Pengecekan Pre Packing');
+    $pdf->SetSubject('Pengecekan Pre Packing');
+
+    $pdf->SetPrintHeader(false);
+    $pdf->SetPrintFooter(false);
+
+    // Set default monospaced font
+    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+    // Set margins
+    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+    // Set auto page breaks
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+    // Set image scale factor
+    $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+    // Set some language-dependent strings (optional)
+    if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+        require_once(dirname(__FILE__).'/lang/eng.php');
+        $pdf->setLanguageArray($l);
+    }
+
+    // Set font
+    $pdf->SetFont('helvetica', '', 8);
+
+    // Add a page
+    $pdf->AddPage('L', 'A3'); // Landscape A3 for many columns
+
+    // Convert the Blade view to HTML
+    $html = view('reports.pengecekan-pre-packing', compact('prepackings', 'request'))->render();
+
+    // Print text using writeHTMLCell()
+    $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+    // Close and output PDF document (Inline/Preview)
+    $pdf->Output('Pengecekan_Pre_Packing_' . date('Ymd_His') . '.pdf', 'I');
+
+    exit();
 }
 }
