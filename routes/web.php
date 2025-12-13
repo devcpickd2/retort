@@ -601,6 +601,7 @@ Route::put('/retain_rte/edit_spv/{uuid}', [Retain_rteController::class, 'edit_sp
 Route::get('/retain_rte/verification', [Retain_rteController::class, 'verification'])->name('retain_rte.verification');
 Route::put('/retain_rte/verification/{uuid}', [Retain_rteController::class, 'updateVerification'])
 ->name('retain_rte.verification.update');
+Route::get('/retain_rte/export-pdf', [Retain_rteController::class, 'exportPdf'])->name('retain_rte.exportPdf');
 Route::delete('/retain_rte/{uuid}', [Retain_rteController::class, 'destroy'])->name('retain_rte.destroy');
 
 // Release Packing RTE
@@ -614,6 +615,7 @@ Route::put('/release_packing_rte/edit_spv/{uuid}', [Release_packing_rteControlle
 Route::get('/release_packing_rte/verification', [Release_packing_rteController::class, 'verification'])->name('release_packing_rte.verification');
 Route::put('/release_packing_rte/verification/{uuid}', [Release_packing_rteController::class, 'updateVerification'])
 ->name('release_packing_rte.verification.update');
+Route::get('/release_packing_rte/export-pdf', [Release_packing_rteController::class, 'exportPdf'])->name('release_packing_rte.exportPdf');
 Route::delete('/release_packing_rte/{uuid}', [Release_packing_rteController::class, 'destroy'])->name('release_packing_rte.destroy');
 
 // Pemasakan RTE
@@ -627,6 +629,7 @@ Route::put('/pemasakan_rte/edit_spv/{uuid}', [Pemasakan_rteController::class, 'e
 Route::get('/pemasakan_rte/verification', [Pemasakan_rteController::class, 'verification'])->name('pemasakan_rte.verification');
 Route::put('/pemasakan_rte/verification/{uuid}', [Pemasakan_rteController::class, 'updateVerification'])
 ->name('pemasakan_rte.verification.update');
+Route::get('/pemasakan_rte/export-pdf', [Pemasakan_rteController::class, 'exportPdf'])->name('pemasakan_rte.exportPdf');
 Route::delete('/pemasakan_rte/{uuid}', [Pemasakan_rteController::class, 'destroy'])->name('pemasakan_rte.destroy');
 
 /*SUHU DAN SANITASI*/
