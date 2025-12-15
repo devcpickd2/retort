@@ -220,4 +220,51 @@ public function destroy($uuid)
     return redirect()->route('sampel.verification')
     ->with('success', 'Data Pengambilan Sampel berhasil dihapus.');
 }
+
+public function exportPdf(Request $request)
+{
+    // 1. Ambil Data
+    $date      = $request->input('date');
+    $userPlant = Auth::user()->plant;
+
+    $items = Sampel::query()
+        ->where('plant', $userPlant)
+        ->when($date, function ($query) use ($date) {
+            $query->whereDate('date', $date);
+        })
+        ->orderBy('date', 'asc')
+        ->get();
+
+    if (ob_get_length()) {
+        ob_end_clean();
+    }
+
+    // 2. Setup PDF (Portrait, A4)
+    $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+    // Metadata
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetTitle('Pengambilan Sampel');
+
+    // Hilangkan Header/Footer Bawaan
+    $pdf->SetPrintHeader(false);
+    $pdf->SetPrintFooter(false);
+
+    // Set Margin
+    $pdf->SetMargins(10, 10, 10);
+    $pdf->SetAutoPageBreak(TRUE, 10);
+
+    // Set Font Default
+    $pdf->SetFont('helvetica', '', 9);
+
+    $pdf->AddPage();
+
+    // 3. Render
+    $html = view('reports.pengambilan-sampel', compact('items', 'request'))->render();
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    $filename = 'Pengambilan_Sampel_' . date('d-m-Y_His') . '.pdf';
+    $pdf->Output($filename, 'I');
+    exit();
+}
 }
