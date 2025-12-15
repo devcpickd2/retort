@@ -12,9 +12,10 @@ class ThermometerController extends Controller
     public function index(Request $request)
     {
         $search     = $request->input('search');
-        $date = $request->input('date');
+        $date       = $request->input('date');
+        $shift      = $request->input('shift');
         $userPlant  = Auth::user()->plant;
-        
+
         $data = Thermometer::query()
         ->where('plant', $userPlant)
         ->when($search, function ($query) use ($search) {
@@ -26,12 +27,15 @@ class ThermometerController extends Controller
         ->when($date, function ($query) use ($date) {
             $query->whereDate('date', $date);
         })
+        ->when($shift, function ($query) use ($shift) {
+            $query->where('shift', $shift);
+        })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.thermometer.index', compact('data', 'search', 'date'));
+        return view('form.thermometer.index', compact('data', 'search', 'date', 'shift'));
     }
 
     public function create()
@@ -208,5 +212,57 @@ class ThermometerController extends Controller
 
         return redirect()->route('thermometer.verification')
         ->with('success', '🗑️ Peneraan Thermometer berhasil dihapus.');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        $items = Thermometer::query()
+            ->where('plant', $userPlant)
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc')
+            ->orderBy('shift', 'asc')
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Portrait, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Peneraan Thermometer');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(TRUE, 10);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 9);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.peneraan-termometer', compact('items', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Peneraan_Thermometer_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
     }
 }
