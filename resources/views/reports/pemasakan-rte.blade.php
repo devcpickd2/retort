@@ -12,21 +12,21 @@
         }
         .tbl-header td {
             padding: 2px;
-            font-size: 10px;
+            font-size: 8px;
             border: 0.3px solid #000;
         }
         .tbl-main, .tbl-main th, .tbl-main td {
             border: 0.3px solid #000;
         }
         .tbl-main th {
-            font-size: 10px;
+            font-size: 8px;
             text-align: center;
             vertical-align: middle;
             padding: 2px;
         }
         .tbl-main td {
             padding: 2px;
-            font-size: 10px;
+            font-size: 8px;
                 vertical-align: middle;
         }
         .center { text-align: center; }
@@ -82,10 +82,7 @@ $cooking = json_decode($produk->cooking, true);
     {{-- 1. IDENTIFIKASI --}}
     <tr>
         <td>1</td>
-        <td>IDENTIFIKASI</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
+        <td colspan="4" style="text-align:left; font-weight:bold;">IDENTIFIKASI</td>
     </tr>
     <tr>
         <td></td>
@@ -132,11 +129,11 @@ $cooking = json_decode($produk->cooking, true);
 
     {{-- 2. PERSIAPAN --}}
     <tr>
-        <td>2</td>
-        <td>PERSIAPAN</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
+    <td >2</td>
+        <td colspan="4"  style="text-align:left; font-weight:bold;">PERSIAPAN</td>
+        <td></td>
+        <td></td>
+        <td></td>
     </tr>
     <tr>
         <td></td>
