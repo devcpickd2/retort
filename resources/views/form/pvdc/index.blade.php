@@ -153,6 +153,11 @@
                                 @endphp
 
                                 @if(!empty($data_pvdc))
+                                @php
+                                $batches = $dep->pvdc_detail->flatMap(function ($mesin) {
+                                return $mesin['detail']->pluck('mincing.kode_produksi')->filter();
+                                })->unique()->values()->implode(', ');
+                                @endphp
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#pvdcModal{{ $dep->uuid }}"
                                     style="font-weight: bold; text-decoration: underline;">
                                     Result
@@ -165,13 +170,13 @@
                                         <div class="modal-content">
                                             <div class="modal-header bg-warning text-white">
                                                 <h5 class="modal-title" id="pvdcModalLabel{{ $dep->uuid }}">Detail
-                                                    Pemeriksaan PVDC</h5>
+                                                    Pemeriksaan PVDC - Batch: {{ $batches ?: 'N/A' }}</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                     aria-label="Close"></button>
                                             </div>
 
                                             <div class="modal-body table-responsive">
-                                                @foreach($data_pvdc as $mIndex => $mesin)
+                                                @foreach($dep->pvdc_detail as $mIndex => $mesin)
                                                 <div class="mb-3 border p-3 rounded bg-light">
                                                     <h6 class="fw-bold mb-2">🧭 Mesin: {{ $mesin['mesin'] ?? '-' }}</h6>
                                                     <table
@@ -188,7 +193,7 @@
                                                             @if(!empty($mesin['detail']))
                                                             @foreach($mesin['detail'] as $index => $detail)
                                                             <tr>
-                                                                <td>{{ $index + 1 }}</td>
+                                                                <td>{{ $loop->iteration }}</td>
                                                                 <td>{{ $detail['mincing']->kode_produksi ?? '-' }}</td>
                                                                 <td>{{ $detail['no_lot'] ?? '-' }}</td>
                                                                 <td>{{ $detail['waktu'] ?? '-' }}</td>

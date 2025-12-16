@@ -218,6 +218,8 @@
             </td>
             </tr>`;
             tableBody.append(newRow);
+            const newBatchSelect = tableBody.find('.batchSelect').last();
+            loadBatchForSelect(newBatchSelect);
         });
 
         const produkSelect = $("#nama_produk");
@@ -227,42 +229,43 @@
         loadBatchForAllRows();
     });
 
-    function loadBatchForAllRows() {
+    function loadBatchForSelect(select) {
         let produk = produkSelect.val();
-        let batchSelects = $(".batchSelect");
+        select.html("");
+        select.prop("disabled", true);
 
-        batchSelects.each(function () {
-            
-            let select = $(this);
-            select.html("");
-            select.prop("disabled", true);
+        if (!produk) {
+            select.html('<option value="">Pilih Produk Terlebih Dahulu</option>');
+            return;
+        }
 
-            if (!produk) {
-                select.html('<option value="">Pilih Produk Terlebih Dahulu</option>');
-                return;
-            }
+        fetch(`/lookup/batch/${produk}`)
+            .then(res => res.json())
+            .then(data => {
 
-            fetch(`/lookup/batch/${produk}`)
-                .then(res => res.json())
-                .then(data => {
+                if (data.length === 0) {
+                    select.html('<option value="">Batch Tidak Ditemukan</option>');
+                    select.prop("disabled", true);
+                    return;
+                }
 
-                    if (data.length === 0) {
-                        select.html('<option value="">Batch Tidak Ditemukan</option>');
-                        select.prop("disabled", true);
-                        return;
-                    }
+                select.prop("disabled", false);
+                select.html('<option value="">-- Pilih Batch --</option>');
 
-                    select.prop("disabled", false);
-                    select.html('<option value="">-- Pilih Batch --</option>');
-
-                    data.forEach(batch => {
-                        select.append(`
-                            <option value="${batch.uuid}" batch="${batch.kode_produksi}">
-                                ${batch.kode_produksi}
-                            </option>
-                        `);
-                    });
+                data.forEach(batch => {
+                    select.append(`
+                        <option value="${batch.uuid}" batch="${batch.kode_produksi}">
+                            ${batch.kode_produksi}
+                        </option>
+                    `);
                 });
+            });
+    }
+
+    function loadBatchForAllRows() {
+        let batchSelects = $(".batchSelect");
+        batchSelects.each(function () {
+            loadBatchForSelect($(this));
         });
     }
 
@@ -286,7 +289,8 @@
             </tr>`;
 
             mesinRow.after(newBatchRow);
-            loadBatchForAllRows();
+            const newBatchSelect = mesinRow.next().find('.batchSelect');
+            loadBatchForSelect(newBatchSelect);
         // Tambah rowspan
             const mesinCell = mesinRow.find('.mesin-cell');
             mesinCell.attr('rowspan', parseInt(mesinCell.attr('rowspan')) + 1);
