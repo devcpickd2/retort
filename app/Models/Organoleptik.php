@@ -24,5 +24,32 @@ class Organoleptik extends Model
     protected $casts = [
         'sensori'  => 'array',
     ];
-}
 
+    public function getOrganoleptikDetailAttribute()
+    {
+        $items = $this->sensori ?? [];
+
+        if (!is_array($items)) {
+            $items = json_decode($items, true) ?: [];
+        }
+
+        return collect($items)->map(function ($item) {
+            $mincing = Mincing::where('uuid', $item['kode_produksi'] ?? null)->first();
+
+            return [
+                'kode_produksi' => $item['kode_produksi'] ?? null,
+                'penampilan'   => $item['penampilan'] ?? null,
+                'aroma'        => $item['aroma'] ?? null,
+                'kekenyalan'   => $item['kekenyalan'] ?? null,
+                'rasa_asin'    => $item['rasa_asin'] ?? null,
+                'rasa_gurih'   => $item['rasa_gurih' ] ?? null,
+                'rasa_manis'   => $item['rasa_manis'] ?? null,
+                'rasa_daging'  => $item['rasa_daging'] ?? null,
+                'rata_score'   => $item['rata_score'] ?? null,
+                'release'      => $item['release'] ?? null,
+                'mincing'      => $mincing,
+            ];
+        });
+    }
+
+}
