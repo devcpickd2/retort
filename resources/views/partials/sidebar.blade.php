@@ -214,7 +214,6 @@ $type_user = auth()->user()->type_user;
         </div>
     </li>
 
-<<<<<<< HEAD
     {{-- Packing --}}
     <li class="nav-item">
         <a class="nav-link {{ $packingActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
@@ -238,32 +237,6 @@ $type_user = auth()->user()->type_user;
                     href="{{ route('prepacking.index') }}">Pengecekan Pre Packing</a>
                 <a class="collapse-item {{ request()->routeIs('release_packing.*') ? 'active' : '' }}"
                     href="{{ route('release_packing.index') }}">Data Release Packing</a>
-=======
-        {{-- Packing --}}
-        <li class="nav-item">
-            <a class="nav-link {{ $packingActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
-                data-bs-target="#collapsePacking" aria-expanded="{{ $packingActive ? 'true' : 'false' }}"
-                aria-controls="collapsePacking">
-                <i class="fas fa-box-open"></i>
-                <span>Packing</span>
-            </a>
-            <div id="collapsePacking" class="collapse {{ $packingActive ? 'show' : '' }}"
-                data-bs-parent="#accordionSidebar">
-                <div class="bg-dark py-2 collapse-inner rounded">
-                    <a class="collapse-item {{ request()->routeIs('organoleptik.*') ? 'active' : '' }}"
-                        href="{{ route('organoleptik.index') }}">Pemeriksaan Organoleptik</a>
-                    <a class="collapse-item {{ request()->routeIs('packing.*') ? 'active' : '' }}"
-                        href="{{ route('packing.index') }}">Pemeriksaan Proses Packing</a>
-                    <a class="collapse-item {{ request()->routeIs('sampling.*') ? 'active' : '' }}"
-                        href="{{ route('sampling.index') }}">Data Sampling Produk</a>
-                    <a class="collapse-item {{ request()->routeIs('karton.*') ? 'active' : '' }}"
-                        href="{{ route('karton.index') }}">Kontrol Labelisasi Karton</a>
-                    <a class="collapse-item {{ request()->routeIs('prepacking.*') ? 'active' : '' }}"
-                        href="{{ route('prepacking.index') }}">Pengecekan Pre Packing</a>
-                    <a class="collapse-item {{ request()->routeIs('release_packing.*') ? 'active' : '' }}"
-                        href="{{ route('release_packing.index') }}">Data Release Packing</a>
-                </div>
->>>>>>> dev
             </div>
         </div>
     </li>
