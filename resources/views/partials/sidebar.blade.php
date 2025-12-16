@@ -2,7 +2,7 @@
 $type_user = auth()->user()->type_user;
 @endphp
 
-<ul class="navbar-nav sidebar sidebar-dark" id="accordionSidebar">
+<ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
         <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
@@ -42,7 +42,7 @@ $type_user = auth()->user()->type_user;
         </a>
         <div id="collapseMasterData" class="collapse {{ $masterActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
-            <div class="collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('user.*') ? 'active' : '' }}"
                     href="{{ route('user.index') }}">User</a>
                 <a class="collapse-item {{ request()->routeIs('departemen.*') ? 'active' : '' }}"
@@ -84,7 +84,7 @@ $type_user = auth()->user()->type_user;
         </a>
         <div id="collapseAccessControl" class="collapse {{ $accessControlActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('permissions.*') ? 'active' : '' }}"
                     href="{{ route('permissions.index') }}">Permissions</a>
                 <a class="collapse-item {{ request()->routeIs('roles.*') ? 'active' : '' }}"
@@ -139,7 +139,7 @@ $type_user = auth()->user()->type_user;
         </a>
         <div id="collapseMeatPrep" class="collapse {{ $meatPrepActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('mincing.*') ? 'active' : '' }}"
                     href="{{ route('mincing.index') }}">Pemeriksaan Mincing - Emulsifying - Aging
                 </a>
@@ -166,7 +166,7 @@ $type_user = auth()->user()->type_user;
         </a>
         <div id="UollapseStuffing" class="collapse {{ $stuffingActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('pvdc.*') ? 'active' : '' }}"
                     href="{{ route('pvdc.index') }}">
                     Data No. Lot PVDC
@@ -201,7 +201,7 @@ $type_user = auth()->user()->type_user;
             <span>Retort</span>
         </a>
         <div id="rollapseRetort" class="collapse {{ $retortActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('pemasakan.*') ? 'active' : '' }}"
                     href="{{ route('pemasakan.index') }}">Pengecekan Pemasakan</a>
                 <a class="collapse-item {{ request()->routeIs('washing.*') ? 'active' : '' }}"
@@ -224,7 +224,7 @@ $type_user = auth()->user()->type_user;
         </a>
         <div id="collapsePacking" class="collapse {{ $packingActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('organoleptik.*') ? 'active' : '' }}"
                     href="{{ route('organoleptik.index') }}">Pemeriksaan Organoleptik</a>
                 <a class="collapse-item {{ request()->routeIs('packing.*') ? 'active' : '' }}"
@@ -251,7 +251,7 @@ $type_user = auth()->user()->type_user;
         </a>
         <div id="collapseWarehouse" class="collapse {{ $warehouseActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('inspections.*') ? 'active' : '' }}"
                     href="{{ route('inspections.index') }}">
                     Pemeriksaan Input Bahan Baku
@@ -284,7 +284,7 @@ $type_user = auth()->user()->type_user;
         <div id="collapseCikande" class="collapse {{ $cikandeActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
 
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
 
                 <a class="collapse-item {{ request()->routeIs('pemeriksaan_retain.*') ? 'active' : '' }}"
                     href="{{ route('pemeriksaan_retain.index') }}">
@@ -324,7 +324,7 @@ $type_user = auth()->user()->type_user;
             <span>RTE</span>
         </a>
         <div id="collapseRTE" class="collapse {{ $rteActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('retain_rte.*') ? 'active' : '' }}"
                     href="{{ route('retain_rte.index') }}">Pemeriksaan Sampel Retain RTE
                 </a>
@@ -353,7 +353,7 @@ $type_user = auth()->user()->type_user;
         <div id="collapseFormQC" class="collapse {{ $kebersihanActive ? 'show' : '' }}"
             data-bs-parent="#accordionSidebar">
 
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
 
                 <a class="collapse-item {{ request()->routeIs('gmp.*') ? 'active' : '' }}"
                     href="{{ route('gmp.index') }}">
@@ -383,7 +383,7 @@ $type_user = auth()->user()->type_user;
             <span>Umum</span>
         </a>
         <div id="Uollapseumum" class="collapse {{ $umumActive ? 'show' : '' }}" data-bs-parent="#accordionSidebar">
-            <div class="bg-dark py-2 collapse-inner rounded">
+            <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item {{ request()->routeIs('sampel.*') ? 'active' : '' }}"
                     href="{{ route('sampel.index') }}">Pengambilan Sampel</a>
                 <a class="collapse-item {{ request()->routeIs('timbangan.*') ? 'active' : '' }}"
@@ -411,108 +411,11 @@ $type_user = auth()->user()->type_user;
 <style>
     /* --- Sidebar Base --- */
     #accordionSidebar {
-        width: 240px;
-        transition: width 0.3s ease-in-out;
-        min-height: 100vh;
-        overflow-x: hidden;
         background: linear-gradient(180deg, #b30000, #660000);
-        font-family: "Segoe UI", sans-serif;
     }
 
-    /* Minimized */
-    #accordionSidebar.minimized {
-        width: 80px;
-    }
-
-    /* Icons */
-    #accordionSidebar .nav-link i {
-        width: 30px;
-        text-align: center;
-        color: #fff;
-    }
-
-    /* Text on normal view */
-    #accordionSidebar .nav-link span {
-        color: #fff;
-        font-size: 14px;
-        transition: opacity 0.3s;
-    }
-
-    /* Hide text when minimized */
-    #accordionSidebar.minimized .nav-link span {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    /* Collapse Container */
-    #accordionSidebar .collapse-inner {
-        background: rgba(255, 255, 255, 0.08);
-        border-left: 3px solid #ffb3b3;
-        padding-left: 0;
-    }
-
-    /* Collapse Items */
-    #accordionSidebar .collapse-inner .collapse-item {
-        display: block;
-        white-space: normal;
-        color: #ffecec !important;
-        padding: 8px 20px;
-        font-size: 13px;
-        border-radius: 3px;
-        transition: background 0.25s, padding-left 0.25s;
-    }
-
-    #accordionSidebar .collapse-inner .collapse-item:hover {
-        background: rgba(255, 255, 255, 0.15);
-    }
-
-    /* Active Item */
-    .collapse-item.active {
-        background: linear-gradient(90deg, #ff4d4d, #cc0000);
-        color: white !important;
-        font-weight: bold;
-        border-radius: 4px;
-    }
-
-    /* Dropdown tooltip on minimized mode */
-    #accordionSidebar.minimized .collapse-inner {
-        position: absolute;
-        left: 80px;
-        top: 0;
-        background: #800000;
-        min-width: 200px;
-        z-index: 999;
-        display: none;
-        border-radius: 6px;
-    }
-
-    #accordionSidebar.minimized .collapse.show .collapse-inner {
-        display: block;
-    }
-
-    /* Sidebar toggle button */
-    #sidebarToggle {
-        width: 40px;
-        height: 40px;
-        background: #ffffff;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: transform 0.3s;
-    }
-
-    /* Hover effect for toggle */
-    #sidebarToggle:hover {
-        transform: scale(1.1);
-    }
-
-    /* Section heading */
-    .sidebar-heading {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin: 15px 15px 5px;
-        color: #ffd6d6;
-        font-weight: 600;
+    .sidebar .nav-item .collapse .collapse-inner .collapse-item {
+        white-space: unset !important;
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
