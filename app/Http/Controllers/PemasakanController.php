@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pemasakan;
+use App\Models\Mincing;
 use App\Models\Stuffing;
 use App\Models\Produk;
 use App\Models\Mesin;
@@ -35,7 +36,7 @@ class PemasakanController extends Controller
             }
         }
         $allUUID = array_unique($allUUID);
-        $stuffingData = Stuffing::whereIn('uuid', $allUUID)->get()->keyBy('uuid');
+        $stuffingData = Mincing::whereIn('uuid', $allUUID)->get()->keyBy('uuid');
 
         return view('form.pemasakan.index', compact('data', 'search', 'date', 'stuffingData'));
     }
