@@ -414,6 +414,10 @@ $type_user = auth()->user()->type_user;
         background: linear-gradient(180deg, #b30000, #660000);
     }
 
+    .sidebar .nav-item .collapse .collapse-inner .collapse-item{
+        white-space: unset!important;
+    }
+
    
 </style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
