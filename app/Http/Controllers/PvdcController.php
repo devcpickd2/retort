@@ -64,6 +64,17 @@ class PvdcController extends Controller
         ->paginate(10)
         ->appends($request->all());
 
+        $pvdc = Pvdc::first();
+
+        // dd([
+        //     'raw_data_pvdc' => $pvdc->getRawOriginal('data_pvdc'),
+        //     'casted'        => $pvdc->data_pvdc,
+        //     'accessor'      => $pvdc->pvdc_detail,
+        //     'first_mincing' => optional(
+        //         $pvdc->pvdc_detail->first()['detail']->first()
+        //     )['mincing'],
+        // ]);
+
         return view('form.pvdc.index', compact('data', 'produks', 'search', 'date', 'shift', 'namaProduk'));
     }
 

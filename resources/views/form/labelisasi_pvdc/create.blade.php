@@ -298,6 +298,7 @@
             </td>
         </tr>
             `);
+            loadBatchForAllRows();
         });
 
     // =================== HAPUS BARIS ===================

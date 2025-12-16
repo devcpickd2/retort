@@ -24,9 +24,9 @@
                 <h3><i class="bi bi-list-check"></i> Data No. Lot PVDC</h3>
                 <div class="btn-group" role="group">
                     @can('can access add button')
-                        <a href="{{ route('pvdc.create') }}" class="btn btn-success">
-                            <i class="bi bi-plus-circle"></i> Tambah
-                        </a>
+                    <a href="{{ route('pvdc.create') }}" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Tambah
+                    </a>
                     @endcan
                     {{-- Tombol Export PDF --}}
                     <button type="button" class="btn btn-danger" id="exportPdfBtn">
@@ -36,14 +36,15 @@
             </div>
 
             {{-- Filter dan Live Search --}}
-            <form id="filterForm" method="GET" action="{{ route('pvdc.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
+            <form id="filterForm" method="GET" action="{{ route('pvdc.index') }}"
+                class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
 
                 <div class="input-group" style="max-width: 220px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-calendar-date text-muted"></i>
                     </span>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
-                    value="{{ request('date') }}" placeholder="Tanggal Produksi">
+                        value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
 
                 <div class="input-group" style="max-width: 200px;">
@@ -53,9 +54,9 @@
                     <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
                         <option value="">Semua Shift</option>
                         {{-- Pastikan value ini sama dengan yang tersimpan di database --}}
-                        <option value="1" {{ request("shift") == "1" ? "selected" : "" }}>Shift 1</option>
-                        <option value="2" {{ request("shift") == "2" ? "selected" : "" }}>Shift 2</option>
-                        <option value="3" {{ request("shift") == "3" ? "selected" : "" }}>Shift 3</option>
+                        <option value="1" {{ request("shift")=="1" ? "selected" : "" }}>Shift 1</option>
+                        <option value="2" {{ request("shift")=="2" ? "selected" : "" }}>Shift 2</option>
+                        <option value="3" {{ request("shift")=="3" ? "selected" : "" }}>Shift 3</option>
                     </select>
                 </div>
 
@@ -64,11 +65,12 @@
                         <i class="bi bi-search text-muted"></i>
                     </span>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
-                    value="{{ request('search') }}" placeholder="Cari Produk / Supplier / Catatan...">
+                        value="{{ request('search') }}" placeholder="Cari Produk / Supplier / Catatan...">
                 </div>
 
                 <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
-                <a href="{{ route('pvdc.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+                <a href="{{ route('pvdc.index') }}" class="btn btn-secondary"><i
+                        class="bi bi-arrow-counterclockwise"></i> Reset</a>
             </form>
 
             {{-- Script untuk Filter & Export --}}
@@ -131,41 +133,54 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php 
-                        $no = ($data->currentPage() - 1) * $data->perPage() + 1; 
+                        @php
+                        $no = ($data->currentPage() - 1) * $data->perPage() + 1;
                         @endphp
                         @forelse ($data as $dep)
                         <tr>
                             <td class="text-center align-middle">{{ $no++ }}</td>
-                            <td class="align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift: {{ $dep->shift }}</td>   
+                            <td class="align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift:
+                                {{ $dep->shift }}</td>
                             <td class="align-middle">{{ $dep->nama_produk }}</td>
                             <td class="align-middle">{{ $dep->nama_supplier }}</td>
-                            <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->tgl_kedatangan)->format('d-m-Y') }}</td>
-                            <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->tgl_expired)->format('d-m-Y') }}</td>
+                            <td class="text-center align-middle">{{
+                                \Carbon\Carbon::parse($dep->tgl_kedatangan)->format('d-m-Y') }}</td>
+                            <td class="text-center align-middle">{{
+                                \Carbon\Carbon::parse($dep->tgl_expired)->format('d-m-Y') }}</td>
                             <td class="text-center align-middle">
                                 @php
                                 $data_pvdc = json_decode($dep->data_pvdc, true);
                                 @endphp
 
                                 @if(!empty($data_pvdc))
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#pvdcModal{{ $dep->uuid }}" style="font-weight: bold; text-decoration: underline;">
+                                @php
+                                $batches = $dep->pvdc_detail->flatMap(function ($mesin) {
+                                return $mesin['detail']->pluck('mincing.kode_produksi')->filter();
+                                })->unique()->values()->implode(', ');
+                                @endphp
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#pvdcModal{{ $dep->uuid }}"
+                                    style="font-weight: bold; text-decoration: underline;">
                                     Result
                                 </a>
 
                                 {{-- Modal Detail PVDC --}}
-                                <div class="modal fade" id="pvdcModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="pvdcModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                <div class="modal fade" id="pvdcModal{{ $dep->uuid }}" tabindex="-1"
+                                    aria-labelledby="pvdcModalLabel{{ $dep->uuid }}" aria-hidden="true">
                                     <div class="modal-dialog modal-xl modal-dialog-scrollable">
                                         <div class="modal-content">
                                             <div class="modal-header bg-warning text-white">
-                                                <h5 class="modal-title" id="pvdcModalLabel{{ $dep->uuid }}">Detail Pemeriksaan PVDC</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                <h5 class="modal-title" id="pvdcModalLabel{{ $dep->uuid }}">Detail
+                                                    Pemeriksaan PVDC - Batch: {{ $batches ?: 'N/A' }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
                                             </div>
 
                                             <div class="modal-body table-responsive">
-                                                @foreach($data_pvdc as $mIndex => $mesin)
+                                                @foreach($dep->pvdc_detail as $mIndex => $mesin)
                                                 <div class="mb-3 border p-3 rounded bg-light">
                                                     <h6 class="fw-bold mb-2">🧭 Mesin: {{ $mesin['mesin'] ?? '-' }}</h6>
-                                                    <table class="table table-bordered table-striped table-sm text-center align-middle bg-white">
+                                                    <table
+                                                        class="table table-bordered table-striped table-sm text-center align-middle bg-white">
                                                         <thead class="table-secondary">
                                                             <tr>
                                                                 <th>No</th>
@@ -178,14 +193,16 @@
                                                             @if(!empty($mesin['detail']))
                                                             @foreach($mesin['detail'] as $index => $detail)
                                                             <tr>
-                                                                <td>{{ $index + 1 }}</td>
-                                                                <td>{{ $detail['batch'] ?? '-' }}</td>
+                                                                <td>{{ $loop->iteration }}</td>
+                                                                <td>{{ $detail['mincing']->kode_produksi ?? '-' }}</td>
                                                                 <td>{{ $detail['no_lot'] ?? '-' }}</td>
                                                                 <td>{{ $detail['waktu'] ?? '-' }}</td>
                                                             </tr>
                                                             @endforeach
                                                             @else
-                                                            <tr><td colspan="4">Tidak ada data batch</td></tr>
+                                                            <tr>
+                                                                <td colspan="4">Tidak ada data batch</td>
+                                                            </tr>
                                                             @endif
                                                         </tbody>
                                                     </table>
@@ -197,7 +214,8 @@
                                             </div>
 
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                    data-bs-dismiss="modal">Tutup</button>
                                             </div>
                                         </div>
                                     </div>
@@ -213,16 +231,19 @@
                                 @elseif ($dep->status_spv == 1)
                                 <span class="fw-bold text-success">Verified</span>
                                 @elseif ($dep->status_spv == 2)
-                                <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
-                                   class="text-danger fw-bold text-decoration-none">Revision</a>
+                                <a href="javascript:void(0);" data-bs-toggle="modal"
+                                    data-bs-target="#revisionModal{{ $dep->uuid }}"
+                                    class="text-danger fw-bold text-decoration-none">Revision</a>
 
-                                 {{-- Modal Revisi --}}
-                                 <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-hidden="true">
+                                {{-- Modal Revisi --}}
+                                <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1"
+                                    aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-header bg-danger text-white">
                                                 <h5 class="modal-title">Detail Revisi</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body text-start">
                                                 <ul class="list-unstyled mb-0">
@@ -231,7 +252,8 @@
                                                 </ul>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                    data-bs-dismiss="modal">Tutup</button>
                                             </div>
                                         </div>
                                     </div>
@@ -240,17 +262,20 @@
                             </td>
                             <td class="text-center align-middle">
                                 @can('can access verification button')
-                                <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm mb-1" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
+                                <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm mb-1"
+                                    data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
                                     <i class="bi bi-shield-check me-1"></i> Verifikasi
                                 </button>
                                 @endcan
                                 @can('can access edit button')
-                                <a href="{{ route('pvdc.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1 mb-1">
+                                <a href="{{ route('pvdc.edit.form', $dep->uuid) }}"
+                                    class="btn btn-warning btn-sm me-1 mb-1">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
                                 @endcan
                                 @can('can access update button')
-                                <a href="{{ route('pvdc.update.form', $dep->uuid) }}" class="btn btn-info btn-sm me-1 mb-1">
+                                <a href="{{ route('pvdc.update.form', $dep->uuid) }}"
+                                    class="btn btn-info btn-sm me-1 mb-1">
                                     <i class="bi bi-pencil"></i> Update
                                 </a>
                                 @endcan
@@ -258,47 +283,69 @@
                                 <form action="{{ route('pvdc.destroy', $dep->uuid) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm mb-1" onclick="return confirm('Yakin ingin menghapus?')">
+                                    <button type="submit" class="btn btn-danger btn-sm mb-1"
+                                        onclick="return confirm('Yakin ingin menghapus?')">
                                         <i class="bi bi-trash"></i> Hapus
                                     </button>
                                 </form>
                                 @endcan
 
                                 {{-- Modal Verifikasi (Disamakan Style dengan Mincing) --}}
-                                <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1"
+                                    aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-md">
-                                        <form action="{{ route('pvdc.verification.update', $dep->uuid) }}" method="POST">
+                                        <form action="{{ route('pvdc.verification.update', $dep->uuid) }}"
+                                            method="POST">
                                             @csrf
                                             @method('PUT')
-                                            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white" 
-                                            style="background: linear-gradient(145deg, #7a1f12, #9E3419); box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
-                                                <div class="modal-header border-bottom border-light-subtle p-4" style="border-bottom-width: 3px !important;">
-                                                    <h5 class="modal-title fw-bolder fs-3 text-uppercase" style="color: #00ffc4;">
+                                            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white"
+                                                style="background: linear-gradient(145deg, #7a1f12, #9E3419); box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
+                                                <div class="modal-header border-bottom border-light-subtle p-4"
+                                                    style="border-bottom-width: 3px !important;">
+                                                    <h5 class="modal-title fw-bolder fs-3 text-uppercase"
+                                                        style="color: #00ffc4;">
                                                         <i class="bi bi-gear-fill me-2"></i> VERIFICATION
                                                     </h5>
-                                                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal"></button>
+                                                    <button type="button" class="btn-close btn-close-white shadow-none"
+                                                        data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body p-5">
-                                                    <p class="text-light mb-4 fs-6">Pastikan data yang akan diverifikasi di check dengan teliti terlebih dahulu.</p>
+                                                    <p class="text-light mb-4 fs-6">Pastikan data yang akan diverifikasi
+                                                        di check dengan teliti terlebih dahulu.</p>
                                                     <div class="row g-4">
                                                         <div class="col-md-12">
-                                                            <label class="form-label fw-bold mb-2 text-center d-block" style="color: #FFE5DE; font-size: 0.95rem;">Pilih Status Verifikasi</label>
-                                                            <select name="status_spv" class="form-select form-select-lg fw-bold text-center mx-auto"
-                                                            style="background: linear-gradient(135deg, #fff1f0, #ffe5de); border: 2px solid #dc3545; border-radius: 12px; color: #dc3545; height: 55px; font-size: 1.1rem; width: 85%;" required>
-                                                                <option value="1" {{ $dep->status_spv == 1 ? 'selected' : '' }} style="color: #198754; font-weight: 600;">✅ Verified (Disetujui)</option>
-                                                                <option value="2" {{ $dep->status_spv == 2 ? 'selected' : '' }} style="color: #dc3545; font-weight: 600;">❌ Revision (Perlu Perbaikan)</option>
+                                                            <label class="form-label fw-bold mb-2 text-center d-block"
+                                                                style="color: #FFE5DE; font-size: 0.95rem;">Pilih Status
+                                                                Verifikasi</label>
+                                                            <select name="status_spv"
+                                                                class="form-select form-select-lg fw-bold text-center mx-auto"
+                                                                style="background: linear-gradient(135deg, #fff1f0, #ffe5de); border: 2px solid #dc3545; border-radius: 12px; color: #dc3545; height: 55px; font-size: 1.1rem; width: 85%;"
+                                                                required>
+                                                                <option value="1" {{ $dep->status_spv == 1 ? 'selected'
+                                                                    : '' }} style="color: #198754; font-weight: 600;">✅
+                                                                    Verified (Disetujui)</option>
+                                                                <option value="2" {{ $dep->status_spv == 2 ? 'selected'
+                                                                    : '' }} style="color: #dc3545; font-weight: 600;">❌
+                                                                    Revision (Perlu Perbaikan)</option>
                                                             </select>
                                                         </div>
                                                         <div class="col-md-12 mt-3">
-                                                            <label class="form-label fw-bold text-light mb-2">Catatan Tambahan (Opsional)</label>
-                                                            <textarea name="catatan_spv" rows="4" class="form-control text-dark border-0 shadow-none" 
-                                                            placeholder="Masukkan catatan..." style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
+                                                            <label class="form-label fw-bold text-light mb-2">Catatan
+                                                                Tambahan (Opsional)</label>
+                                                            <textarea name="catatan_spv" rows="4"
+                                                                class="form-control text-dark border-0 shadow-none"
+                                                                placeholder="Masukkan catatan..."
+                                                                style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="modal-footer justify-content-end p-4 border-top" style="background-color: #9E3419; border-color: #00ffc4 !important;">
-                                                    <button type="button" class="btn btn-outline-light fw-bold rounded-pill px-4 me-2" data-bs-dismiss="modal">Batal</button>
-                                                    <button type="submit" class="btn fw-bolder rounded-pill px-5" style="background-color: #E39581; color: #2c3e50;">
+                                                <div class="modal-footer justify-content-end p-4 border-top"
+                                                    style="background-color: #9E3419; border-color: #00ffc4 !important;">
+                                                    <button type="button"
+                                                        class="btn btn-outline-light fw-bold rounded-pill px-4 me-2"
+                                                        data-bs-dismiss="modal">Batal</button>
+                                                    <button type="submit" class="btn fw-bolder rounded-pill px-5"
+                                                        style="background-color: #E39581; color: #2c3e50;">
                                                         <i class="bi bi-save-fill me-1"></i> SUBMIT
                                                     </button>
                                                 </div>
@@ -316,7 +363,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             {{-- Pagination --}}
             <div class="mt-3">
                 {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
@@ -337,12 +384,22 @@
 </script>
 
 <style>
-    .table td, .table th {
+    .table td,
+    .table th {
         font-size: 0.85rem;
-        white-space: nowrap; 
+        white-space: nowrap;
     }
-    .text-success { color: green; font-weight: bold; }
-    .text-danger { color: red; font-weight: bold; }
+
+    .text-success {
+        color: green;
+        font-weight: bold;
+    }
+
+    .text-danger {
+        color: red;
+        font-weight: bold;
+    }
+
     .container {
         padding-left: 2px !important;
         padding-right: 2px !important;
