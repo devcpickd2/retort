@@ -7,6 +7,7 @@ use App\Models\Produk;
 use App\Models\Mesin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use TCPDF;
 
 class Pemasakan_rteController extends Controller
 {
@@ -35,6 +36,63 @@ class Pemasakan_rteController extends Controller
 
      return view('form.pemasakan_rte.index', compact('data', 'search', 'date'));
  }
+
+    public function exportPdf(Request $request)
+    {
+        $search = $request->input('search');
+        $date   = $request->input('date');
+        $userPlant = Auth::user()->plant;
+
+        $data = Pemasakan_rte::query()
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_produk', 'like', "%{$search}%")
+                    ->orWhere('kode_produksi', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->orderBy('date', 'asc')
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Your Company');
+        $pdf->SetTitle('Pemeriksaan Retain RTE');
+        $pdf->SetSubject('Pemeriksaan Retain RTE');
+
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+        if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+            require_once(dirname(__FILE__).'/lang/eng.php');
+            $pdf->setLanguageArray($l);
+        }
+
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->AddPage('P', 'A4'); 
+
+        $html = view('reports.pemasakan-rte', compact('data', 'request'))->render();
+        $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+        $pdf->Output('Pemeriksaan_Retain_RTE_' . date('Ymd_His') . '.pdf', 'I');
+
+        exit();
+    }
 
  public function create()
  {

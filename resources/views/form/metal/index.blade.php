@@ -14,11 +14,16 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Pengecekan Metal Detector</h3>
-                @can('can access add button')
-                <a href="{{ route('metal.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
-                </a>
-                @endcan
+                <div>
+                    @can('can access add button')
+                    <a href="{{ route('metal.create') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle"></i> Tambah
+                    </a>
+                    @endcan
+                    <a href="{{ route('metal.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
             </div>
 
             {{-- Filter dan Live Search --}}

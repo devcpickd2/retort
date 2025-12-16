@@ -20,14 +20,20 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Pengecekan Pemasakan RTE</h3>
-                @can('can access add button')
-                <a href="{{ route('pemasakan_rte.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
-                </a>
-                @endcan
-            </div>
+                <h3><i class="bi bi-list-check"></i> Data Release Packing RTE</h3>
 
+                <div class="btn-group" role="group">
+                    @can('can access add button')
+                        <a href="{{ route('pemasakan_rte.create') }}" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Tambah
+                        </a>
+                    @endcan
+
+                    <button type="button" class="btn btn-danger" id="exportPdfBtn">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </button>
+                </div>
+            </div>
             {{-- Filter dan Live Search --}}
             <form id="filterForm" method="GET" action="{{ route('pemasakan_rte.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
 
@@ -53,6 +59,7 @@
                     const search = document.getElementById('search');
                     const date = document.getElementById('filter_date');
                     const form = document.getElementById('filterForm');
+                    const exportBtn = document.getElementById('exportPdfBtn');
                     let timer;
 
                     search.addEventListener('input', () => {
@@ -61,6 +68,14 @@
                     });
 
                     date.addEventListener('change', () => form.submit());
+
+                    if(exportBtn){
+                        exportBtn.addEventListener('click', () => {
+                            const formData = new FormData(form);
+                            const exportUrl = "{{ route('pemasakan_rte.exportPdf') }}?" + new URLSearchParams(formData).toString();
+                            window.open(exportUrl, '_blank');
+                        });
+                    }
                 });
             </script>
             
