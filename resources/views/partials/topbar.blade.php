@@ -1,45 +1,40 @@
-<nav class="navbar navbar-expand navbar-light topbar mb-4 shadow-sm" style="background: rgba(180,30,30,0.6); backdrop-filter: blur(5px);">
-    <div class="d-flex w-100 justify-content-between align-items-center px-3">
+<nav class="navbar navbar-expand navbar-light topbar mb-4 shadow-sm static-top" style="background: linear-gradient(90deg, #b30000, #660000); backdrop-filter: blur(5px);">
+    <!-- Sidebar Toggle (Topbar) -->
+    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3 text-white">
+        <i class="fa fa-bars"></i>
+    </button>
 
-        <!-- Greeting kiri -->
-        <span class="navbar-text fw-medium text-white">
-            <h5 class="mb-0">
-                @if(auth()->check())
-                Hallo, {{ auth()->user()->name }}
-                @else
-                Hallo, Guest
-                @endif
-            </h5>
-        </span>
+    <ul class="navbar-nav ml-auto">
 
-        <!-- Profil kanan -->
-        @if(auth()->check())
-        <div class="dropdown" style="position: relative;">
-            <a href="#" class="d-flex align-items-center" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <img class="img-profile rounded-circle shadow-sm"
-                src="{{ auth()->user()->photo ? asset('assets/' . auth()->user()->photo) : asset('assets/profil.jpg') }}"
-                width="40" height="40">
+
+        <!-- Nav Item - User Information -->
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="mr-2 d-none d-lg-inline text-white small">
+                    @if(auth()->check())
+                        Hallo, {{ auth()->user()->name }}
+                    @else
+                        Hallo, Guest
+                    @endif
+                </span>
+                <img class="img-profile rounded-circle"
+                    src="{{ auth()->user()->photo ? asset('assets/' . auth()->user()->photo) : asset('assets/profil.jpg') }}">
             </a>
-
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg mt-2" aria-labelledby="userDropdown" style="min-width: 180px;">
-                <li>
-                    <form method="POST" action="{{ route('logout') }}">
+            <!-- Dropdown - User Information -->
+            <div class="bg-white dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                aria-labelledby="userDropdown">
+                <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="dropdown-item d-flex align-items-center" type="submit">
-                            <i class="fas fa-sign-out-alt fa-fw me-2 text-gray-200"></i>
+                            <i class="fas fa-sign-out-alt fa-fw me-2 text-dark"></i>&nbsp;
                             Logout
                         </button>
                     </form>
-                </li>
-            </ul>
-        </div>
-        @else
-        <a class="nav-link d-flex align-items-center text-white" href="{{ route('login') }}">
-            <i class="fas fa-sign-in-alt me-1"></i> Login
-        </a>
-        @endif
+            </div>
+        </li>
 
-    </div>
+    </ul>
 </nav>
 
 <style>
@@ -63,11 +58,6 @@ body, .navbar, .dropdown-menu, .navbar-text {
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-/* Dropdown item hover */
-.dropdown-menu .dropdown-item:hover {
-    background-color: rgba(255,255,255,0.2);
-    color: #fff;
-}
 
 /* Dropdown style */
 .dropdown-menu {
@@ -96,6 +86,12 @@ body, .navbar, .dropdown-menu, .navbar-text {
     overflow: visible !important;
     position: relative;
     z-index: 1000;
+}
+
+@media(max-width:768px){
+    .sidebar-dark .nav-item .nav-link{
+        width: 100%;
+    }
 }
 
 </style>
