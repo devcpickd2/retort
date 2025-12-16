@@ -23,9 +23,7 @@
             <div id="content">
                 @include('partials.topbar')
 
-                <div class="container-fluid">
                     @yield('content')
-                </div>
             </div>
 
             @include('partials.footer')

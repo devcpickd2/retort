@@ -30,22 +30,38 @@
                     {{-- Menggunakan ikon Truck untuk Loading --}}
                     <i class="bi bi-truck me-2"></i> Daftar Pemeriksaan Loading
                 </h3>
-                <a href="{{ route('loading-produks.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah Baru
-                </a>
+                <div>
+                    <a href="{{ route('loading-produks.create') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle"></i> Tambah
+                    </a>
+                    <a href="{{ route('loading-produks.exportPdf', ['date' => request('date'), 'shift' => request('shift')]) }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
             </div>
 
             {{-- Filter dan Live Search (Style Magnet Trap) --}}
             <form id="filterForm" method="GET" action="{{ route('loading-produks.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
 
                 {{-- Input Tanggal --}}
-                {{-- Catatan: UI Referensi hanya 1 tanggal. Jika butuh range, backend harus menyesuaikan filter berdasarkan satu tanggal ini atau ubah UI sedikit --}}
                 <div class="input-group" style="max-width: 220px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-calendar-date text-muted"></i>
                     </span>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                     value="{{ request('date') ?? request('start_date') }}" placeholder="Tanggal">
+                </div>
+
+                {{-- Input Shift --}}
+                <div class="input-group" style="max-width: 120px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-clock text-muted"></i>
+                    </span>
+                    <select name="shift" id="shift" class="form-control border-start-0">
+                        <option value="">Semua Shift</option>
+                        <option value="Pagi" {{ request('shift') == 'Pagi' ? 'selected' : '' }}>Pagi</option>
+                        <option value="Malam" {{ request('shift') == 'Malam' ? 'selected' : '' }}>Malam</option>
+                    </select>
                 </div>
 
                 {{-- Input Search --}}
@@ -58,7 +74,7 @@
                 </div>
 
                 {{-- Tombol Reset --}}
-                @if(request('date') || request('search') || request('start_date'))
+                @if(request('date') || request('shift') || request('search') || request('start_date'))
                 <a href="{{ route('loading-produks.index') }}" class="btn btn-secondary btn-sm ms-auto">
                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </a>
@@ -71,6 +87,7 @@
                 document.addEventListener('DOMContentLoaded', () => {
                     const search = document.getElementById('search');
                     const date = document.getElementById('filter_date');
+                    const shift = document.getElementById('shift');
                     const form = document.getElementById('filterForm');
                     let timer;
 
@@ -80,8 +97,9 @@
                         timer = setTimeout(() => form.submit(), 500);
                     });
 
-                    // Auto submit date
+                    // Auto submit date dan shift
                     date.addEventListener('change', () => form.submit());
+                    shift.addEventListener('change', () => form.submit());
                 });
             </script>
 
