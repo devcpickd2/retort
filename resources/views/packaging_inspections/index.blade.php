@@ -25,21 +25,39 @@
             {{-- HEADER --}}
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3 class="fw-bold"><i class="bi bi-box-seam me-2"></i> Daftar Pemeriksaan Packaging</h3>
-                <a href="{{ route('packaging-inspections.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah Inspeksi
-                </a>
+                <div>
+                    <a href="{{ route('packaging-inspections.create') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle"></i> Tambah
+                    </a>
+                    <a href="{{ route('packaging-inspections.exportPdf', ['start_date' => request('start_date'), 'shift' => request('shift')]) }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
             </div>
 
             {{-- FILTER SEPERTI GAMBAR --}}
             <form id="filterForm" method="GET" action="{{ route('packaging-inspections.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
-                
+
                 {{-- Input Tanggal (Icon + Input Menyatu) --}}
                 <div class="input-group" style="max-width: 200px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-calendar-date text-muted"></i>
                     </span>
-                    <input type="date" name="start_date" id="start_date" class="form-control border-start-0 ps-1" 
+                    <input type="date" name="start_date" id="start_date" class="form-control border-start-0 ps-1"
                            value="{{ request('start_date') }}" placeholder="dd/mm/yyyy">
+                </div>
+
+                {{-- Input Shift --}}
+                <div class="input-group" style="max-width: 120px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-clock text-muted"></i>
+                    </span>
+                    <select name="shift" id="shift" class="form-control border-start-0 ps-1">
+                        <option value="">Semua Shift</option>
+                        <option value="1" {{ request('shift') == '1' ? 'selected' : '' }}>Shift 1</option>
+                        <option value="2" {{ request('shift') == '2' ? 'selected' : '' }}>Shift 2</option>
+                        <option value="3" {{ request('shift') == '3' ? 'selected' : '' }}>Shift 3</option>
+                    </select>
                 </div>
 
                 {{-- Input Pencarian (Icon + Input Menyatu) --}}
@@ -52,7 +70,7 @@
                 </div>
 
                 {{-- Tombol Reset (Opsional) --}}
-                @if(request('start_date') || request('search'))
+                @if(request('start_date') || request('shift') || request('search'))
                 <a href="{{ route('packaging-inspections.index') }}" class="btn btn-secondary btn-sm ms-auto" title="Reset Filter">
                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </a>
@@ -63,6 +81,7 @@
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
                     const startInfo = document.getElementById('start_date');
+                    const shiftInfo = document.getElementById('shift');
                     const searchInfo = document.getElementById('search');
                     const form = document.getElementById('filterForm');
                     let timer;
@@ -70,8 +89,9 @@
                     // Fungsi Auto Submit
                     const autoSubmit = () => form.submit();
 
-                    // Submit saat tanggal berubah
+                    // Submit saat tanggal atau shift berubah
                     startInfo.addEventListener('change', autoSubmit);
+                    shiftInfo.addEventListener('change', autoSubmit);
 
                     // Debounce search untuk input teks
                     searchInfo.addEventListener('input', () => {

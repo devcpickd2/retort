@@ -206,9 +206,20 @@ Route::get('/inspections/{inspection}/form-update', [RawMaterialInspectionContro
 Route::get('/inspections/verification', [RawMaterialInspectionController::class, 'showVerificationPage'])
 ->name('inspections.verification');
 
-Route::put('/inspections/verify/{uuid}', [RawMaterialInspectionController::class, 'verify'])
-->name('inspections.verify');
+// RUTE BARU: Memproses modal verifikasi Packaging
+Route::put('/inspections/verify/{inspection}', [RawMaterialInspectionController::class, 'verify'])->name('inspections.verify');
+Route::get('/inspections/export-pdf', [RawMaterialInspectionController::class, 'exportPdf'])->name('inspections.exportPdf');
 Route::resource('inspections', RawMaterialInspectionController::class);
+
+// Packaging Inspections
+Route::get('/packaging-inspections/verification', [PackagingInspectionController::class, 'showVerificationList'])
+->name('packaging-inspections.verification');
+
+// RUTE BARU: Memproses modal verifikasi Packaging
+Route::put('/packaging-inspections/verify/{inspection}', [PackagingInspectionController::class, 'verify'])->name('packaging-inspections.verify');
+Route::get('/packaging-inspections/edit-for-update/{packagingInspection}', [PackagingInspectionController::class, 'editForUpdate'])->name('packaging-inspections.edit-for-update');
+Route::get('/packaging-inspections/export-pdf', [PackagingInspectionController::class, 'exportPdf'])->name('packaging-inspections.exportPdf');
+Route::resource('packaging-inspections', PackagingInspectionController::class);
 // RUTE BARU: Menampilkan halaman daftar verifikasi Packaging
 Route::get('packaging-inspections/{packagingInspection}/update-view', [PackagingInspectionController::class, 'editForUpdate'])->name('packaging-inspections.edit-for-update');
 Route::get('packaging-inspections/verification', [PackagingInspectionController::class, 'showVerificationList'])
@@ -232,6 +243,7 @@ Route::get('loading-produks/verification', [LoadingProdukController::class, 'sho
 ->name('loading-produks.verification');
 Route::put('loading-produks/{uuid}/verify', [LoadingProdukController::class, 'verify'])
 ->name('loading-produks.verify');
+Route::get('loading-produks/export-pdf', [LoadingProdukController::class, 'exportPdf'])->name('loading-produks.exportPdf');
 Route::resource('loading-produks', LoadingProdukController::class);
 
 Route::get('/dispositions/{disposition}/update-form', [DispositionController::class, 'showUpdateForm'])
@@ -445,6 +457,7 @@ Route::put('/klorin/edit_spv/{uuid}', [KlorinController::class, 'edit_spv'])->na
 Route::get('/klorin/verification', [KlorinController::class, 'verification'])->name('klorin.verification');
 Route::put('/klorin/verification/{uuid}', [KlorinController::class, 'updateVerification'])
 ->name('klorin.verification.update');
+Route::get('/klorin/export-pdf', [KlorinController::class, 'exportPdf'])->name('klorin.exportPdf');
 Route::delete('/klorin/{uuid}', [KlorinController::class, 'destroy'])->name('klorin.destroy');
 
 // Organoleptik
