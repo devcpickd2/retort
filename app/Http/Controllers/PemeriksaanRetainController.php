@@ -231,8 +231,59 @@ class PemeriksaanRetainController extends Controller
     {
         // Load items agar muncul di form
         $pemeriksaanRetain->load('items');
-        
+
         // Return ke view baru: pemeriksaan_retain.update
         return view('pemeriksaan_retain.update', compact('pemeriksaanRetain'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date = $request->input('date');
+        $userPlant = Auth::user()->plant;
+
+        $query = PemeriksaanRetain::with(['items', 'creator']);
+        if (Auth::check() && !empty($userPlant)) {
+            $query->where('plant_uuid', $userPlant);
+        }
+
+        // Filter tanggal
+        $query->when($date, function ($q) use ($date) {
+            $q->whereDate('tanggal', $date);
+        });
+
+        $retains = $query->orderBy('tanggal', 'asc')->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Pengecekan Retain Sampel');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 6);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.pengecekan-retain-sampel', compact('retains', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Pengecekan_Retain_Sampel_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
     }
 }

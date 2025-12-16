@@ -23,9 +23,14 @@
                     {{-- Ikon Peringatan/Segitiga --}}
                     <i class="bi bi-exclamation-triangle me-2"></i>Daftar Penyimpangan Kualitas
                 </h3>
-                <a href="{{ route('penyimpangan-kualitas.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle me-1"></i> Tambah Baru
-                </a>
+                <div>
+                    <a href="{{ route('penyimpangan-kualitas.create') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle me-1"></i> Tambah
+                    </a>
+                    <a href="{{ route('penyimpangan-kualitas.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
             </div>
 
             {{-- Filter Section (Seamless Style) --}}
@@ -91,10 +96,10 @@
                                     {{ $loop->iteration + ($penyimpanganKualitasItems->currentPage() - 1) * $penyimpanganKualitasItems->perPage() }}
                                 </td>
                                 
-                                {{-- Tanggal --}}
-                                <td class="text-center">
-                                    {{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}
-                                </td>
+                {{-- Tanggal --}}
+                <td class="text-center">
+                    {{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}
+                </td>
 
                                 {{-- Nomor --}}
                                 <td class="fw-bold text-center text-primary">{{ $item->nomor }}</td>

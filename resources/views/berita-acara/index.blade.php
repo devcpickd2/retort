@@ -23,9 +23,14 @@
                     {{-- Ikon Berita Acara --}}
                     <i class="bi bi-journal-text me-2"></i>Daftar Berita Acara
                 </h3>
-                <a href="{{ route('berita-acara.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle me-1"></i> Tambah Baru
-                </a>
+                <div>
+                    <a href="{{ route('berita-acara.create') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle me-1"></i> Tambah
+                    </a>
+                    <a href="{{ route('berita-acara.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
             </div>
 
             {{-- Filter Section (Seamless Style) --}}

@@ -231,11 +231,12 @@ Route::resource('packaging-inspections', PackagingInspectionController::class);
 Route::get('pemeriksaan-retain/{pemeriksaanRetain}/update-view', [PemeriksaanRetainController::class, 'editForUpdate'])
     ->name('pemeriksaan_retain.edit-for-update');
 Route::get('pemeriksaan-retain/verification', [PemeriksaanRetainController::class, 'showVerificationPage'])
-->name('pemeriksaan_retain.verification');
+    ->name('pemeriksaan_retain.verification');
 Route::put('pemeriksaan-retain/{pemeriksaanRetain}/verify', [PemeriksaanRetainController::class, 'submitVerification'])
-->name('pemeriksaan_retain.verify');
-Route::resource('pemeriksaan-retain', PemeriksaanRetainController::class)
-->names('pemeriksaan_retain');
+    ->name('pemeriksaan_retain.verify');
+Route::get('pemeriksaan-retain/export-pdf', [PemeriksaanRetainController::class, 'exportPdf'])->name('pemeriksaan_retain.exportPdf');
+Route::resource('pemeriksaan_retain', PemeriksaanRetainController::class)
+    ->names('pemeriksaan_retain');
 
 Route::get('loading-produks/{loadingProduk}/update', [LoadingProdukController::class, 'updateDetails'])
     ->name('loading-produks.update');
@@ -253,6 +254,7 @@ Route::get('dispositions-verification', [DispositionController::class, 'verifica
 
 Route::put('dispositions-verify/{disposition:uuid}', [DispositionController::class, 'verify'])
 ->name('dispositions.verify');
+Route::get('/dispositions/export-pdf', [DispositionController::class, 'exportPdf'])->name('dispositions.exportPdf');
 Route::resource('dispositions', DispositionController::class);
 
 Route::get('/berita-acara/{beritaAcara}/update-form', [BeritaAcaraController::class, 'showUpdateForm'])
@@ -264,6 +266,7 @@ Route::prefix('berita-acara-verification')->name('berita-acara.')->group(functio
     Route::post('{beritaAcara}/verify-spv', [BeritaAcaraController::class, 'verifySpv'])
     ->name('verify.spv');
 });
+Route::get('/berita-acara/export-pdf', [BeritaAcaraController::class, 'exportPdf'])->name('berita-acara.exportPdf');
 Route::resource('berita-acara', BeritaAcaraController::class);
 
 Route::get('/pemeriksaan-kekuatan-magnet-trap/{pemeriksaanKekuatanMagnetTrap}/update-form', 
@@ -296,6 +299,7 @@ Route::prefix('penyimpangan-kualitas-verification')->name('penyimpangan-kualitas
     Route::post('{penyimpanganKualitas}/verify-disetujui', [PenyimpanganKualitasController::class, 'verifyDisetujui'])
     ->name('verify.disetujui');
 });
+Route::get('/penyimpangan-kualitas/export-pdf', [PenyimpanganKualitasController::class, 'exportPdf'])->name('penyimpangan-kualitas.exportPdf');
 Route::resource('penyimpangan-kualitas', PenyimpanganKualitasController::class)->parameters(['penyimpangan-kualitas' => 'penyimpanganKualitas']);
 
 /*KOMPLAIN DAN TRACEABILITY*/
