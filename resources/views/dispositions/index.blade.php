@@ -22,9 +22,14 @@
                 <h3 class="fw-bold m-0">
                     <i class="bi bi-file-earmark-text me-2"></i>Daftar Disposisi
                 </h3>
-                <a href="{{ route('dispositions.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle me-1"></i> Tambah Baru
-                </a>
+                <div>
+                    <a href="{{ route('dispositions.create') }}" class="btn btn-success me-2">
+                        <i class="bi bi-plus-circle me-1"></i> Tambah
+                    </a>
+                    <a href="{{ route('dispositions.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </a>
+                </div>
             </div>
 
             {{-- Filter Section (Sesuai Gambar Screenshot) --}}
