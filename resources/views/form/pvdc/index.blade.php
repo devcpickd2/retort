@@ -18,39 +18,44 @@
     </div>
     @endif
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Data No. Lot PVDC</h3>
-                <div class="btn-group" role="group">
-                    @can('can access add button')
-                    <a href="{{ route('pvdc.create') }}" class="btn btn-success">
-                        <i class="bi bi-plus-circle"></i> Tambah
-                    </a>
-                    @endcan
-                    {{-- Tombol Export PDF --}}
-                    <button type="button" class="btn btn-danger" id="exportPdfBtn">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </button>
-                </div>
-            </div>
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Data No. Lot PVDC</h2>
+        <div class="btn-group" role="group">
+            @can('can access add button')
+            <a href="{{ route('pvdc.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
+            @endcan
+            {{-- Tombol Export PDF --}}
+            <button type="button" class="btn btn-danger" id="exportPdfBtn">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </button>
+        </div>
+    </div>
 
-            {{-- Filter dan Live Search --}}
-            <form id="filterForm" method="GET" action="{{ route('pvdc.index') }}"
-                class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
-
-                <div class="input-group" style="max-width: 220px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
+    {{-- Filter dan Live Search --}}
+    <form id="filterForm" method="GET" action="{{ route('pvdc.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar-date text-muted"></i>
+                        </span>
+                    </div>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                         value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
-
-                <div class="input-group" style="max-width: 200px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-hourglass-split text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Shift</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-hourglass-split text-muted"></i>
+                        </span>
+                    </div>
                     <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
                         <option value="">Semua Shift</option>
                         {{-- Pastikan value ini sama dengan yang tersimpan di database --}}
@@ -59,66 +64,72 @@
                         <option value="3" {{ request("shift")=="3" ? "selected" : "" }}>Shift 3</option>
                     </select>
                 </div>
-
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Cari Data</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                    </div>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                         value="{{ request('search') }}" placeholder="Cari Produk / Supplier / Catatan...">
                 </div>
+            </div>
+            <div class="col-md-3 align-self-end">
+                <a href="{{ route('pvdc.index') }}" class="btn btn-primary mb-2"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            </div>
+        </div>
+    </form>
 
-                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
-                <a href="{{ route('pvdc.index') }}" class="btn btn-secondary"><i
-                        class="bi bi-arrow-counterclockwise"></i> Reset</a>
-            </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('filterForm');
+            const searchInput = document.getElementById('search');
+            const dateInput = document.getElementById('filter_date');
+            const shiftInput = document.getElementById('filter_shift');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
 
-            {{-- Script untuk Filter & Export --}}
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const form = document.getElementById('filterForm');
-                    const searchInput = document.getElementById('search');
-                    const dateInput = document.getElementById('filter_date');
-                    const shiftInput = document.getElementById('filter_shift');
-                    const exportPdfBtn = document.getElementById('exportPdfBtn');
+            // Auto-submit saat mengetik di search (debounce)
+            let timer;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
 
-                    // Auto-submit saat mengetik di search (debounce)
-                    let timer;
-                    searchInput.addEventListener('input', () => {
-                        clearTimeout(timer);
-                        timer = setTimeout(() => form.submit(), 500);
-                    });
+            // Auto-submit saat date atau shift berubah (Opsional, hilangkan jika ingin manual klik filter)
+            dateInput.addEventListener('change', () => form.submit());
+            shiftInput.addEventListener('change', () => form.submit());
 
-                    // Auto-submit saat date atau shift berubah (Opsional, hilangkan jika ingin manual klik filter)
-                    dateInput.addEventListener('change', () => form.submit());
-                    shiftInput.addEventListener('change', () => form.submit());
+            // --- LOGIC EXPORT PDF ---
+            exportPdfBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Mencegah form submit biasa
 
-                    // --- LOGIC EXPORT PDF ---
-                    exportPdfBtn.addEventListener('click', function(e) {
-                        e.preventDefault(); // Mencegah form submit biasa
+                // Ambil nilai real-time dari input
+                let dateVal = dateInput.value;
+                let shiftVal = shiftInput.value;
+                let searchVal = searchInput.value;
 
-                        // Ambil nilai real-time dari input
-                        let dateVal = dateInput.value;
-                        let shiftVal = shiftInput.value;
-                        let searchVal = searchInput.value;
+                // Bangun URL dengan query string
+                // encodeURIComponent digunakan agar karakter spesial aman di URL
+                let exportUrl = "{{ route('pvdc.exportPdf') }}" +
+                                "?date=" + encodeURIComponent(dateVal) +
+                                "&shift=" + encodeURIComponent(shiftVal) +
+                                "&search=" + encodeURIComponent(searchVal);
 
-                        // Bangun URL dengan query string
-                        // encodeURIComponent digunakan agar karakter spesial aman di URL
-                        let exportUrl = "{{ route('pvdc.exportPdf') }}" + 
-                                        "?date=" + encodeURIComponent(dateVal) + 
-                                        "&shift=" + encodeURIComponent(shiftVal) + 
-                                        "&search=" + encodeURIComponent(searchVal);
+                // Buka di tab baru
+                window.open(exportUrl, '_blank');
+            });
+        });
+    </script>
 
-                        // Buka di tab baru
-                        window.open(exportUrl, '_blank');
-                    });
-                });
-            </script>
-
+    <div class="card shadow-sm">
+        <div class="card-body">
             {{-- Table --}}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle">
-                    <thead class="table-primary text-center">
+                <table class="table">
+                    <thead class="table-secondary text-center">
                         <tr>
                             <th>NO.</th>
                             <th>Date | Shift</th>
@@ -363,12 +374,12 @@
                     </tbody>
                 </table>
             </div>
-
-            {{-- Pagination --}}
-            <div class="mt-3">
-                {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
-            </div>
         </div>
+    </div>
+
+    {{-- Pagination --}}
+    <div class="mt-3">
+        {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
     </div>
 </div>
 

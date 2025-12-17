@@ -18,66 +18,70 @@
     </div>
     @endif
 
-    {{-- Card --}}
-    <div class="card card-custom shadow-sm">
-        <div class="card-body">
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Data Cleaning Magnet Trap</h2>
+        <div>
+            @can('can access add button')
+            <a href="{{ route('checklistmagnettrap.create') }}" class="btn btn-success me-2">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
+            @endcan
+            <a href="{{ route('checklistmagnettrap.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-primary">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </a>
+        </div>
+    </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Data Cleaning Magnet Trap</h3>
-                <div>
-                    @can('can access add button')
-                    <a href="{{ route('checklistmagnettrap.create') }}" class="btn btn-success me-2">
-                        <i class="bi bi-plus-circle"></i> Tambah
-                    </a>
-                    @endcan
-                    <a href="{{ route('checklistmagnettrap.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-primary">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </a>
-                </div>
-            </div>
-
-            {{-- Filter dan Live Search --}}
-            <form id="filterForm" method="GET" action="{{ route('checklistmagnettrap.index') }}"
-                class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
-
-                <div class="input-group" style="max-width: 220px;">
+    {{-- Filter dan Live Search --}}
+    <form id="filterForm" method="GET" action="{{ route('checklistmagnettrap.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-calendar-date text-muted"></i>
                     </span>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                         value="{{ request('date') }}" placeholder="Tanggal">
                 </div>
-
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
+            </div>
+            <div class="col-md-6">
+                <div class="mb-1">Cari Nama Produk</div>
+                <div class="input-group mb-2">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
                     </span>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                         value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Batch...">
                 </div>
-            </form>
+            </div>
+        </div>
+    </form>
 
-            {{-- Script Auto Submit --}}
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const search = document.getElementById('search');
-                    const date = document.getElementById('filter_date');
-                    const form = document.getElementById('filterForm');
-                    let timer;
+    {{-- Script Auto Submit --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('search');
+            const date = document.getElementById('filter_date');
+            const form = document.getElementById('filterForm');
+            let timer;
 
-                    search.addEventListener('input', () => {
-                        clearTimeout(timer);
-                        timer = setTimeout(() => form.submit(), 500);
-                    });
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
 
-                    date.addEventListener('change', () => form.submit());
-                });
-            </script>
+            date.addEventListener('change', () => form.submit());
+        });
+    </script>
 
+    {{-- Card --}}
+    <div class="card shadow-sm">
+        <div class="card-body">
             {{-- Tabel Data --}}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle">
-                    <thead class="table-primary text-center">
+                <table class="table">
+                    <thead class="table-secondary text-center">
                         <tr>
                             <th>NO.</th>
                             <th>Nama Produk</th>

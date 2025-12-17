@@ -18,37 +18,44 @@
     </div>
     @endif
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Pemeriksaan Mincing - Emulsifying - Aging</h3>
-                <div class="btn-group" role="group">
-                    @can('can access add button')
-                        <a href="{{ route('mincing.create') }}" class="btn btn-success">
-                            <i class="bi bi-plus-circle"></i> Tambah
-                        </a>
-                    @endcan
-                    <button type="button" class="btn btn-danger" id="exportPdfBtn">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </button>
-                </div>
-            </div>
+    
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4"> Pemeriksaan Mincing - Emulsifying - Aging</h2>
+        <div class="btn-group" role="group">
+            @can('can access add button')
+                <a href="{{ route('mincing.create') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Tambah
+                </a>
+            @endcan
+            <button type="button" class="btn btn-danger" id="exportPdfBtn">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </button>
+        </div>
+    </div>
 
-            {{-- Filter dan Live Search --}}
-            <form id="filterForm" method="GET" action="{{ route('mincing.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
-
-                <div class="input-group" style="max-width: 220px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
+    {{-- Filter dan Live Search --}}
+    <form id="filterForm" method="GET" action="{{ route('mincing.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar-date text-muted"></i>
+                        </span>
+                    </div>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                     value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
-
-                <div class="input-group" style="max-width: 200px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-hourglass-split text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Shift</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-hourglass-split text-muted"></i>
+                        </span>
+                    </div>
                     <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
                         <option value="">Semua Shift</option>
                         <option value="1" {{ request("shift") == "Shift 1" ? "selected" : "" }}>Shift 1</option>
@@ -56,52 +63,64 @@
                         <option value="3" {{ request("shift") == "Shift 3" ? "selected" : "" }}>Shift 3</option>
                     </select>
                 </div>
-
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Cari Nama Produk</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                    </div>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                     value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
                 </div>
+            </div>
+            <div class="col-md-3 align-self-end">
+                <!-- <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button> -->
+                <a href="{{ route('mincing.index') }}" class="btn btn-primary mb-2"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            </div>
+        </div>
+    
+        
+    </form>
 
-                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
-                <a href="{{ route('mincing.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
-            </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('search');
+            const date = document.getElementById('filter_date');
+            const shift = document.getElementById('filter_shift');
+            const form = document.getElementById('filterForm');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
 
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const search = document.getElementById('search');
-                    const date = document.getElementById('filter_date');
-                    const shift = document.getElementById('filter_shift');
-                    const form = document.getElementById('filterForm');
-                    const exportPdfBtn = document.getElementById('exportPdfBtn');
+            let timer;
 
-                    let timer;
+            // Apply filter on search input with debounce
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
 
-                    // Apply filter on search input with debounce
-                    search.addEventListener('input', () => {
-                        clearTimeout(timer);
-                        timer = setTimeout(() => form.submit(), 500);
-                    });
+            // Apply filter on date or shift change
+            date.addEventListener('change', () => form.submit());
+            shift.addEventListener('change', () => form.submit());
 
-                    // Apply filter on date or shift change
-                    date.addEventListener('change', () => form.submit());
-                    shift.addEventListener('change', () => form.submit());
+            // Handle PDF export button click
+            exportPdfBtn.addEventListener('click', function() {
+                const formData = new FormData(form);
+                const exportUrl = "{{ route('mincing.exportPdf') }}?" + new URLSearchParams(formData).toString();
+                window.open(exportUrl, '_blank');
+            });
+        });
+    </script>
 
-                    // Handle PDF export button click
-                    exportPdfBtn.addEventListener('click', function() {
-                        const formData = new FormData(form);
-                        const exportUrl = "{{ route('mincing.exportPdf') }}?" + new URLSearchParams(formData).toString();
-                        window.open(exportUrl, '_blank');
-                    });
-                });
-            </script>
+    <div class="card shadow-sm">
+        <div class="card-body">
 
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle">
-                    <thead class="table-primary text-center">
+                <table class="table">
+                    <thead class="table-secondary text-center">
                         <tr>
                             <th>NO.</th>
                             <th>Date | Shift</th>
@@ -302,10 +321,10 @@
                                     @elseif ($dep->status_spv == 2)
                                     <!-- Link buka modal -->
                                     <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
-                                       class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
+                                        class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
 
-                                       <!-- Modal -->
-                                       <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="revisionModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="revisionModalLabel{{ $dep->uuid }}" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered">
                                             <div class="modal-content">
                                                 <div class="modal-header bg-danger text-white">
@@ -438,6 +457,11 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+</div>
+        
 
 {{-- Auto-hide alert setelah 3 detik --}}
 <script>

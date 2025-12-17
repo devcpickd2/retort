@@ -18,38 +18,72 @@
     </div>
     @endif
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Data Pemeriksaan Personal Hygiene dan Kesehatan Karyawan</h3>
-                @if ($type_user == 0  || $type_user == 2)
-                <a href="{{ route('gmp.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
-                </a>
-                @endif
-            </div>
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Data Pemeriksaan Personal Hygiene dan Kesehatan Karyawan</h2>
+        <div class="btn-group" role="group">
+            @if ($type_user == 0  || $type_user == 2)
+            <a href="{{ route('gmp.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
+            @endif
+        </div>
+    </div>
 
-            {{-- Filter Tanggal --}}
-            <form id="filterForm" method="GET" action="{{ route('gmp.index') }}" class="d-flex gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
-                <div class="input-group" style="max-width: 220px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
+    {{-- Filter Tanggal --}}
+    <form id="filterForm" method="GET" action="{{ route('gmp.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar-date text-muted"></i>
+                        </span>
+                    </div>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0" value="{{ request('date') }}">
                 </div>
-            </form>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-1">Cari Data</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                    </div>
+                    <input type="text" name="search" id="search" class="form-control border-start-0"
+                    value="{{ request('search') }}" placeholder="Cari Area...">
+                </div>
+            </div>
+            <div class="col-md-4 align-self-end">
+                <a href="{{ route('gmp.index') }}" class="btn btn-primary mb-2">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </a>
+            </div>
+        </div>
+    </form>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const date = document.getElementById('filter_date');
-                    const form = document.getElementById('filterForm');
-                    date.addEventListener('change', () => form.submit());
-                });
-            </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('search');
+            const date = document.getElementById('filter_date');
+            const form = document.getElementById('filterForm');
+            let timer;
 
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
+
+            date.addEventListener('change', () => form.submit());
+        });
+    </script>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle table-hover">
-                    <thead class="table-primary text-center">
+                <table class="table">
+                    <thead class="table-secondary text-center">
                         <tr>
                             <th>NO.</th>
                             <th>Date</th>

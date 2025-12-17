@@ -18,39 +18,44 @@
     </div>
     @endif
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Pemeriksaan Organoleptik</h3>
-                <div>
-                    @can('can access add button')
-                    <a href="{{ route('organoleptik.create') }}" class="btn btn-success me-2">
-                        <i class="bi bi-plus-circle"></i> Tambah
-                    </a>
-                    @endcan
-                    <a href="{{ route('organoleptik.exportPdf', ['date' => request('date'), 'shift' => request('shift'), 'nama_produk' => request('nama_produk')]) }}"
-                        target="_blank" class="btn btn-primary">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </a>
-                </div>
-            </div>
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Pemeriksaan Organoleptik</h2>
+        <div class="btn-group" role="group">
+            @can('can access add button')
+            <a href="{{ route('organoleptik.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
+            @endcan
+            <a href="{{ route('organoleptik.exportPdf', ['date' => request('date'), 'shift' => request('shift'), 'nama_produk' => request('nama_produk')]) }}"
+                target="_blank" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </a>
+        </div>
+    </div>
 
-            {{-- Filter dan Live Search --}}
-            <form id="filterForm" method="GET" action="{{ route('organoleptik.index') }}"
-                class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
-
-                <div class="input-group" style="max-width: 200px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
+    {{-- Filter dan Live Search --}}
+    <form id="filterForm" method="GET" action="{{ route('organoleptik.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar-date text-muted"></i>
+                        </span>
+                    </div>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                         value="{{ request('date') }}">
                 </div>
-
-                <div class="input-group" style="max-width: 150px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-clock text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Shift</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-clock text-muted"></i>
+                        </span>
+                    </div>
                     <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
                         <option value="">Semua Shift</option>
                         <option value="1" {{ request('shift')=='1' ? 'selected' : '' }}>Shift 1</option>
@@ -58,11 +63,15 @@
                         <option value="3" {{ request('shift')=='3' ? 'selected' : '' }}>Shift 3</option>
                     </select>
                 </div>
-
-                <div class="input-group" style="max-width: 200px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-box-seam text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Produk</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-box-seam text-muted"></i>
+                        </span>
+                    </div>
                     <select name="nama_produk" id="filter_nama_produk" class="form-select border-start-0 form-control">
                         <option value="">Semua Nama Produk</option>
                         @foreach(\App\Models\Produk::where('plant', Auth::user()->plant)->pluck('nama_produk')->unique()
@@ -72,39 +81,48 @@
                         @endforeach
                     </select>
                 </div>
-
-                <div class="input-group flex-grow-1" style="max-width: 300px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Cari Data</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                    </div>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                         value="{{ request('search') }}" placeholder="Cari...">
                 </div>
-            </form>
+            </div>
+        </div>
+    </form>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const search = document.getElementById('search');
-                    const date = document.getElementById('filter_date');
-                    const shift = document.getElementById('filter_shift');
-                    const nama_produk = document.getElementById('filter_nama_produk');
-                    const form = document.getElementById('filterForm');
-                    let timer;
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('search');
+            const date = document.getElementById('filter_date');
+            const shift = document.getElementById('filter_shift');
+            const nama_produk = document.getElementById('filter_nama_produk');
+            const form = document.getElementById('filterForm');
+            let timer;
 
-                    search.addEventListener('input', () => {
-                        clearTimeout(timer);
-                        timer = setTimeout(() => form.submit(), 500);
-                    });
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
 
-                    date.addEventListener('change', () => form.submit());
-                    shift.addEventListener('change', () => form.submit());
-                    nama_produk.addEventListener('change', () => form.submit());
-                });
-            </script>
+            date.addEventListener('change', () => form.submit());
+            shift.addEventListener('change', () => form.submit());
+            nama_produk.addEventListener('change', () => form.submit());
+        });
+    </script>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle">
-                    <thead class="table-primary text-center">
+                <table class="table">
+                    <thead class="table-secondary text-center">
                         <tr>
                             <th>NO.</th>
                             <th>Date | Shift</th>
@@ -201,16 +219,15 @@
                                                             </tr>
                                                             @endforeach
                                                         </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
+        </table>
+        </div>
+    </div>
 
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary btn-sm"
-                                                    data-bs-dismiss="modal">Tutup</button>
-                                            </div>
-                                        </div>
-                                    </div>
+    {{-- Pagination --}}
+    <div class="mt-3">
+        {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
+    </div>
+</div>
                                 </div>
                                 @else
                                 <span>-</span>
