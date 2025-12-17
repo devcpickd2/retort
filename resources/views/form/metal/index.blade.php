@@ -10,70 +10,92 @@
     </div>
     @endif
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Pengecekan Metal Detector</h3>
-                <div>
-                    @can('can access add button')
-                    <a href="{{ route('metal.create') }}" class="btn btn-success me-2">
-                        <i class="bi bi-plus-circle"></i> Tambah
-                    </a>
-                    @endcan
-                    <a href="{{ route('metal.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-primary">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </a>
-                </div>
-            </div>
+    {{-- Alert error --}}
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
 
-            {{-- Filter dan Live Search --}}
-            <form id="filterForm" method="GET" action="{{ route('metal.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Pengecekan Metal Detector</h2>
+        <div class="btn-group" role="group">
+            @can('can access add button')
+            <a href="{{ route('metal.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
+            @endcan
+            <a href="{{ route('metal.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </a>
+        </div>
+    </div>
 
-                <div class="input-group" style="max-width: 220px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
+    {{-- Filter dan Live Search --}}
+    <form id="filterForm" method="GET" action="{{ route('metal.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar-date text-muted"></i>
+                        </span>
+                    </div>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                     value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
-
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-1">Cari Data</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                    </div>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                     value="{{ request('search') }}" placeholder="Cari sesuatu...">
                 </div>
-            </form>
-
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const search = document.getElementById('search');
-                    const date = document.getElementById('filter_date');
-                    const form = document.getElementById('filterForm');
-                    let timer;
-
-                    search.addEventListener('input', () => {
-                        clearTimeout(timer);
-                        timer = setTimeout(() => form.submit(), 500);
-                    });
-
-                    date.addEventListener('change', () => form.submit());
-                });
-            </script>
+            </div>
+            <div class="col-md-4 align-self-end">
+                <a href="{{ route('metal.index') }}" class="btn btn-primary mb-2"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            </div>
+        </div>
 
 
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('search');
+            const date = document.getElementById('filter_date');
+            const form = document.getElementById('filterForm');
+            let timer;
+
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
+
+            date.addEventListener('change', () => form.submit());
+        });
+    </script>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle">
-                    <thead class="table-primary text-center">
+                <table class="table">
+                    <thead class="table-secondary text-center">
                         <tr>
                             <th>NO.</th>
                             <th>Date | Pukul</th>
                             <th>FE 1.0 mm</th>
                             <th>NFE 1.5 mm</th>
                             <th>
-                                SUS 
+                                SUS
                                 @if(Auth::user()->plant == '2debd595-89c4-4a7e-bf94-e623cc220ca6')
                                 2.5 mm
                                 @elseif(Auth::user()->plant == 'fdaca613-7ab2-4997-8f33-686e886c867d')
@@ -90,26 +112,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php 
-                        $no = ($data->currentPage() - 1) * $data->perPage() + 1; 
+                        @php
+                        $no = ($data->currentPage() - 1) * $data->perPage() + 1;
                         @endphp
                         @forelse ($data as $dep)
                         <tr>
                             <td class="text-center">{{ $no++ }}</td>
                             <td>{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | {{ \Carbon\Carbon::parse($dep->pukul)->format('H:i') }}</td>
                             <td class="text-center">
-                                {!! $dep->fe == 'Terdeteksi' 
-                                ? '<span class="text-success fw-bold">✓</span>' 
+                                {!! $dep->fe == 'Terdeteksi'
+                                ? '<span class="text-success fw-bold">✓</span>'
                                 : '<span class="text-danger fw-bold">x</span>' !!}
                             </td>
                             <td class="text-center">
-                                {!! $dep->nfe == 'Terdeteksi' 
-                                ? '<span class="text-success fw-bold">✓</span>' 
+                                {!! $dep->nfe == 'Terdeteksi'
+                                ? '<span class="text-success fw-bold">✓</span>'
                                 : '<span class="text-danger fw-bold">x</span>' !!}
                             </td>
                             <td class="text-center">
-                                {!! $dep->sus == 'Terdeteksi' 
-                                ? '<span class="text-success fw-bold">✓</span>' 
+                                {!! $dep->sus == 'Terdeteksi'
+                                ? '<span class="text-success fw-bold">✓</span>'
                                 : '<span class="text-danger fw-bold">x</span>' !!}
                             </td>
 
@@ -119,9 +141,9 @@
                                 <span class="fw-bold text-secondary">Created</span>
                                 @elseif ($dep->status_produksi == 1)
                                 <!-- Link buka modal PRODUKSI -->
-                                <a href="javascript:void(0);" 
-                                data-bs-toggle="modal" 
-                                data-bs-target="#checkedModalProduksi{{ $dep->uuid }}" 
+                                <a href="javascript:void(0);"
+                                data-bs-toggle="modal"
+                                data-bs-target="#checkedModalProduksi{{ $dep->uuid }}"
                                 class="fw-bold text-success text-decoration-none">
                                 Checked
                             </a>
@@ -155,9 +177,9 @@
                             <span class="fw-bold text-secondary">Created</span>
                             @elseif ($dep->status_engineer == 1)
                             <!-- Link buka modal ENGINEER -->
-                            <a href="javascript:void(0);" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#checkedModalEngineer{{ $dep->uuid }}" 
+                            <a href="javascript:void(0);"
+                            data-bs-toggle="modal"
+                            data-bs-target="#checkedModalEngineer{{ $dep->uuid }}"
                             class="fw-bold text-success text-decoration-none">
                             Checked
                         </a>
@@ -194,7 +216,7 @@
                         <span class="fw-bold text-success">Verified</span>
                         @elseif ($dep->status_spv == 2)
                         <!-- Link buka modal -->
-                        <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
+                        <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}"
                          class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
 
                          <!-- Modal -->
@@ -252,8 +274,8 @@
                                     <form action="{{ route('metal.verification.update', $dep->uuid) }}" method="POST">
                                         @csrf
                                         @method('PUT')
-                                        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white" 
-                                        style="background: linear-gradient(145deg, #7a1f12, #9E3419); 
+                                        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white"
+                                        style="background: linear-gradient(145deg, #7a1f12, #9E3419);
                                         box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
                                         <div class="modal-header border-bottom border-light-subtle p-4" style="border-bottom-width: 3px !important;">
                                             <h5 class="modal-title fw-bolder fs-3 text-uppercase" id="verifyModalLabel{{ $dep->uuid }}" style="color: #00ffc4;">
@@ -268,14 +290,14 @@
                                             </p>
                                             <div class="row g-4">
                                                 <div class="col-md-12">
-                                                    <label for="status_spv_{{ $dep->uuid }}" class="form-label fw-bold mb-2 text-center d-block" 
+                                                    <label for="status_spv_{{ $dep->uuid }}" class="form-label fw-bold mb-2 text-center d-block"
                                                         style="color: #FFE5DE; font-size: 0.95rem;">
                                                         Pilih Status Verifikasi
                                                     </label>
 
-                                                    <select 
-                                                    name="status_spv" 
-                                                    id="status_spv_{{ $dep->uuid }}" 
+                                                    <select
+                                                    name="status_spv"
+                                                    id="status_spv_{{ $dep->uuid }}"
                                                     class="form-select form-select-lg fw-bold text-center mx-auto"
                                                     style="
                                                     background: linear-gradient(135deg, #fff1f0, #ffe5de);
@@ -290,9 +312,9 @@
                                                     "
                                                     required
                                                     >
-                                                    <option value="1" {{ $dep->status_spv == 1 ? 'selected' : '' }} 
+                                                    <option value="1" {{ $dep->status_spv == 1 ? 'selected' : '' }}
                                                         style="color: #198754; font-weight: 600;">✅ Verified (Disetujui)</option>
-                                                        <option value="2" {{ $dep->status_spv == 2 ? 'selected' : '' }} 
+                                                        <option value="2" {{ $dep->status_spv == 2 ? 'selected' : '' }}
                                                             style="color: #dc3545; font-weight: 600;">❌ Revision (Perlu Perbaikan)</option>
                                                         </select>
                                                     </div>
@@ -301,9 +323,9 @@
                                                         <label for="catatan_spv_{{ $dep->uuid }}" class="form-label fw-bold text-light mb-2">
                                                             Catatan Tambahan (Opsional)
                                                         </label>
-                                                        <textarea name="catatan_spv" id="catatan_spv_{{ $dep->uuid }}" rows="4" 
-                                                            class="form-control text-dark border-0 shadow-none" 
-                                                            placeholder="Masukkan catatan, misalnya alasan revisi..." 
+                                                        <textarea name="catatan_spv" id="catatan_spv_{{ $dep->uuid }}" rows="4"
+                                                            class="form-control text-dark border-0 shadow-none"
+                                                            placeholder="Masukkan catatan, misalnya alasan revisi..."
                                                             style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
 
                                                         </div>
@@ -333,12 +355,12 @@
                 </tbody>
             </table>
         </div>
-
-    {{-- Pagination --}}
-    <div class="mt-3">
-        {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
     </div>
 </div>
+
+{{-- Pagination --}}
+<div class="mt-3">
+    {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
 </div>
 </div>
 

@@ -13,70 +13,60 @@
     </div>
     @endif
 
-    {{-- Card Wrapper --}}
-    <div class="card card-custom shadow-sm">
-        <div class="card-body">
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Daftar Penyimpangan Kualitas</h2>
+        <div class="btn-group" role="group">
+            <a href="{{ route('penyimpangan-kualitas.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
+            <a href="{{ route('penyimpangan-kualitas.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </a>
+        </div>
+    </div>
 
-            {{-- Header Section --}}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold m-0">
-                    {{-- Ikon Peringatan/Segitiga --}}
-                    <i class="bi bi-exclamation-triangle me-2"></i>Daftar Penyimpangan Kualitas
-                </h3>
-                <div>
-                    <a href="{{ route('penyimpangan-kualitas.create') }}" class="btn btn-success me-2">
-                        <i class="bi bi-plus-circle me-1"></i> Tambah
-                    </a>
-                    <a href="{{ route('penyimpangan-kualitas.exportPdf', ['date' => request('date')]) }}" target="_blank" class="btn btn-primary">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </a>
+    {{-- Filter dan Live Search --}}
+    <form id="filterForm" method="GET" action="{{ route('penyimpangan-kualitas.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar4-week"></i>
+                        </span>
+                    </div>
+                    <input type="date" name="date" id="filter_date" class="form-control border-start-0 ps-0 shadow-none filter-input text-muted"
+                        value="{{ request('date') }}" style="border-color: #ced4da; font-size: 0.95rem;">
                 </div>
             </div>
-
-            {{-- Filter Section (Seamless Style) --}}
-            <form id="filterForm" method="GET" action="{{ route('penyimpangan-kualitas.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-4 p-2 rounded" style="background-color: #f8f9fa; border: 1px solid #e9ecef;">
-                
-                {{-- 1. Input Tanggal (Single Date) --}}
-                <div class="input-group" style="width: 200px;">
-                    <span class="input-group-text bg-white text-muted border-end-0" style="border-color: #ced4da;">
-                        <i class="bi bi-calendar4-week"></i>
-                    </span>
-                    {{-- Menggunakan name="date" --}}
-                    <input type="date" 
-                           name="date" 
-                           id="filter_date" 
-                           class="form-control border-start-0 ps-0 shadow-none filter-input text-muted" 
-                           value="{{ request('date') }}"
-                           style="border-color: #ced4da; font-size: 0.95rem;">
+            <div class="col-md-4">
+                <div class="mb-1">Cari Data</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                    </div>
+                    <input type="text" name="search" id="filter_search" class="form-control border-start-0 ps-0 shadow-none filter-input"
+                        placeholder="Cari Nomor, Produk, Lot..." value="{{ request('search') }}"
+                        style="border-color: #ced4da; font-size: 0.95rem;">
                 </div>
-
-                {{-- 2. Input Search (Memanjang) --}}
-                <div class="input-group flex-grow-1" style="max-width: 500px;">
-                    <span class="input-group-text bg-white text-muted border-end-0" style="border-color: #ced4da;">
-                        <i class="bi bi-search"></i>
-                    </span>
-                    <input type="text" 
-                           name="search" 
-                           id="filter_search" 
-                           class="form-control border-start-0 ps-0 shadow-none filter-input" 
-                           placeholder="Cari Nomor, Produk, Lot..." 
-                           value="{{ request('search') }}"
-                           style="border-color: #ced4da; font-size: 0.95rem;">
-                </div>
-
-                {{-- Tombol Reset --}}
-                @if(request('date') || request('search'))
-                <a href="{{ route('penyimpangan-kualitas.index') }}" class="btn btn-light border text-muted" title="Reset Filter" style="background-color: white;">
-                    <i class="bi bi-arrow-clockwise"></i>
+            </div>
+            <div class="col-md-4 align-self-end">
+                <a href="{{ route('penyimpangan-kualitas.index') }}" class="btn btn-primary mb-2">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </a>
-                @endif
+            </div>
+        </div>
+    </form>
 
-            </form>
-
+    <div class="card shadow-sm">
+        <div class="card-body">
             {{-- Tabel Data --}}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle hover-table">
-                    <thead class="table-primary text-center text-uppercase small fw-bold">
+                <table class="table">
+                    <thead class="table-secondary text-center">
                         <tr>
                             <th style="width: 5%;">No</th>
                             <th style="width: 10%;">Tanggal</th>
@@ -174,16 +164,15 @@
                     </tbody>
                 </table>
             </div>
-
-            {{-- Pagination --}}
-            @if ($penyimpanganKualitasItems->hasPages())
-            <div class="d-flex justify-content-end mt-3">
-                {!! $penyimpanganKualitasItems->withQueryString()->links('pagination::bootstrap-5') !!}
-            </div>
-            @endif
-
         </div>
     </div>
+
+    {{-- Pagination --}}
+    @if ($penyimpanganKualitasItems->hasPages())
+    <div class="mt-3">
+        {!! $penyimpanganKualitasItems->withQueryString()->links('pagination::bootstrap-5') !!}
+    </div>
+    @endif
 </div>
 
 {{-- JAVASCRIPT SECTION --}}

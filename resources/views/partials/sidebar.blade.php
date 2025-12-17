@@ -96,14 +96,13 @@ $type_user = auth()->user()->type_user;
 
     @can('can access form qc')
     @php
-    $typeAllowed = in_array($type_user, [0,1,2,4,8]);
 
     // jika ada perubahan form, bisa ditambahkan disini
     $meatRoutes = ['checklistmagnettrap.*', 'mincing.*', 'metal.*'];
-    $stuffingRoutes = ['pvdc.*', 'labelisasi_pvdc.*', 'stuffing.*', 'wire.*'];
-    $retortRoutes = ['pemasakan.*', 'washing.*', 'chamber.*', 'pemusnahan.*'];
-    $packingRoutes = [ 'organoleptik.*','packing.*', 'prepacking.*', 'release_packing.*', 'sampling.*', 'karton.*',
+    $stuffingRoutes = ['pvdc.*', 'labelisasi_pvdc.*', 'stuffing.*', 'wire.*',
     'sampling_fg.*'];
+    $retortRoutes = ['pemasakan.*', 'washing.*', 'chamber.*', 'pemusnahan.*'];
+    $packingRoutes = [ 'organoleptik.*','packing.*', 'prepacking.*', 'release_packing.*', 'sampling.*', 'karton.*'];
     $warehouseRoutes = ['inspections.*', 'packaging-inspections.*', 'loading-produks.*', 'klorin.*'];
     $cikandeRoutes = ['pemeriksaan_retain.*', 'dispositions.*', 'berita-acara.*', 'pemeriksaan-kekuatan-magnet-trap.*',
     'penyimpangan-kualitas.*'];
@@ -124,7 +123,6 @@ $type_user = auth()->user()->type_user;
 
     @endphp
 
-    @if($typeAllowed)
 
     <!-- Heading -->
     <div class="sidebar-heading">Form QC</div>
@@ -395,7 +393,6 @@ $type_user = auth()->user()->type_user;
         </div>
     </li>
 
-    @endif
 
     @endcan
 
