@@ -133,11 +133,20 @@ class OrganoleptikController extends Controller
         $produks = Produk::where('plant', $userPlant)->get();
         $organoleptikData = json_decode($organoleptik->sensori, true) ?? [];
 
+        // Tambahkan kode_produksi_text untuk Select2
+        foreach ($organoleptikData as $index => &$data) {
+            if (!empty($data['kode_produksi'])) {
+                $batch = \App\Models\Mincing::find($data['kode_produksi']);
+                $data['kode_produksi_text'] = $batch ? $batch->kode_produksi : '';
+            }
+        }
+
         return view('form.organoleptik.update', compact('organoleptik', 'produks', 'organoleptikData'));
     }
 
     public function update_qc(Request $request, string $uuid)
     {
+        // dd($request->all());
         $organoleptik = Organoleptik::where('uuid', $uuid)->firstOrFail();
         $username_updated = Auth::user()->username ?? 'User RTM';
 
@@ -146,7 +155,8 @@ class OrganoleptikController extends Controller
             'shift'                     => 'required',
             'nama_produk'               => 'required|string',
             'sensori'                   => 'required|array|min:1',
-            'sensori.*.kode_produksi'   => 'required|string|size:10',
+            'sensori.*.kode_produksi'   => 'required|string',
+            // --- FIELD SENSORI TAMBAHAN ---
             'sensori.*.penampilan'      => 'nullable|numeric|between:0,3',
             'sensori.*.aroma'           => 'nullable|numeric|between:0,3',
             'sensori.*.kekenyalan'      => 'nullable|numeric|between:0,3',
@@ -157,30 +167,15 @@ class OrganoleptikController extends Controller
             'sensori.*.rasa_keseluruhan'=> 'nullable|numeric|between:0,3',
             'sensori.*.rata_score'      => 'nullable|numeric',
             'sensori.*.release'         => 'nullable|string',
+            // ------------------------------
         ]);
 
         $sensoris = $validated['sensori'];
 
         foreach ($sensoris as $index => &$item) {
-            $kode = strtoupper(trim($item['kode_produksi']));
-
-            if (!preg_match('/^[A-Z0-9]+$/', $kode)) {
-                return back()->withErrors(["sensori.$index.kode_produksi" => "Kode produksi hanya boleh huruf besar dan angka."])->withInput();
-            }
-
-            $bulanChar = substr($kode, 1, 1);
-            if (!preg_match('/^[A-L]$/', $bulanChar)) {
-                return back()->withErrors(["sensori.$index.kode_produksi" => "Karakter ke-2 harus huruf bulan (A–L)."])->withInput();
-            }
-
-            $hariStr = substr($kode, 2, 2);
-            $hari = intval($hariStr);
-            if ($hari < 1 || $hari > 31) {
-                return back()->withErrors(["sensori.$index.kode_produksi" => "Karakter ke-3 dan ke-4 harus tanggal valid (01–31)."])->withInput();
-            }
 
             $item = [
-                'kode_produksi'     => $kode,
+                'kode_produksi'     => $item['kode_produksi'],
                 'penampilan'        => $item['penampilan'] ?? null,
                 'aroma'             => $item['aroma'] ?? null,
                 'kekenyalan'        => $item['kekenyalan'] ?? null,
