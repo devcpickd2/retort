@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container-fluid py-4">
     <div class="card shadow-sm">
@@ -27,8 +26,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Produk</label>
-                                <select name="nama_produk" class="form-control selectpicker" data-live-search="true"
-                                    required>
+                                <select name="nama_produk" id="nama_produk" class="form-select select2" required>
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach($produks as $produk)
                                     <option value="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</option>
@@ -38,13 +36,14 @@
                             <div class="col-md-6">
                                 <label class="form-label">Kode Produksi</label>
                                 <select name="kode_produksi" id="kode_produksi"
-                                    class="form-control @error('kode_produksi') is-invalid @enderror" required disabled>
-                                    <option value="">Pilih Varian Terlebih Dahulu</option>
+                                    class="form-select select2 @error('kode_produksi') is-invalid @enderror" disabled
+                                    required>
+                                    <option></option>
                                 </select>
 
-                                <small id="kodeError" class="text-danger">
-                                    @error('kode_produksi') {{ $message }} @enderror
-                                </small>
+                                @error('kode_produksi')
+                                <span class="invalid-feedback d-block">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -163,14 +162,21 @@
     </div>
 </div>
 
+@endsection
+
 {{-- ===================== SCRIPT ===================== --}}
+@push('scripts')
+{{-- Include jQuery (Select2 depends on it) --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+    href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
 <script>
     $(document).ready(function() {
-    
+
+       
     const produkSelect = document.querySelector('select[name="nama_produk"]');
     const batchSelect = document.getElementById('kode_produksi');
     const kodeError = document.getElementById('kodeError');
@@ -180,40 +186,53 @@
     const maxFileSize = 2 * 1024 * 1024; // 2MB
 
     // Disable batch saat awal load (jika tidak ada old value)
-    if (!produkSelect.value) {
-        batchSelect.disabled = true;
-    }
-
-    produkSelect.addEventListener('change', function () {
-        let namaProduk = this.value;
-        if (!namaProduk) {
-            batchSelect.innerHTML = '<option value="">Pilih Varian Terlebih Dahulu</option>';
-            batchSelect.disabled = true;
-            expDateInput.value = '';
-            return;
-        }
-
-        fetch(`/lookup/batch/${namaProduk}`)
-        .then(response => response.json())
-        .then(data => {
-            batchSelect.disabled = false; 
-            batchSelect.innerHTML = ""; // bersihkan dulu
-
-            if (data.length === 0) {
-                batchSelect.innerHTML = '<option value="">Batch Tidak Ditemukan</option>';
-                batchSelect.disabled = true;
-                return;
-            }
-
-            // Jika ada data, baru tampilkan default option
-            batchSelect.innerHTML = '<option value="">-- Pilih Batch --</option>';
-
-            data.forEach(batch => {
-                batchSelect.innerHTML += `<option value="${batch.uuid}">${batch.kode_produksi}</option>`;
-            });
-        });
+    $('#nama_produk').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: 'Ketik untuk mencari produk...',
+        allowClear: true
     });
 
+    // Kode produksi (DINAMIS)
+    $('#kode_produksi').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: 'Ketik kode produksi...',
+        allowClear: true,
+        ajax: {
+            delay: 300,
+            transport: function (params, success, failure) {
+                const produk = $('#nama_produk').val();
+                if (!produk) {
+                    return;
+                }
+
+                return $.ajax({
+                    url: `/lookup/batch-packing/${produk}`,
+                    data: { q: params.data.term },
+                    success,
+                    error: failure
+                });
+            },
+            processResults: function (data) {
+                return { results: data };
+            }
+        }
+    });
+
+    // Enable / reset saat produk berubah
+    // $('#nama_produk').on('change', function () {
+    //     $('#kode_produksi')
+    //         .val(null)
+    //         .trigger('change')
+    //         .prop('disabled', !this.value);
+    // });
+    $('#nama_produk').on('change', function () {
+        $('#kode_produksi')
+            .prop('disabled', !this.value)
+            .val(null)
+            .trigger('change');
+    });
     // ============ VALIDASI FILE (langsung muncul di bawah kolom) ============
     fileInput.addEventListener('change', function() {
         fileError.textContent = "";
@@ -256,6 +275,4 @@
     dateInput.value = `${yyyy}-${mm}-${dd}`;
 });
 </script>
-
-
-@endsection
+@endpush

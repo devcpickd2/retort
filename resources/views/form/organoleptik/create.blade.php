@@ -48,13 +48,10 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Produk</label>
-                                <select id="nama_produk" name="nama_produk" class="form-control selectpicker"
-                                    data-live-search="true" title="Ketik nama produk..." required>
+                                <select name="nama_produk" id="nama_produk" class="form-select select2" required>
+                                    <option value="">-- Pilih Produk --</option>
                                     @foreach($produks as $produk)
-                                    <option value="{{ $produk->nama_produk }}" {{ old('nama_produk', $data->nama_produk
-                                        ?? '') == $produk->nama_produk ? 'selected' : '' }}>
-                                        {{ $produk->nama_produk }}
-                                    </option>
+                                    <option value="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -116,10 +113,10 @@
                                 <tbody id="sensoriTable">
                                     <tr>
                                         <td>
-                                            <select name="sensori[0][kode_produksi]"
-                                                class="form-control form-control-sm b kode_produksi_Select" required
-                                                disabled>
-                                                <option value="">Pilih Produk Terlebih Dahulu</option>
+                                            <select name="sensori[0][kode_produksi]" id="kode_produksi"
+                                                class="form-select select2 form-control-sm b kode_produksi_Select"
+                                                required disabled>
+                                                <option value="">pilih nama produk dulu</option>
                                             </select>
                                             <small class="kodeError text-danger d-none"></small>
                                         </td>
@@ -180,18 +177,45 @@
         </div>
     </div>
 </div>
+<style>
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+
+    .form-control-sm {
+        min-width: 90px;
+        font-size: 0.9rem;
+    }
+
+    .b {
+        min-width: 200px;
+        font-size: 0.9rem;
+    }
+
+    .c {
+        min-width: 150px;
+        font-size: 0.9rem;
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+        text-align: center;
+    }
+</style>
+@endsection
 
 {{-- ===================== SCRIPTS ===================== --}}
+@push('scripts')
+{{-- Include jQuery (Select2 depends on it) --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
-<script>
-    $(document).ready(function(){
-        // Inisialisasi selectpicker setelah DOM siap
-        $('.selectpicker').selectpicker();
-    });
-</script>
+    href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
 <script>
     $(function() {
     // ========== Set tanggal & shift otomatis ==========
@@ -234,94 +258,80 @@
         });
 
     // ========== Load batch berdasarkan produk ==========
-    const produkSelect = $("#nama_produk");
-
-    // Trigger saat produk diganti
-    produkSelect.on("change", function () {
-        loadBatchForAllRows();
+    $('#nama_produk').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: 'Ketik untuk mencari produk...',
+        allowClear: true
     });
 
-    function loadBatchForSelect(select) {
+    const produkSelect = $("#nama_produk");
+
+    function initializeSelect2ForKodeProduksi(select) {
+        select.select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: 'ketik kode produksi',
+            allowClear: true,
+            ajax: {
+                delay: 300,
+                transport: function (params, success, failure) {
+                    const produk = $('#nama_produk').val();
+                    if (!produk) {
+                        return;
+                    }
+
+                    return $.ajax({
+                        url: `/lookup/batch-packing/${produk}`,
+                        data: { q: params.data.term },
+                        success,
+                        error: failure
+                    });
+                },
+                processResults: function (data) {
+                    return { results: data };
+                }
+            }
+        });
+    }
+
+    // Initialize select2 for existing kode_produksi selects
+    $('.kode_produksi_Select').each(function() {
+        initializeSelect2ForKodeProduksi($(this));
+    });
+
+    function updateKodeProduksiState() {
         let produk = produkSelect.val();
-        select.html("");
-        select.prop("disabled", true);
+        let kode_produksi_Selects = $(".kode_produksi_Select");
 
         if (!produk) {
-            select.html('<option value="">Pilih Produk Terlebih Dahulu</option>');
-            return;
+            kode_produksi_Selects.prop("disabled", true).val(null).trigger('change');
+        } else {
+            kode_produksi_Selects.prop("disabled", false);
         }
-
-        fetch(`/lookup/batch/${produk}`)
-        .then(res => res.json())
-        .then(data => {
-
-            if (data.length === 0) {
-                select.html('<option value="">Batch Tidak Ditemukan</option>');
-                select.prop("disabled", true);
-                return;
-            }
-
-            select.prop("disabled", false);
-            select.html('<option value="">-- Pilih Batch --</option>');
-
-            data.forEach(batch => {
-                select.append(`
-                    <option value="${batch.uuid}" batch="${batch.kode_produksi}">
-                        ${batch.kode_produksi}
-                    </option>
-                `);
-            });
-        });
     }
 
-    function loadBatchForAllRows() {
-        let kode_produksi_Selects = $(".kode_produksi_Select");
-        kode_produksi_Selects.each(function () {
-            loadBatchForSelect($(this));
-        });
-    }
-
-    // ========== Validasi kode produksi ==========
-        // function validateKode(value) {
-        //     if (!value) return { valid: false, message: "Kode produksi wajib diisi." };
-        //     value = value.toUpperCase().replace(/\s+/g,'');
-        //     if (value.length !== 10) return { valid:false, message: "Kode produksi harus 10 karakter." };
-        //     const format = /^[A-Z0-9]+$/;
-        //     if (!format.test(value)) return { valid:false, message: "Kode produksi hanya boleh huruf besar dan angka." };
-        //     const pattern = /^[A-Z0-9][A-L](0[1-9]|[12][0-9]|3[01])[A-Z0-9]{6}$/;
-        //     if (!pattern.test(value)) return { valid:false, message: "Format: ke-2 A–L, ke-3/4 tanggal 01–31." };
-        //     return { valid:true, message:"✔ Kode produksi valid." };
-        // }
-
-    // ========== Event input kode produksi ==========
-        // $(document).on('input', '.kode_produksi', function() {
-        //     const $this = $(this);
-        //     const row = $this.closest('tr');
-        //     const val = $this.val().toUpperCase().replace(/\s+/g,'');
-        //     $this.val(val);
-
-        //     const result = validateKode(val);
-        //     const $err = row.find('.kodeError');
-
-        //     if (!result.valid) {
-        //         $err.text(result.message).removeClass('d-none text-success').addClass('text-danger');
-        //         $this.addClass('is-invalid').removeClass('is-valid');
-        //     } else {
-        //         $err.text(result.message).removeClass('d-none text-danger').addClass('text-success');
-        //         $this.addClass('is-valid').removeClass('is-invalid');
-        //     }
-        // });
+    produkSelect.on("change", function () {
+        updateKodeProduksiState();
+    });
 
     // ========== Tambah baris baru (HANYA SATU EVENT) ==========
         $(document).off('click', '#addRow').on('click', '#addRow', function(){
             const table = $('#pemeriksaanTable tbody');
             const index = table.find('tr').length;
+
+            // Destroy select2 on first row before cloning to get clean select elements
+            const firstSelect = table.find('tr:first .kode_produksi_Select');
+            if (firstSelect.hasClass('select2-hidden-accessible')) {
+                firstSelect.select2('destroy');
+            }
+
             const clone = table.find('tr:first').clone();
 
             clone.find('input, select, small').each(function(){
                 const name = $(this).attr('name');
                 if (name) {
-        // Ambil key kolom seperti "penampilan", "aroma", dst.
+                    // Ambil key kolom seperti "penampilan", "aroma", dst.
                     const key = name.match(/\[([a-zA-Z0-9_]+)\]$/);
                     if (key && key[1]) {
                         $(this).attr('name', `sensori[${index}][${key[1]}]`);
@@ -329,10 +339,22 @@
                 }
 
                 if ($(this).is('input')) $(this).val('').removeClass('is-valid is-invalid');
-                if ($(this).is('select')) $(this).val('').removeClass('is-valid is-invalid');
+                if ($(this).is('select')) {
+                    // Remove id to avoid duplicates
+                    $(this).removeAttr('id');
+                    $(this).val('').removeClass('is-valid is-invalid');
+                }
                 if ($(this).is('small')) $(this).text('').addClass('d-none').removeClass('text-success text-danger');
             });
+
             table.append(clone);
+
+            // Re-initialize select2 on all kode_produksi_Select elements
+            $('.kode_produksi_Select').each(function() {
+                initializeSelect2ForKodeProduksi($(this));
+            });
+
+            updateKodeProduksiState(); // Update disabled state for new row
         });
 
     // ========== Hapus baris ==========
@@ -344,59 +366,6 @@
             }
         });
 
-    // ========== Prevent submit jika ada kode tidak valid ==========
-        // $('form').on('submit', function(e) {
-        //     let firstInvalid = null;
-        //     $('#pemeriksaanTable tbody tr').each(function() {
-        //         const $kode = $(this).find('.kode_produksi');
-        //         const res = validateKode(($kode.val() || '').toUpperCase().replace(/\s+/g,''));
-        //         const $err = $(this).find('.kodeError');
-        //         if (!res.valid) {
-        //             $err.text(res.message).removeClass('d-none text-success').addClass('text-danger');
-        //             $kode.addClass('is-invalid').removeClass('is-valid');
-        //             if (!firstInvalid) firstInvalid = $kode;
-        //         } else {
-        //             $err.text(res.message).removeClass('d-none text-danger').addClass('text-success');
-        //             $kode.addClass('is-valid').removeClass('is-invalid');
-        //         }
-        //     });
-
-        //     if (firstInvalid) {
-        //         e.preventDefault();
-        //         firstInvalid.focus();
-        //         alert('Terdapat kode produksi tidak valid. Periksa kembali baris yang berwarna merah.');
-        //     }
-        // });
-
     });
 </script>
-
-<style>
-    .table th,
-    .table td {
-        padding: 0.5rem;
-        vertical-align: middle;
-        font-size: 0.9rem;
-    }
-
-    .form-control-sm {
-        min-width: 90px;
-        font-size: 0.9rem;
-    }
-
-    .b {
-        min-width: 200px;
-        font-size: 0.9rem;
-    }
-
-    .c {
-        min-width: 150px;
-        font-size: 0.9rem;
-    }
-
-    .table-bordered th,
-    .table-bordered td {
-        text-align: center;
-    }
-</style>
-@endsection
+@endpush
