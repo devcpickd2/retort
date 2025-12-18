@@ -296,6 +296,7 @@ Route::put('/recall/verify-manager/{uuid}', [RecallController::class, 'updateApp
 
 /*FORM PUTRI*/
 // Stuffing
+Route::get('/stuffing/export-pdf', [App\Http\Controllers\StuffingController::class, 'exportPdf'])->name('stuffing.exportPdf');
 Route::get('/stuffing', [StuffingController::class, 'index'])->name('stuffing.index');
 Route::get('/stuffing/create', [StuffingController::class, 'create'])->name('stuffing.create');
 Route::post('/stuffing', [StuffingController::class, 'store'])->name('stuffing.store');
@@ -307,9 +308,9 @@ Route::get('/stuffing/verification', [StuffingController::class, 'verification']
 Route::put('/stuffing/verification/{uuid}', [StuffingController::class, 'updateVerification'])
 ->name('stuffing.verification.update');
 Route::delete('/stuffing/{uuid}', [StuffingController::class, 'destroy'])->name('stuffing.destroy');
-Route::get('/stuffing/export-pdf', [App\Http\Controllers\StuffingController::class, 'exportPdf'])->name('stuffing.exportPdf');
 
 // Wire
+Route::get('/wire/export-pdf', [WireController::class, 'exportPdf'])->name('wire.exportPdf');
 Route::get('/wire', [WireController::class, 'index'])->name('wire.index');
 Route::get('/wire/create', [WireController::class, 'create'])->name('wire.create');
 Route::post('/wire', [WireController::class, 'store'])->name('wire.store');
@@ -321,9 +322,9 @@ Route::get('/wire/verification', [WireController::class, 'verification'])->name(
 Route::put('/wire/verification/{uuid}', [WireController::class, 'updateVerification'])
 ->name('wire.verification.update');
 Route::delete('/wire/{uuid}', [WireController::class, 'destroy'])->name('wire.destroy');
-Route::get('/wire/export-pdf', [WireController::class, 'exportPdf'])->name('wire.exportPdf');
 
 // Sampling FG
+Route::get('/sampling_fg/export-pdf', [Sampling_fgController::class, 'exportPdf'])->name('sampling_fg.exportPdf');
 Route::get('/get-jumlah-box', [App\Http\Controllers\sampling_fgController::class, 'getJumlahBox'])->name('get.jumlah.box');
 Route::get('/sampling_fg', [Sampling_fgController::class, 'index'])->name('sampling_fg.index');
 Route::get('/sampling_fg/create', [Sampling_fgController::class, 'create'])->name('sampling_fg.create');
@@ -512,6 +513,7 @@ Route::put('/metal/verification/{uuid}', [MetalController::class, 'updateVerific
 Route::delete('/metal/{uuid}', [MetalController::class, 'destroy'])->name('metal.destroy');
 
 // Pemasakan
+Route::get('/pemasakan/export-pdf', [PemasakanController::class, 'exportPdf'])->name('pemasakan.exportPdf');
 Route::get('/pemasakan', [PemasakanController::class, 'index'])->name('pemasakan.index');
 Route::get('/pemasakan/create', [PemasakanController::class, 'create'])->name('pemasakan.create');
 Route::post('/pemasakan', [PemasakanController::class, 'store'])->name('pemasakan.store');
@@ -538,6 +540,7 @@ Route::put('/prepacking/verification/{uuid}', [PrepackingController::class, 'upd
 Route::delete('/prepacking/{uuid}', [PrepackingController::class, 'destroy'])->name('prepacking.destroy');
 
 // Washing
+Route::get('/washing/export-pdf', [WashingController::class, 'exportPdf'])->name('washing.exportPdf');
 Route::get('/washing', [WashingController::class, 'index'])->name('washing.index');
 Route::get('/washing/create', [WashingController::class, 'create'])->name('washing.create');
 Route::post('/washing', [WashingController::class, 'store'])->name('washing.store');
