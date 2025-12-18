@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Labelisasi_pvdc;
+use App\Models\Mincing;
 use App\Models\Produk;
 use App\Models\Mesin;
 use App\Models\Operator;
@@ -180,6 +181,17 @@ class Labelisasi_pvdcController extends Controller
         ->get();
 
         $labelisasi_pvdcData = json_decode($labelisasi_pvdc->labelisasi, true) ?? [];
+
+        // Tambahkan kode_produksi untuk display
+        foreach ($labelisasi_pvdcData as &$row) {
+            if (!empty($row['kode_batch'])) {
+                $mincing = Mincing::where('uuid', $row['kode_batch'])->first();
+                if ($mincing) {
+                    $row['kode_produksi_display'] = $mincing->kode_produksi;
+                }
+            }
+        }
+
         session()->put('pvdc_temp', $labelisasi_pvdcData);
 
         return view('form.labelisasi_pvdc.update', compact(
