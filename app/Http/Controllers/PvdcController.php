@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pvdc;
+use App\Models\Mincing;
 use App\Models\Produk;
 use App\Models\Mesin;
 use App\Models\Supplier;
@@ -142,6 +143,27 @@ class PvdcController extends Controller
         ->get();
 
         $pvdcData = !empty($pvdc->data_pvdc) ? json_decode($pvdc->data_pvdc, true) : [];
+
+        foreach ($pvdcData as &$mesinRow) {
+            if (empty($mesinRow['detail'])) {
+                continue;
+            }
+            // Paksa detail jadi array numerik (buang key aneh 1.3333 dst)
+            $details = is_array($mesinRow['detail'])
+                ? array_values($mesinRow['detail'])
+                : [];
+                
+            foreach ($details as &$detailRow) {
+                if (empty($detailRow['batch'])) {
+                    continue;
+                }
+                $mincing = Mincing::where('uuid', $detailRow['batch'])->first();
+                if ($mincing) {
+                    $detailRow['batch_display'] = $mincing->kode_produksi;
+                }
+            }
+            $mesinRow['detail'] = $details;
+        }
 
         return view('form.pvdc.update', compact('pvdc', 'produks', 'pvdcData', 'mesins', 'suppliers'));
     }
