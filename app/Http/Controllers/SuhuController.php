@@ -14,6 +14,7 @@ class SuhuController extends Controller
     {
        $search    = $request->input('search');
        $date      = $request->input('date');
+       $shift     = $request->input('shift');
        $userPlant  = Auth::user()->plant;
        $area_suhus = Area_suhu::where('plant', $userPlant)->get();
 
@@ -27,12 +28,15 @@ class SuhuController extends Controller
        ->when($date, function ($query) use ($date) {
         $query->whereDate('date', $date);
     })
+       ->when($shift, function ($query) use ($shift) {
+        $query->where('shift', $shift);
+    })
        ->orderBy('date', 'desc')
        ->orderBy('created_at', 'desc')
        ->paginate(10)
        ->appends($request->all());
 
-       return view('form.suhu.index', compact('data', 'search', 'date', 'area_suhus'));
+       return view('form.suhu.index', compact('data', 'search', 'date', 'shift', 'area_suhus'));
    }
 
    public function create()
@@ -281,12 +285,63 @@ public function updateVerification(Request $request, $uuid)
     ->with('success', 'Status Verifikasi Pemeriksaan Suhu dan RH berhasil diperbarui.');
 }
 
-public function destroy($uuid)
-{
-    $suhu = Suhu::where('uuid', $uuid)->firstOrFail();
-    $suhu->delete();
+    public function destroy($uuid)
+    {
+        $suhu = Suhu::where('uuid', $uuid)->firstOrFail();
+        $suhu->delete();
 
-    return redirect()->route('suhu.verification')
-    ->with('success', 'Pemeriksaan Suhu dan RH berhasil dihapus');
-}
+        return redirect()->route('suhu.verification')
+        ->with('success', 'Pemeriksaan Suhu dan RH berhasil dihapus');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        $items = Suhu::query()
+            ->where('plant', $userPlant)
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('pukul', 'asc')
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Pemeriksaan Suhu dan RH');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 7);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.pemeriksaan-suhu-rh', compact('items', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Pemeriksaan_Suhu_RH_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
+    }
 }

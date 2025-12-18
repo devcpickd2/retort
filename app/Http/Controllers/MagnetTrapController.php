@@ -8,6 +8,7 @@ use App\Models\Produk;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Operator;
+use TCPDF;
 
 
 class MagnetTrapController extends Controller
@@ -20,7 +21,7 @@ class MagnetTrapController extends Controller
     public function index(Request $request)
     {
         // Eager load updater untuk performa
-        $query = MagnetTrapModel::query()->with('updater');
+        $query = MagnetTrapModel::query()->with(['updater', 'mincing']);
 
         // 0. Filter Plant (Data Isolation)
         // Menampilkan data hanya sesuai Plant user yang login
@@ -35,10 +36,8 @@ class MagnetTrapController extends Controller
         });
 
         // 2. Filter Tanggal
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $startDate = $request->start_date . ' 00:00:00';
-            $endDate = $request->end_date . ' 23:59:59';
-            $query->whereBetween('created_at', [$startDate, $endDate]);
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->input('date'));
         }
 
         // 3. Get Data
@@ -72,9 +71,10 @@ class MagnetTrapController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $validatedData = $request->validate([
             'nama_produk' => 'required',
-            'kode_batch' => 'required|string|max:10', // Max 10 sesuai request
+            'kode_batch' => 'required|string', // Max 10 sesuai request
             'pukul' => 'required',
             'jumlah_temuan' => 'required|integer|min:0',
             'status' => 'required|in:v,x',
@@ -277,12 +277,79 @@ class MagnetTrapController extends Controller
                         ->where('kode_produksi', 'like', '%' . $search . '%')
                         ->limit(10)
                         ->pluck('kode_produksi');
-            
+
             return response()->json($data);
         }
-        
+
         return response()->json([]);
     }
 
-}
+    public function exportPdf(Request $request)
+    {
+        $date = $request->input('date');
+        $userPlant = Auth::user()->plant;
 
+        $magnetTraps = MagnetTrapModel::query()
+            ->where('plant_uuid', $userPlant)
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('created_at', $date);
+            })
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // Clear any previous output buffers to prevent "TCPDF ERROR: Some data has already been output"
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // Create new TCPDF object
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        // Set document information
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetAuthor('Your Name/Company');
+        $pdf->SetTitle('Checklist Cleaning Magnet Trap');
+        $pdf->SetSubject('Checklist Cleaning Magnet Trap');
+
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set default monospaced font
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+        // Set margins
+        $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+
+        // Set auto page breaks
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+        // Set image scale factor
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+        // Set some language-dependent strings (optional)
+        if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+            require_once(dirname(__FILE__).'/lang/eng.php');
+            $pdf->setLanguageArray($l);
+        }
+
+        // Set font
+        $pdf->SetFont('helvetica', '', 8);
+
+        // Add a page
+        $pdf->AddPage('L', 'A3'); // Landscape A3 for many columns
+
+        // Convert the Blade view to HTML
+        $html = view('reports.cleaning-magnet-trap', compact('magnetTraps', 'request'))->render();
+
+        // Print text using writeHTMLCell()
+        $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+        // Close and output PDF document (Inline/Preview)
+        $pdf->Output('Checklist_Cleaning_Magnet_Trap_' . date('Ymd_His') . '.pdf', 'I');
+
+        exit();
+    }
+
+}

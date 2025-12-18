@@ -23,9 +23,7 @@
             <div id="content">
                 @include('partials.topbar')
 
-                <div class="container-fluid">
                     @yield('content')
-                </div>
             </div>
 
             @include('partials.footer')
@@ -36,6 +34,16 @@
     <script src="{{ asset('assets/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/js/sb-admin-2.min.js') }}"></script>
+    <script>
+        var windowWidth = $(window).width();
+        if(windowWidth <= 1024){
+            $('#page-top').addClass('sidebar-toggled');
+            $('.sidebar').addClass('toggled');
+        } else {
+            $('#page-top').removeClass('sidebar-toggled');
+            $('.sidebar').removeClass('toggled');
+        }
+    </script>
 
     <!-- Tambahan JS -->
     @stack('scripts')

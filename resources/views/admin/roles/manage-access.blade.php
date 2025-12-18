@@ -7,7 +7,6 @@
             <div class="card">
                 <div class="card-header">
                     Manage Access for Role: {{ $role->name }}
-                    <a href="{{ route('roles.index') }}" class="btn btn-primary btn-sm float-right">Back</a>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('roles.saveAccess', $role->id) }}" method="POST">

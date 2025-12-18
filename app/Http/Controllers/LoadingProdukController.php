@@ -21,12 +21,21 @@ class LoadingProdukController extends Controller
         $query = LoadingProduk::with('creator');
 
         // 3. Terapkan filter jika ada input
-        if ($request->filled('start_date')) {
-            $query->where('tanggal', '>=', $request->start_date);
+        if ($request->filled('date')) {
+            $query->whereDate('tanggal', $request->date);
         }
 
-        if ($request->filled('end_date')) {
-            $query->where('tanggal', '<=', $request->end_date);
+        if ($request->filled('shift')) {
+            $query->where('shift', $request->shift);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('no_pol_mobil', 'like', "%{$search}%")
+                  ->orWhere('nama_supir', 'like', "%{$search}%")
+                  ->orWhere('ekspedisi', 'like', "%{$search}%");
+            });
         }
 
         // 4. Eksekusi query dengan urutan terbaru dan paginasi
@@ -255,8 +264,64 @@ class LoadingProdukController extends Controller
     {
         // Pastikan relasi details dimuat
         $loadingProduk->load('details');
-        
+
         // Return ke view dengan nama 'update-details'
         return view('loading-produks.update-details', compact('loadingProduk'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date = $request->input('date');
+        $shift = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        $query = LoadingProduk::with(['details', 'creator']);
+        if (Auth::check() && !empty($userPlant)) {
+            $query->where('plant_uuid', $userPlant);
+        }
+
+        // Filter tanggal dan shift
+        $query->when($date, function ($q) use ($date) {
+            $q->whereDate('tanggal', $date);
+        });
+
+        $query->when($shift, function ($q) use ($shift) {
+            $q->where('shift', $shift);
+        });
+
+        $loadings = $query->orderBy('tanggal', 'asc')->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Pemeriksaan Loading Unloading Produk');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 6);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.pemeriksaan-loading-unloading', compact('loadings', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Pemeriksaan_Loading_Unloading_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
     }
 }

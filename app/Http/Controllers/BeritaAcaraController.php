@@ -211,4 +211,55 @@ class BeritaAcaraController extends Controller
     {
         return view('berita-acara.update_view', compact('beritaAcara'));
     }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date = $request->input('date');
+        $userPlant = Auth::user()->plant;
+
+        $query = BeritaAcara::query();
+        if (Auth::check() && !empty($userPlant)) {
+            $query->where('plant_uuid', $userPlant);
+        }
+
+        // Filter tanggal kedatangan
+        $query->when($date, function ($q) use ($date) {
+            $q->whereDate('tanggal_kedatangan', $date);
+        });
+
+        $beritaAcaras = $query->orderBy('tanggal_kedatangan', 'asc')->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Form Berita Acara');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 8);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.form-berita-acara', compact('beritaAcaras', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Form_Berita_Acara_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
+    }
 }

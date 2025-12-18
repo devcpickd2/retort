@@ -22,4 +22,9 @@ class Release_packing extends Model
         'username', 'username_updated',  'nama_spv', 'status_spv', 'catatan_spv', 'tgl_update_spv'
     ];
 
+    public function mincing()
+    {
+        return $this->belongsTo(Mincing::class, 'kode_produksi', 'uuid');
+    }
+
 }

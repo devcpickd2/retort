@@ -21,24 +21,27 @@ class PackagingInspectionController extends Controller
         // 1. Memulai query builder
         $query = PackagingInspection::query();
 
-        // 2. Terapkan filter pencarian (Fokus ke Shift)
+        // 2. Terapkan filter pencarian
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
-            
+
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('shift', 'LIKE', "%{$searchTerm}%") // Pencarian utama Shift
+                $q->where('shift', 'LIKE', "%{$searchTerm}%") // Pencarian shift
                   ->orWhere('uuid', 'LIKE', "%{$searchTerm}%"); // Opsional: Cari UUID juga
             });
         }
 
         // 3. Terapkan filter tanggal
-        // Karena di UI hanya ada satu input 'start_date', 
-        // kita gunakan logika whereDate untuk mencari tanggal yang SAMA PERSIS.
         if ($request->filled('start_date')) {
             $query->whereDate('inspection_date', '=', $request->input('start_date'));
         }
 
-        // 4. Urutkan dan Paginate
+        // 4. Terapkan filter shift
+        if ($request->filled('shift')) {
+            $query->where('shift', $request->input('shift'));
+        }
+
+        // 5. Urutkan dan Paginate
         $inspections = $query->latest('inspection_date')
                              ->latest('created_at') // Urutan tambahan agar data baru selalu di atas
                              ->paginate(10)
@@ -306,8 +309,64 @@ class PackagingInspectionController extends Controller
     {
         $packagingInspection->load('items');
         $vehicleConditions = ['Bersih', 'Kotor', 'Bau', 'Bocor', 'Basah', 'Kering', 'Bebas Hama'];
-        
+
         // Return ke view baru: packaging_inspections.update
         return view('packaging_inspections.update', compact('packagingInspection', 'vehicleConditions'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date = $request->input('start_date');
+        $shift = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        $query = PackagingInspection::with(['items']);
+        if (Auth::check() && !empty($userPlant)) {
+            $query->where('plant_uuid', $userPlant);
+        }
+
+        // Filter tanggal dan shift
+        $query->when($date, function ($q) use ($date) {
+            $q->whereDate('inspection_date', $date);
+        });
+
+        $query->when($shift, function ($q) use ($shift) {
+            $q->where('shift', $shift);
+        });
+
+        $inspections = $query->orderBy('inspection_date', 'asc')->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Pemeriksaan Packaging');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 6);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.pemeriksaan-packaging', compact('inspections', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Pemeriksaan_Packaging_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
     }
 }

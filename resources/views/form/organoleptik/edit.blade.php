@@ -8,7 +8,8 @@
                 <i class="bi bi-pencil-square"></i> Edit Pemeriksaan Organoleptik
             </h4>
 
-            <form method="POST" action="{{ route('organoleptik.edit_spv', $organoleptik->uuid) }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('organoleptik.edit_spv', $organoleptik->uuid) }}"
+                enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -21,15 +22,18 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal</label>
-                                <input type="date" id="dateInput" name="date" class="form-control" 
-                                value="{{ old('date', $organoleptik->date) }}" required>
+                                <input type="date" id="dateInput" name="date" class="form-control"
+                                    value="{{ old('date', $organoleptik->date) }}" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Shift</label>
                                 <select id="shiftInput" name="shift" class="form-control" required>
-                                    <option value="1" {{ old('shift', $organoleptik->shift) == '1' ? 'selected' : '' }}>Shift 1</option>
-                                    <option value="2" {{ old('shift', $organoleptik->shift) == '2' ? 'selected' : '' }}>Shift 2</option>
-                                    <option value="3" {{ old('shift', $organoleptik->shift) == '3' ? 'selected' : '' }}>Shift 3</option>
+                                    <option value="1" {{ old('shift', $organoleptik->shift) == '1' ? 'selected' : ''
+                                        }}>Shift 1</option>
+                                    <option value="2" {{ old('shift', $organoleptik->shift) == '2' ? 'selected' : ''
+                                        }}>Shift 2</option>
+                                    <option value="3" {{ old('shift', $organoleptik->shift) == '3' ? 'selected' : ''
+                                        }}>Shift 3</option>
                                 </select>
                             </div>
                         </div>
@@ -37,10 +41,11 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Produk</label>
-                                <select id="nama_produk" name="nama_produk" class="form-control selectpicker" data-live-search="true" title="Ketik nama produk..." required>
+                                <select id="nama_produk" name="nama_produk" class="form-control selectpicker"
+                                    data-live-search="true" title="Ketik nama produk..." required>
                                     @foreach($produks as $produk)
-                                    <option value="{{ $produk->nama_produk }}" 
-                                        {{ old('nama_produk', $organoleptik->nama_produk) == $produk->nama_produk ? 'selected' : '' }}>
+                                    <option value="{{ $produk->nama_produk }}" {{ old('nama_produk', $organoleptik->
+                                        nama_produk) == $produk->nama_produk ? 'selected' : '' }}>
                                         {{ $produk->nama_produk }}
                                     </option>
                                     @endforeach
@@ -108,39 +113,55 @@
                                     $releaseStyle = '';
 
                                     if ($releaseText === 'Tidak Release') {
-                                        $releaseStyle = 'color:red; font-weight:bold;';
+                                    $releaseStyle = 'color:red; font-weight:bold;';
                                     } elseif ($releaseText === 'Release') {
-                                        $releaseStyle = 'color:green; font-weight:bold;';
+                                    $releaseStyle = 'color:green; font-weight:bold;';
                                     }
                                     @endphp
 
                                     <tr>
                                         <td>
-                                            <input type="text" name="sensori[{{ $i }}][kode_produksi]" 
-                                            class="form-control form-control-sm b kode_produksi"
-                                            value="{{ $sensori['kode_produksi'] ?? '' }}" maxlength="10" required>
+                                            <input type="text" name="sensori[{{ $i }}][kode_produksi]"
+                                                class="form-control form-control-sm b kode_produksi"
+                                                value="{{ $sensori['kode_produksi'] ?? '' }}" maxlength="10" required>
                                             <small class="kodeError text-danger d-none"></small>
                                         </td>
 
-                                        {{-- Input nilai sensori (bisa tetap seperti sebelumnya, tapi ditambah min-max) --}}
-                                        <td><input type="number" name="sensori[{{ $i }}][penampilan]" class="form-control form-control-sm sensori" value="{{ $sensori['penampilan'] ?? '' }}" min="0" max="3"></td>
-                                        <td><input type="number" name="sensori[{{ $i }}][aroma]" class="form-control form-control-sm sensori" value="{{ $sensori['aroma'] ?? '' }}" min="0" max="3"></td>
-                                        <td><input type="number" name="sensori[{{ $i }}][kekenyalan]" class="form-control form-control-sm sensori" value="{{ $sensori['kekenyalan'] ?? '' }}" min="0" max="3"></td>
-                                        <td><input type="number" name="sensori[{{ $i }}][rasa_asin]" class="form-control form-control-sm sensori" value="{{ $sensori['rasa_asin'] ?? '' }}" min="0" max="3"></td>
-                                        <td><input type="number" name="sensori[{{ $i }}][rasa_gurih]" class="form-control form-control-sm sensori" value="{{ $sensori['rasa_gurih'] ?? '' }}" min="0" max="3"></td>
-                                        <td><input type="number" name="sensori[{{ $i }}][rasa_manis]" class="form-control form-control-sm sensori" value="{{ $sensori['rasa_manis'] ?? '' }}" min="0" max="3"></td>
-                                        <td><input type="number" name="sensori[{{ $i }}][rasa_daging]" class="form-control form-control-sm sensori" value="{{ $sensori['rasa_daging'] ?? '' }}" min="0" max="3"></td>
-                                        <td><input type="number" name="sensori[{{ $i }}][rasa_keseluruhan]" class="form-control form-control-sm sensori" value="{{ $sensori['rasa_keseluruhan'] ?? '' }}" min="0" max="3"></td>
-                                        <td><input type="number" step="0.1" name="sensori[{{ $i }}][rata_score]" class="form-control form-control-sm rata_score" value="{{ $sensori['rata_score'] ?? '' }}" readonly></td>
+                                        {{-- Input nilai sensori (bisa tetap seperti sebelumnya, tapi ditambah min-max)
+                                        --}}
+                                        <td><input type="number" name="sensori[{{ $i }}][penampilan]"
+                                                class="form-control form-control-sm sensori"
+                                                value="{{ $sensori['penampilan'] ?? '' }}" min="0" max="3"></td>
+                                        <td><input type="number" name="sensori[{{ $i }}][aroma]"
+                                                class="form-control form-control-sm sensori"
+                                                value="{{ $sensori['aroma'] ?? '' }}" min="0" max="3"></td>
+                                        <td><input type="number" name="sensori[{{ $i }}][kekenyalan]"
+                                                class="form-control form-control-sm sensori"
+                                                value="{{ $sensori['kekenyalan'] ?? '' }}" min="0" max="3"></td>
+                                        <td><input type="number" name="sensori[{{ $i }}][rasa_asin]"
+                                                class="form-control form-control-sm sensori"
+                                                value="{{ $sensori['rasa_asin'] ?? '' }}" min="0" max="3"></td>
+                                        <td><input type="number" name="sensori[{{ $i }}][rasa_gurih]"
+                                                class="form-control form-control-sm sensori"
+                                                value="{{ $sensori['rasa_gurih'] ?? '' }}" min="0" max="3"></td>
+                                        <td><input type="number" name="sensori[{{ $i }}][rasa_manis]"
+                                                class="form-control form-control-sm sensori"
+                                                value="{{ $sensori['rasa_manis'] ?? '' }}" min="0" max="3"></td>
+                                        <td><input type="number" name="sensori[{{ $i }}][rasa_daging]"
+                                                class="form-control form-control-sm sensori"
+                                                value="{{ $sensori['rasa_daging'] ?? '' }}" min="0" max="3"></td>
+                                        <td><input type="number" name="sensori[{{ $i }}][rasa_keseluruhan]"
+                                                class="form-control form-control-sm sensori"
+                                                value="{{ $sensori['rasa_keseluruhan'] ?? '' }}" min="0" max="3"></td>
+                                        <td><input type="number" step="0.1" name="sensori[{{ $i }}][rata_score]"
+                                                class="form-control form-control-sm rata_score"
+                                                value="{{ $sensori['rata_score'] ?? '' }}" readonly></td>
 
                                         {{-- Warna release langsung dari data sebelumnya --}}
                                         <td>
-                                            <input type="text" 
-                                            name="sensori[{{ $i }}][release]" 
-                                            class="form-control form-control-sm b release" 
-                                            value="{{ $releaseText }}" 
-                                            style="{{ $releaseStyle }}" 
-                                            readonly>
+                                            <input type="text" name="sensori[{{ $i }}][release]"
+                                                class="form-control form-control-sm b release"
+                                                value="{{ $releaseText }}" style="{{ $releaseStyle }}" readonly>
                                         </td>
 
                                         <td>
@@ -160,7 +181,8 @@
                 {{-- ===================== TOMBOL UPDATE ===================== --}}
                 <div class="d-flex justify-content-between mt-3">
                     <button class="btn btn-success w-auto"><i class="bi bi-save"></i> Update</button>
-                    <a href="{{ route('organoleptik.verification') }}" class="btn btn-secondary w-auto"><i class="bi bi-arrow-left"></i> Batal</a>
+                    <a href="{{ route('organoleptik.index') }}" class="btn btn-secondary w-auto"><i
+                            class="bi bi-arrow-left"></i> Batal</a>
                 </div>
             </form>
         </div>
@@ -169,7 +191,8 @@
 
 {{-- ========== JS & LOGIKA SAMA DENGAN CREATE ========== --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
 <script>
@@ -310,9 +333,26 @@
 </script>
 
 <style>
-    .table th, .table td { padding: 0.5rem; vertical-align: middle; font-size: 0.9rem; }
-    .form-control-sm { min-width: 90px; font-size: 0.9rem; }
-    .b { min-width: 150px; font-size: 0.9rem; }
-    .table-bordered th, .table-bordered td { text-align: center; }
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+
+    .form-control-sm {
+        min-width: 90px;
+        font-size: 0.9rem;
+    }
+
+    .b {
+        min-width: 150px;
+        font-size: 0.9rem;
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+        text-align: center;
+    }
 </style>
 @endsection

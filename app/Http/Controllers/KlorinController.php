@@ -239,6 +239,57 @@ class KlorinController extends Controller
         return redirect()->route('klorin.verification')->with('success', 'Data Pengecekan Klorin berhasil dihapus.');
     }
 
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date = $request->input('date');
+        $userPlant = Auth::user()->plant;
+
+        $query = Klorin::query();
+        if (Auth::check() && !empty($userPlant)) {
+            $query->where('plant', $userPlant);
+        }
+
+        // Filter tanggal
+        $query->when($date, function ($q) use ($date) {
+            $q->whereDate('date', $date);
+        });
+
+        $klorins = $query->orderBy('date', 'asc')->orderBy('pukul', 'asc')->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Pengecekan Klorin');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 6);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.pengecekan-klorin', compact('klorins', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Pengecekan_Klorin_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
+    }
+
     /**
      * 🔧 Helper untuk kompres dan simpan gambar
      */

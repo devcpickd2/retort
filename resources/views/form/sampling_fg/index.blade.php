@@ -2,7 +2,8 @@
 
 @section('content')
 <div class="container-fluid py-0">
-    {{-- Alert sukses --}}
+    
+    {{-- Alert --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle me-2"></i> {{ trim(session('success')) }}
@@ -10,8 +11,17 @@
     </div>
     @endif
 
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
     <div class="card shadow-sm">
         <div class="card-body">
+            
+            {{-- HEADER: Menggunakan Versi Anda (Ada Export PDF) --}}
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Pemeriksaan Proses Sampling Finish Good</h3>
                 <div class="btn-group">
@@ -27,7 +37,7 @@
                 </div>
             </div>
 
-            {{-- Filter dan Live Search --}}
+            {{-- FILTER: Menggunakan Versi Anda (Ada Shift) --}}
             <form id="filterForm" method="GET" action="{{ route('sampling_fg.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
 
                 <div class="input-group" style="max-width: 180px;">
@@ -38,6 +48,7 @@
                     value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
 
+                {{-- Filter Shift --}}
                 <div class="input-group" style="max-width: 150px;">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-hourglass-split text-muted"></i>
@@ -62,6 +73,7 @@
                 <a href="{{ route('sampling_fg.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
             </form>
 
+            {{-- SCRIPT: Menggunakan Versi Anda (Handler PDF & Shift) --}}
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
                     const search = document.getElementById('search');
@@ -91,6 +103,7 @@
                 });
             </script>
 
+            {{-- TABEL DATA --}}
             <div class="table-responsive">
                 <table class="table table-striped table-bordered align-middle">
                     <thead class="table-primary text-center align-middle">
@@ -150,37 +163,19 @@
                             <td class="text-start small">{{ $dep->catatan }}</td>
                             <td class="text-center">{{ $dep->username }}</td>
                             <td class="text-center">{{ $dep->nama_koordinator }}</td>
+                            
+                            {{-- STATUS SPV --}}
                             <td class="text-center align-middle">
                                 @if ($dep->status_spv == 0)
                                 <span class="fw-bold text-secondary">Created</span>
                                 @elseif ($dep->status_spv == 1)
                                 <span class="fw-bold text-success">Verified</span>
                                 @elseif ($dep->status_spv == 2)
-                                <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
-                                   class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
-                                   
-                                   {{-- Modal Revision --}}
-                                   <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-danger text-white">
-                                                <h5 class="modal-title">Detail Revisi</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body text-start">
-                                                <ul class="list-unstyled mb-0">
-                                                    <li><strong>Status:</strong> Revision</li>
-                                                    <li><strong>Catatan:</strong> {{ $dep->catatan_spv ?? '-' }}</li>
-                                                </ul>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <span class="fw-bold text-danger">Revisi</span>
                                 @endif
                             </td>
+
+                            {{-- ACTION BUTTONS --}}
                             <td class="text-center align-middle">
                                 @can('can access verification button')
                                 <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm mb-1" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
@@ -210,7 +205,7 @@
                                 </form>
                                 @endcan
 
-                                {{-- Modal Verify --}}
+                                {{-- MODAL VERIFY (Gradient Style - Versi Anda) --}}
                                 <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <form action="{{ route('sampling_fg.verification.update', $dep->uuid) }}" method="POST">
@@ -235,6 +230,7 @@
                                         </form>
                                     </div>
                                 </div>
+                                {{-- END MODAL --}}
                             </td>
                         </tr>
                         @empty

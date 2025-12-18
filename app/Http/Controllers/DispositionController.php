@@ -221,4 +221,55 @@ class DispositionController extends Controller
         // Kita menggunakan view baru bernama 'dispositions.update_view'
         return view('dispositions.update_view', compact('disposition'));
     }
+
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date = $request->input('date');
+        $userPlant = Auth::user()->plant;
+
+        $query = Disposition::with(['creator']);
+        if (Auth::check() && !empty($userPlant)) {
+            $query->where('plant_uuid', $userPlant);
+        }
+
+        // Filter tanggal
+        $query->when($date, function ($q) use ($date) {
+            $q->whereDate('tanggal', $date);
+        });
+
+        $dispositions = $query->orderBy('tanggal', 'asc')->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('P', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Disposisi Produk dan Prosedur');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 8);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.disposisi-produk-prosedur', compact('dispositions', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Disposisi_Produk_dan_Prosedur_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
+    }
 }

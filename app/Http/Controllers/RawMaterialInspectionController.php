@@ -27,15 +27,10 @@ class RawMaterialInspectionController extends Controller
         if (Auth::check() && !empty(Auth::user()->plant)) {
             $query->where('plant_uuid', Auth::user()->plant);
         }
-        // Terapkan filter tanggal awal (start_date)
-        $query->when($request->filled('start_date'), function ($q) use ($request) {
-            // Asumsi kolom tanggal di database adalah 'setup_kedatangan'
-            $q->whereDate('setup_kedatangan', '>=', $request->start_date);
-        });
 
-        // Terapkan filter tanggal akhir (end_date)
-        $query->when($request->filled('end_date'), function ($q) use ($request) {
-            $q->whereDate('setup_kedatangan', '<=', $request->end_date);
+        // Terapkan filter tanggal (gunakan kolom 'setup_kedatangan')
+        $query->when($request->filled('date'), function ($q) use ($request) {
+            $q->whereDate('setup_kedatangan', $request->date);
         });
 
         // Terapkan filter pencarian (search)
@@ -44,7 +39,8 @@ class RawMaterialInspectionController extends Controller
             // Grup 'where' agar 'orWhere' tidak mengganggu filter tanggal
             $q->where(function ($subQuery) use ($search) {
                 $subQuery->where('bahan_baku', 'like', "%{$search}%")
-                        ->orWhere('supplier', 'like', "%{$search}%");
+                        ->orWhere('supplier', 'like', "%{$search}%")
+                        ->orWhere('do_po', 'like', "%{$search}%");
             });
         });
 
@@ -362,10 +358,59 @@ class RawMaterialInspectionController extends Controller
     {
         // Load relasi productDetails agar bisa ditampilkan di JS
         $inspection->load('productDetails');
-        
+
         // Arahkan ke blade baru: resources/views/raw_material/UpdateRawMaterial.blade.php
         return view('raw_material.UpdateRawMaterial', compact('inspection'));
     }
 
+    public function exportPdf(Request $request)
+    {
+        // 1. Ambil Data
+        $date = $request->input('date');
+        $userPlant = Auth::user()->plant;
 
+        $query = RawMaterialInspection::with(['creator', 'productDetails']);
+        if (Auth::check() && !empty($userPlant)) {
+            $query->where('plant_uuid', $userPlant);
+        }
+
+        // Filter tanggal (menggunakan setup_kedatangan)
+        $query->when($date, function ($q) use ($date) {
+            $q->whereDate('setup_kedatangan', $date);
+        });
+
+        $items = $query->orderBy('setup_kedatangan', 'asc')->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // 2. Setup PDF (Landscape, A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+
+        // Metadata
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Pemeriksaan Input Bahan Baku');
+
+        // Hilangkan Header/Footer Bawaan
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+
+        // Set Margin
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+
+        // Set Font Default
+        $pdf->SetFont('helvetica', '', 6);
+
+        $pdf->AddPage();
+
+        // 3. Render
+        $html = view('reports.pemeriksaan-input-bahan-baku', compact('items', 'request'))->render();
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        $filename = 'Pemeriksaan_Input_Bahan_Baku_' . date('d-m-Y_His') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
+    }
 }
