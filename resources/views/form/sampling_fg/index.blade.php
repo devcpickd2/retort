@@ -19,8 +19,8 @@
     @endif
             
     {{-- HEADER: Menggunakan Versi Anda (Ada Export PDF) --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3><i class="bi bi-list-check"></i> Pemeriksaan Proses Sampling Finish Good</h3>
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Pemeriksaan Proses Sampling Finish Good</h2>
         <div class="btn-group">
             @can('can access add button')
             <a href="{{ route('sampling_fg.create') }}" class="btn btn-success">
@@ -40,9 +40,11 @@
             <div class="col-md-3">
                 <div class="mb-1">Pilih Tanggal</div>
                 <div class="input-group mb-2">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar-date text-muted"></i>
+                        </span>
+                    </div>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                     value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
@@ -51,9 +53,11 @@
                 {{-- Filter Shift --}}
                 <div class="mb-1">Pilih Shift</div>
                 <div class="input-group mb-2">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-hourglass-split text-muted"></i>
-                    </span>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-hourglass-split text-muted"></i>
+                        </span>
+                    </div>
                     <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
                         <option value="">Semua Shift</option>
                         <option value="1" {{ request("shift") == "1" ? "selected" : "" }}>Shift 1</option>
@@ -65,16 +69,18 @@
             <div class="col-md-3">
                 <div class="mb-1">Cari Data</div>
                 <div class="input-group mb-2">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                    </div>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                     value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
                 </div>
             </div>
             <div class="col-md-3 align-self-end">
                 <!-- <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button> -->
-                <a href="{{ route('sampling_fg.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+                <a href="{{ route('sampling_fg.index') }}" class="btn btn-primary mb-2"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
             </div>
         </div>
     </form>
@@ -114,8 +120,8 @@
         <div class="card-body">
             {{-- TABEL DATA --}}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle">
-                    <thead class="table-primary text-center align-middle">
+                <table class="table table-bordered">
+                    <thead class="table-secondary text-center">
                         <tr>
                             <th rowspan="2" style="width: 3%;">NO.</th>
                             <th rowspan="2" style="width: 8%;">Tanggal | Shift</th>

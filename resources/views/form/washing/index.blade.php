@@ -18,23 +18,28 @@
     </div>
     @endif
 
-<<<<<<< HEAD
+    
+            
+    {{-- HEADER: Menggunakan Versi Anda (Ada Export PDF) --}}
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
-        <h2 class="h4">Pemeriksaan Washing - Drying</h2>
-        <div class="btn-group" role="group">
+        <h2 class="h4"> Pemeriksaan Washing - Drying</h2>
+        <div class="btn-group">
             @can('can access add button')
             <a href="{{ route('washing.create') }}" class="btn btn-success">
                 <i class="bi bi-plus-circle"></i> Tambah
             </a>
             @endcan
+            {{-- Tombol Export PDF --}}
+            <button type="button" class="btn btn-danger" id="exportPdfBtn">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </button>
         </div>
     </div>
 
-    {{-- Filter dan Live Search --}}
-    <form id="filterForm" method="GET" action="{{ route('washing.index') }}"
-        class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+    {{-- FILTER: Menggunakan Versi Anda (Ada Shift) --}}
+    <form id="filterForm" method="GET" action="{{ route('washing.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="mb-1">Pilih Tanggal</div>
                 <div class="input-group mb-2">
                     <div class="input-group-prepend">
@@ -43,10 +48,27 @@
                         </span>
                     </div>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
-                        value="{{ request('date') }}" placeholder="Tanggal Produksi">
+                    value="{{ request('date') }}" placeholder="Tanggal">
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                {{-- Filter Shift --}}
+                <div class="mb-1">Pilih Shift</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-hourglass-split text-muted"></i>
+                        </span>
+                    </div>
+                    <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
+                        <option value="">Semua Shift</option>
+                        <option value="1" {{ request("shift") == "1" ? "selected" : "" }}>Shift 1</option>
+                        <option value="2" {{ request("shift") == "2" ? "selected" : "" }}>Shift 2</option>
+                        <option value="3" {{ request("shift") == "3" ? "selected" : "" }}>Shift 3</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
                 <div class="mb-1">Cari Data</div>
                 <div class="input-group mb-2">
                     <div class="input-group-prepend">
@@ -55,121 +77,55 @@
                         </span>
                     </div>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
-                        value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
-                </div>
-            </div>
-            <div class="col-md-4 align-self-end">
-                <a href="{{ route('washing.index') }}" class="btn btn-primary mb-2">
-                    <i class="bi bi-arrow-counterclockwise"></i> Reset
-                </a>
-            </div>
-        </div>
-    </form>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const search = document.getElementById('search');
-        const date = document.getElementById('filter_date');
-        const form = document.getElementById('filterForm');
-        let timer;
-
-        search.addEventListener('input', () => {
-            clearTimeout(timer);
-            timer = setTimeout(() => form.submit(), 500);
-        });
-
-        date.addEventListener('change', () => form.submit());
-    });
-    </script>
-
-    <div class="card shadow-sm mb-4">
-=======
-    <div class="card shadow-sm">
->>>>>>> dev
-        <div class="card-body">
-            
-            {{-- HEADER: Menggunakan Versi Anda (Ada Export PDF) --}}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Pemeriksaan Washing - Drying</h3>
-                <div class="btn-group">
-                    @can('can access add button')
-                    <a href="{{ route('washing.create') }}" class="btn btn-success">
-                        <i class="bi bi-plus-circle"></i> Tambah
-                    </a>
-                    @endcan
-                    {{-- Tombol Export PDF --}}
-                    <button type="button" class="btn btn-danger" id="exportPdfBtn">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </button>
-                </div>
-            </div>
-
-            {{-- FILTER: Menggunakan Versi Anda (Ada Shift) --}}
-            <form id="filterForm" method="GET" action="{{ route('washing.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
-
-                <div class="input-group" style="max-width: 180px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
-                    <input type="date" name="date" id="filter_date" class="form-control border-start-0"
-                    value="{{ request('date') }}" placeholder="Tanggal">
-                </div>
-
-                {{-- Filter Shift --}}
-                <div class="input-group" style="max-width: 150px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-hourglass-split text-muted"></i>
-                    </span>
-                    <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
-                        <option value="">Semua Shift</option>
-                        <option value="1" {{ request("shift") == "1" ? "selected" : "" }}>Shift 1</option>
-                        <option value="2" {{ request("shift") == "2" ? "selected" : "" }}>Shift 2</option>
-                        <option value="3" {{ request("shift") == "3" ? "selected" : "" }}>Shift 3</option>
-                    </select>
-                </div>
-
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
-                    <input type="text" name="search" id="search" class="form-control border-start-0"
                     value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
                 </div>
-                
-                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
-                <a href="{{ route('washing.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
-            </form>
+            </div>
+            <div class="col-md-3 align-self-end">
+                <!-- <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button> -->
+                <a href="{{ route('washing.index') }}" class="btn btn-primary mb-2"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            </div>
+        </div>
+        
 
-            {{-- SCRIPT: Versi Anda (PDF & Shift Handler) --}}
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const search = document.getElementById('search');
-                    const date = document.getElementById('filter_date');
-                    const shift = document.getElementById('filter_shift');
-                    const form = document.getElementById('filterForm');
-                    const exportPdfBtn = document.getElementById('exportPdfBtn');
+        
 
-                    let timer;
+        
+        
+        
+    </form>
 
-                    search.addEventListener('input', () => {
-                        clearTimeout(timer);
-                        timer = setTimeout(() => form.submit(), 500);
-                    });
+    {{-- SCRIPT: Versi Anda (PDF & Shift Handler) --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('search');
+            const date = document.getElementById('filter_date');
+            const shift = document.getElementById('filter_shift');
+            const form = document.getElementById('filterForm');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
 
-                    date.addEventListener('change', () => form.submit());
-                    if(shift) shift.addEventListener('change', () => form.submit());
+            let timer;
 
-                    // Handle Export PDF
-                    if(exportPdfBtn){
-                        exportPdfBtn.addEventListener('click', function() {
-                            const formData = new FormData(form);
-                            const exportUrl = "{{ route('washing.exportPdf') }}?" + new URLSearchParams(formData).toString();
-                            window.open(exportUrl, '_blank');
-                        });
-                    }
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
+
+            date.addEventListener('change', () => form.submit());
+            if(shift) shift.addEventListener('change', () => form.submit());
+
+            // Handle Export PDF
+            if(exportPdfBtn){
+                exportPdfBtn.addEventListener('click', function() {
+                    const formData = new FormData(form);
+                    const exportUrl = "{{ route('washing.exportPdf') }}?" + new URLSearchParams(formData).toString();
+                    window.open(exportUrl, '_blank');
                 });
-            </script>
+            }
+        });
+    </script>
 
+    <div class="card shadow-sm">
+        <div class="card-body">
             {{-- TABEL DATA --}}
             <div class="table-responsive">
                 <table class="table">
