@@ -31,40 +31,45 @@
     </div>
     @endif
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            
-            {{-- HEADER: Punya ANDA (Fitur PDF) --}}
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Pengecekan Pemasakan</h3>
-                <div class="btn-group">
-                    @can('can access add button')
-                    <a href="{{ route('pemasakan.create') }}" class="btn btn-success">
-                        <i class="bi bi-plus-circle"></i> Tambah
-                    </a>
-                    @endcan
-                    {{-- Tombol Export PDF --}}
-                    <button type="button" class="btn btn-danger" id="exportPdfBtn">
-                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                    </button>
-                </div>
-            </div>
+    {{-- HEADER: Punya ANDA (Fitur PDF) --}}
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4"> Pengecekan Pemasakan</h2>
+        <div class="btn-group">
+            @can('can access add button')
+            <a href="{{ route('pemasakan.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
+            @endcan
+            {{-- Tombol Export PDF --}}
+            <button type="button" class="btn btn-danger" id="exportPdfBtn">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </button>
+        </div>
+    </div>
 
-            {{-- FILTER: Punya ANDA (Fitur Shift) --}}
-            <form id="filterForm" method="GET" action="{{ route('pemasakan.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
-
-                <div class="input-group" style="max-width: 180px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
+    {{-- FILTER: Punya ANDA (Fitur Shift) --}}
+    <form id="filterForm" method="GET" action="{{ route('pemasakan.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar-date text-muted"></i>
+                        </span>
+                    </div>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                         value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
-
-                <div class="input-group" style="max-width: 150px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-hourglass-split text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Shift</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-hourglass-split text-muted"></i>
+                        </span>
+                    </div>
                     <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
                         <option value="">Semua Shift</option>
                         <option value="1" {{ request("shift") == "1" ? "selected" : "" }}>Shift 1</option>
@@ -72,47 +77,57 @@
                         <option value="3" {{ request("shift") == "3" ? "selected" : "" }}>Shift 3</option>
                     </select>
                 </div>
-
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Cari Data</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                    </div>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                         value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
                 </div>
-                
-                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
-                <a href="{{ route('pemasakan.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
-            </form>
+            </div>
+            <div class="col-md-3 align-self-end">
+                <!-- <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button> -->
+                <a href="{{ route('pemasakan.index') }}" class="btn btn-primary mb-2"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            </div>
+        </div>
+    </form>
 
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const search = document.getElementById('search');
-                    const date = document.getElementById('filter_date');
-                    const shift = document.getElementById('filter_shift'); 
-                    const form = document.getElementById('filterForm');
-                    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('search');
+            const date = document.getElementById('filter_date');
+            const shift = document.getElementById('filter_shift'); 
+            const form = document.getElementById('filterForm');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
 
-                    let timer;
-                    search.addEventListener('input', () => {
-                        clearTimeout(timer);
-                        timer = setTimeout(() => form.submit(), 500);
-                    });
+            let timer;
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
 
-                    date.addEventListener('change', () => form.submit());
-                    if(shift) shift.addEventListener('change', () => form.submit());
+            date.addEventListener('change', () => form.submit());
+            if(shift) shift.addEventListener('change', () => form.submit());
 
-                    if(exportPdfBtn){
-                        exportPdfBtn.addEventListener('click', function() {
-                            const formData = new FormData(form);
-                            const exportUrl = "{{ route('pemasakan.exportPdf') }}?" + new URLSearchParams(formData).toString();
-                            window.open(exportUrl, '_blank');
-                        });
-                    }
+
+            if(exportPdfBtn){
+                exportPdfBtn.addEventListener('click', function() {
+                    const formData = new FormData(form);
+                    const exportUrl = "{{ route('pemasakan.exportPdf') }}?" + new URLSearchParams(formData).toString();
+                    window.open(exportUrl, '_blank');
                 });
-            </script>
+            }
+        });
+    </script>
 
-            {{-- TABEL DATA --}}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            {{-- Tabel --}}
             <div class="table-responsive">
                 <table class="table">
                     <thead class="table-secondary text-center">
