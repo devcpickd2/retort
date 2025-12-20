@@ -97,7 +97,7 @@
         });
     </script>
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
             {{-- Tabel Data --}}
             <div class="table-responsive">

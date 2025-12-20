@@ -93,7 +93,7 @@
     });
     </script>
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
         <div class="card-body">
 
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}

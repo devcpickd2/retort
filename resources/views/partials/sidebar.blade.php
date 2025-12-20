@@ -33,7 +33,7 @@ $type_user = auth()->user()->type_user;
     request()->routeIs('list_chamber.*') || request()->routeIs('area_hygiene.*') || request()->routeIs('area_suhu.*') ||
     request()->routeIs('area_sanitasi.*');
     @endphp
-    <li class="nav-item">
+    <li class="nav-item {{ $masterActive ? 'active' : '' }}">
         <a class="nav-link {{ $masterActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#collapseMasterData" aria-expanded="{{ $masterActive ? 'true' : 'false' }}"
             aria-controls="collapseMasterData">
@@ -75,7 +75,7 @@ $type_user = auth()->user()->type_user;
     @php
     $accessControlActive = request()->routeIs('permissions.*') || request()->routeIs('roles.*');
     @endphp
-    <li class="nav-item">
+    <li class="nav-item {{ $accessControlActive ? 'active' : '' }}">
         <a class="nav-link {{ $accessControlActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#collapseAccessControl" aria-expanded="{{ $accessControlActive ? 'true' : 'false' }}"
             aria-controls="collapseAccessControl">
@@ -128,7 +128,7 @@ $type_user = auth()->user()->type_user;
     <div class="sidebar-heading">Form QC</div>
 
     {{-- MEAT PREPARATION --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $meatPrepActive ? 'active' : '' }}">
         <a class="nav-link {{ $meatPrepActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#collapseMeatPrep" aria-expanded="{{ $meatPrepActive ? 'true' : 'false' }}"
             aria-controls="collapseMeatPrep">
@@ -154,7 +154,7 @@ $type_user = auth()->user()->type_user;
     </li>
 
     {{-- Stuffing --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $stuffingActive ? 'active' : '' }}">
         <a class="nav-link {{ $stuffingActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#UollapseStuffing" aria-expanded="{{ $stuffingActive ? 'true' : 'false' }}"
             aria-controls="UollapseStuffing">
@@ -190,7 +190,7 @@ $type_user = auth()->user()->type_user;
     </li>
 
     {{-- Retort --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $retortActive ? 'active' : '' }}">
         <a class="nav-link {{ $retortActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#rollapseRetort" aria-expanded="{{ $retortActive ? 'true' : 'false' }}"
             aria-controls="rollapseRetort">
@@ -213,7 +213,7 @@ $type_user = auth()->user()->type_user;
     </li>
 
     {{-- Packing --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $packingActive ? 'active' : '' }}">
         <a class="nav-link {{ $packingActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#collapsePacking" aria-expanded="{{ $packingActive ? 'true' : 'false' }}"
             aria-controls="collapsePacking">
@@ -240,7 +240,7 @@ $type_user = auth()->user()->type_user;
     </li>
 
     {{-- Warehouse --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $warehouseActive ? 'active' : '' }}">
         <a class="nav-link {{ $warehouseActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#collapseWarehouse" aria-expanded="{{ $warehouseActive ? 'true' : 'false' }}"
             aria-controls="collapseWarehouse">
@@ -271,7 +271,7 @@ $type_user = auth()->user()->type_user;
     </li>
 
     {{-- Cikande Form --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $cikandeActive ? 'active' : '' }}">
         <a class="nav-link {{ $cikandeActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#collapseCikande" aria-expanded="{{ $cikandeActive ? 'true' : 'false' }}"
             aria-controls="collapseCikande">
@@ -314,7 +314,7 @@ $type_user = auth()->user()->type_user;
     </li>
 
     {{-- RTE --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $rteActive ? 'active' : '' }}">
         <a class="nav-link {{ $rteActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#collapseRTE" aria-expanded="{{ $rteActive ? 'true' : 'false' }}"
             aria-controls="collapseRTE">
@@ -339,7 +339,7 @@ $type_user = auth()->user()->type_user;
     </li>
 
     {{-- Suhu & Kebersihan --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $kebersihanActive ? 'active' : '' }}">
         <a class="nav-link {{ $kebersihanActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#collapseFormQC" aria-expanded="{{ $kebersihanActive ? 'true' : 'false' }}"
             aria-controls="collapseFormQC">
@@ -372,7 +372,7 @@ $type_user = auth()->user()->type_user;
     </li>
 
     {{-- Umum --}}
-    <li class="nav-item">
+    <li class="nav-item {{ $umumActive ? 'active' : '' }}">
         <a class="nav-link {{ $umumActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
             data-bs-target="#Uollapseumum" aria-expanded="{{ $umumActive ? 'true' : 'false' }}"
             aria-controls="Uollapseumum">
@@ -414,6 +414,7 @@ $type_user = auth()->user()->type_user;
     .sidebar .nav-item .collapse .collapse-inner .collapse-item {
         white-space: unset !important;
     }
+    .sidebar .nav-item .collapse .collapse-inner .collapse-item.active{color: #aa1910;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
