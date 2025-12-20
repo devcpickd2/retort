@@ -25,38 +25,45 @@
                 <i class="bi bi-plus-circle"></i> Tambah
             </a>
             @endcan
+            
+            {{-- Tombol Export --}}
+            <button type="button" class="btn btn-danger" id="exportPdfBtn">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </button>
         </div>
     </div>
 
     {{-- Filter dan Live Search --}}
     <form id="filterForm" method="GET" action="{{ route('pemusnahan.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
-        <div class="row">
+        <div class="row w-100">
+            
+            {{-- Filter Tanggal --}}
             <div class="col-md-4">
-                <div class="mb-1">Pilih Tanggal</div>
+                <div class="mb-1 fw-bold">Pilih Tanggal</div>
                 <div class="input-group mb-2">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="bi bi-calendar-date text-muted"></i>
-                        </span>
-                    </div>
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-calendar-date text-muted"></i>
+                    </span>
                     <input type="date" name="date" id="filter_date" class="form-control border-start-0"
                     value="{{ request('date') }}" placeholder="Tanggal Produksi">
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="mb-1">Cari Data</div>
+
+            {{-- Search --}}
+            <div class="col-md-6">
+                <div class="mb-1 fw-bold">Cari Data</div>
                 <div class="input-group mb-2">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text bg-white border-end-0">
-                            <i class="bi bi-search text-muted"></i>
-                        </span>
-                    </div>
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
                     value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
                 </div>
             </div>
-            <div class="col-md-4 align-self-end">
-                <a href="{{ route('pemusnahan.index') }}" class="btn btn-primary mb-2">
+
+            {{-- Reset Button --}}
+            <div class="col-md-2 align-self-end text-end">
+                <a href="{{ route('pemusnahan.index') }}" class="btn btn-secondary mb-2 w-100">
                     <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </a>
             </div>
@@ -68,6 +75,7 @@
             const search = document.getElementById('search');
             const date = document.getElementById('filter_date');
             const form = document.getElementById('filterForm');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
             let timer;
 
             search.addEventListener('input', () => {
@@ -76,18 +84,26 @@
             });
 
             date.addEventListener('change', () => form.submit());
+
+            // Handle Export
+            if(exportPdfBtn){
+                exportPdfBtn.addEventListener('click', function() {
+                    const formData = new FormData(form);
+                    const exportUrl = "{{ route('pemusnahan.exportPdf') }}?" + new URLSearchParams(formData).toString();
+                    window.open(exportUrl, '_blank');
+                });
+            }
         });
     </script>
 
     <div class="card shadow-sm mb-4">
         <div class="card-body">
-            {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
                <table class="table">
                 <thead class="table-secondary text-center">
                     <tr>
                         <th>NO.</th>
-                        <th>Date | Shift</th>
+                        <th>Date</th> {{-- Tanpa Shift --}}
                         <th>Nama Produk</th>
                         <th>Kode Produksi</th>
                         <th>Expired Date</th>
@@ -105,7 +121,7 @@
                     @forelse ($data as $dep)
                     <tr>
                         <td class="text-center align-middle">{{ $no++ }}</td>
-                        <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift: {{ $dep->shift }}</td>   
+                        <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }}</td>   
                         <td class="text-center align-middle">{{ $dep->nama_produk }}</td>
                         <td class="text-center align-middle">{{ $dep->kode_produksi }}</td>
                         <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->expired_date)->format('d-m-Y') }}</td>
@@ -207,18 +223,17 @@
                                                         placeholder="Masukkan catatan, misalnya alasan revisi..." 
                                                         style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
 
-                                                    </div>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <div class="modal-footer justify-content-end p-4 border-top" style="background-color: #9E3419; border-color: #00ffc4 !important;">
-                                                <button type="button" class="btn btn-outline-light fw-bold rounded-pill px-4 me-2" data-bs-dismiss="modal">
-                                                    Batal
-                                                </button>
-                                                <button type="submit" class="btn fw-bolder rounded-pill px-5" style="background-color: #E39581; color: #2c3e50;">
-                                                    <i class="bi bi-save-fill me-1"></i> SUBMIT
-                                                </button>
-                                            </div>
+                                        <div class="modal-footer justify-content-end p-4 border-top" style="background-color: #9E3419; border-color: #00ffc4 !important;">
+                                            <button type="button" class="btn btn-outline-light fw-bold rounded-pill px-4 me-2" data-bs-dismiss="modal">
+                                                Batal
+                                            </button>
+                                            <button type="submit" class="btn fw-bolder rounded-pill px-5" style="background-color: #E39581; color: #2c3e50;">
+                                                <i class="bi bi-save-fill me-1"></i> SUBMIT
+                                            </button>
                                         </div>
                                     </div>
                                 </form>
@@ -228,7 +243,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="19" class="text-center">Belum ada data pemusnahan.</td>
+                    <td colspan="10" class="text-center">Belum ada data pemusnahan.</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -236,13 +251,11 @@
         </div>
     </div>
 
-    {{-- Pagination --}}
     <div class="mt-3">
         {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
     </div>
 </div>
 
-{{-- Auto-hide alert setelah 3 detik --}}
 <script>
     setTimeout(() => {
         const alert = document.querySelector('.alert');
@@ -252,23 +265,4 @@
         }
     }, 3000);
 </script>
-
-{{-- CSS tambahan agar tabel lebih rapi --}}
-<style>
-    .table td, .table th {
-        font-size: 0.85rem;
-        white-space: nowrap; 
-    }
-    .text-danger {
-        font-weight: bold;
-    }
-    .text-muted.fst-italic {
-        color: #6c757d !important;
-        font-style: italic !important;
-    }
-    .container {
-        padding-left: 2px !important;
-        padding-right: 2px !important;
-    }
-</style>
 @endsection
