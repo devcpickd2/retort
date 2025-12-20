@@ -120,36 +120,70 @@
                             <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift: {{ $dep->shift }}</td>   
                             <td class="text-center align-middle">
                                 @php
-                                $peneraan = is_array($dep->peneraan) ? $dep->peneraan : json_decode($dep->peneraan, true);
+                                    $peneraan = is_array($dep->peneraan) ? $dep->peneraan : json_decode($dep->peneraan, true);
                                 @endphp
 
                                 @if(!empty($peneraan))
-                                <table class="table table-bordered table-sm text-center align-middle mb-0" style="font-size: 12px;">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Kode Thermometer</th>
-                                            <th>Area</th>
-                                            <th>Standar (0.0°C)</th>
-                                            <th>Pukul</th>
-                                            <th>Hasil Tera</th>
-                                            <th>Tindakan Perbaikan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($peneraan as $index => $item)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>{{ $item['kode_thermometer'] ?? '-' }}</td>
-                                            <td>{{ $item['area'] ?? '-' }}</td>
-                                            <td>{{ $item['standar'] ?? '-' }}</td>
-                                            <td>{{ $item['pukul'] ?? '-' }}</td>
-                                            <td>{{ $item['hasil_tera'] ?? '-' }}</td>
-                                            <td>{{ $item['tindakan_perbaikan'] ?? '-' }}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                <a href="javascript:void(0);" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#peneraanModal{{ $dep->uuid }}">
+                                    Lihat Hasil Peneraan
+                                </a>
+                                <div class="modal fade" id="peneraanModal{{ $dep->uuid }}" tabindex="-1"
+                                    aria-labelledby="peneraanModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title" id="peneraanModalLabel{{ $dep->uuid }}">
+                                                    Tanggal : 
+                                                    {{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift:
+                                                    {{ $dep->shift }}
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                @php
+                                                    $peneraan = is_array($dep->peneraan) ? $dep->peneraan : json_decode($dep->peneraan, true);
+                                                @endphp
+                                                @if(!empty($peneraan))
+                                                    <table class="table table-bordered table-sm text-center align-middle mb-0" style="font-size: 12px;">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th>No</th>
+                                                                <th>Kode Thermometer</th>
+                                                                <th>Area</th>
+                                                                <th>Standar (0.0°C)</th>
+                                                                <th>Pukul</th>
+                                                                <th>Hasil Tera</th>
+                                                                <th>Tindakan Perbaikan</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach($peneraan as $index => $item)
+                                                            <tr>
+                                                                <td>{{ $index + 1 }}</td>
+                                                                <td>{{ $item['kode_thermometer'] ?? '-' }}</td>
+                                                                <td>{{ $item['area'] ?? '-' }}</td>
+                                                                <td>{{ $item['standar'] ?? '-' }}</td>
+                                                                <td>{{ $item['pukul'] ?? '-' }}</td>
+                                                                <td>{{ $item['hasil_tera'] ?? '-' }}</td>
+                                                                <td>{{ $item['tindakan_perbaikan'] ?? '-' }}</td>
+                                                            </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                @else
+                                                    <p class="text-muted">Belum ada peneraan timbangan.</p>
+                                                @endif
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                    data-bs-dismiss="modal">Tutup</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 @else
                                 <span>-</span>
                                 @endif

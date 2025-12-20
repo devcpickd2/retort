@@ -128,59 +128,89 @@
                                 @endphp
 
                                 @if(!empty($hasilSuhu))
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-sm mb-0 text-center align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th style="width: 50%" class="text-left">Area</th>
-                                                @foreach($areaList as $area)
-                                                <th>{{ $area->area }}</th>
-                                                @endforeach
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {{-- Baris Standar --}}
-                                            <tr>
-                                                <td class="fw-bold text-left"><b>Standar (°C)</b></td>
-                                                @foreach($areaList as $area)
-                                                <td class="text-center" style="font-weight: 700;">{{ $area->standar ?? '-' }}</td>
-                                                @endforeach
-                                            </tr>
+                                <a href="javascript:void(0);" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#peneraanModal{{ $dep->uuid }}">
+                                    Lihat Hasil Pemeriksaan
+                                </a>
+                                {{-- Modal --}}
+                                <div class="modal fade" id="peneraanModal{{ $dep->uuid }}" tabindex="-1"
+                                    aria-labelledby="peneraanModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title" id="peneraanModalLabel{{ $dep->uuid }}">
+                                                    Tanggal : 
+                                                    {{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift:
+                                                    {{ $dep->shift }}
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                @if(!empty($hasilSuhu))
+                                                    <table class="table table-bordered table-sm mb-0 text-center align-middle">
+                                                        <thead class="table-light">
+                                                            <tr>
+                                                                <th style="width: 50%" class="text-left">Area</th>
+                                                                @foreach($areaList as $area)
+                                                                <th>{{ $area->area }}</th>
+                                                                @endforeach
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {{-- Baris Standar --}}
+                                                            <tr>
+                                                                <td class="fw-bold text-left"><b>Standar (°C)</b></td>
+                                                                @foreach($areaList as $area)
+                                                                <td class="text-center" style="font-weight: 700;">{{ $area->standar ?? '-' }}</td>
+                                                                @endforeach
+                                                            </tr>
 
-                                            {{-- Baris Aktual --}}
-                                            <tr>
-                                                <td class="fw-bold text-left"><b>Aktual (°C)</b></td>
-                                                @foreach($areaList as $area)
-                                                @php
-                                                // Cocokkan nilai aktual berdasarkan area
-                                                $matched = collect($hasilSuhu)->firstWhere('area', $area->area);
-                                                $nilai = floatval($matched['nilai'] ?? 0);
-                                                $standarStr = trim($area->standar ?? '');
-                                                $outOfRange = false;
+                                                            {{-- Baris Aktual --}}
+                                                            <tr>
+                                                                <td class="fw-bold text-left"><b>Aktual (°C)</b></td>
+                                                                @foreach($areaList as $area)
+                                                                @php
+                                                                // Cocokkan nilai aktual berdasarkan area
+                                                                $matched = collect($hasilSuhu)->firstWhere('area', $area->area);
+                                                                $nilai = floatval($matched['nilai'] ?? 0);
+                                                                $standarStr = trim($area->standar ?? '');
+                                                                $outOfRange = false;
 
-                                                if ($standarStr !== '') {
-                                                    if (preg_match('/^<\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
-                                                        $max = floatval($m[1]);
-                                                        $outOfRange = $nilai >= $max;
-                                                    } elseif (preg_match('/^>\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
-                                                        $min = floatval($m[1]);
-                                                        $outOfRange = $nilai <= $min;
-                                                    } elseif (preg_match('/^(\d+(\.\d+)?)\s*-\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
-                                                        $min = floatval($m[1]);
-                                                        $max = floatval($m[3]);
-                                                        $outOfRange = $nilai < $min || $nilai > $max;
-                                                    }
-                                                }
-                                                @endphp
+                                                                if ($standarStr !== '') {
+                                                                    if (preg_match('/^<\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
+                                                                        $max = floatval($m[1]);
+                                                                        $outOfRange = $nilai >= $max;
+                                                                    } elseif (preg_match('/^>\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
+                                                                        $min = floatval($m[1]);
+                                                                        $outOfRange = $nilai <= $min;
+                                                                    } elseif (preg_match('/^(\d+(\.\d+)?)\s*-\s*(\d+(\.\d+)?)/', $standarStr, $m)) {
+                                                                        $min = floatval($m[1]);
+                                                                        $max = floatval($m[3]);
+                                                                        $outOfRange = $nilai < $min || $nilai > $max;
+                                                                    }
+                                                                }
+                                                                @endphp
 
-                                                <td class="fw-bold text-center {{ $outOfRange ? 'text-danger' : 'text-success' }}">
-                                                    {{ $matched['nilai'] ?? '-' }}
-                                                </td>
-                                                @endforeach
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                                                <td class="fw-bold text-center {{ $outOfRange ? 'text-danger' : 'text-success' }}">
+                                                                    {{ $matched['nilai'] ?? '-' }}
+                                                                </td>
+                                                                @endforeach
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                @else
+                                                    <p class="text-muted">Belum ada pemeriksaan</p>
+                                                @endif
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                    data-bs-dismiss="modal">Tutup</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                    
                                 @else
                                 <span>-</span>
                                 @endif
