@@ -233,7 +233,7 @@ $(document).ready(function(){
         btn.prop('disabled',true).html('Menyimpan...');
 
         $.ajax({
-            url: "{{ route('labelisasi_pvdc.update', $labelisasi_pvdc->uuid) }}",
+            url: "{{ route('labelisasi_pvdc.update.form', $labelisasi_pvdc->uuid) }}",
             type: 'POST',
             data: formData,
             processData: false,

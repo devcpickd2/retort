@@ -211,6 +211,9 @@
                                     data-bs-target="#verifyModal{{ $dep->uuid }}"><i class="bi bi-shield-check"></i>
                                     Verifikasi</button>
                                 @endcan
+                                @can('can access edit button')
+                                    <a href="{{ route('labelisasi_pvdc.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1 mb-1"><i class="bi bi-pencil-square"></i> Edit</a>
+                                @endcan
                                 @can('can access update button')
                                 <a href="{{ route('labelisasi_pvdc.update.form', $dep->uuid) }}"
                                     class="btn btn-info btn-sm me-1 mb-1"><i class="bi bi-pencil"></i> Update</a>
@@ -219,51 +222,76 @@
                                 <form action="{{ route('labelisasi_pvdc.destroy', $dep->uuid) }}" method="POST"
                                     class="d-inline" onsubmit="return confirm('Hapus data?')">@csrf
                                     @method('DELETE')<button class="btn btn-danger btn-sm mb-1"><i
-                                            class="bi bi-trash"></i></button></form>
+                                            class="bi bi-trash"></i> Hapus</button></form>
                                 @endcan
 
                                 {{-- Modal Verification (Gradient Style) --}}
-                                <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <form action="{{ route('labelisasi_pvdc.verification.update', $dep->uuid) }}"
-                                            method="POST">
-                                            @csrf @method('PUT')
-                                            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white"
-                                                style="background: linear-gradient(145deg, #7a1f12, #9E3419);">
-                                                <div class="modal-header border-bottom border-light-subtle p-4">
-                                                    <h5 class="modal-title fw-bolder text-uppercase"
-                                                        style="color: #00ffc4;"><i class="bi bi-gear-fill me-2"></i>
-                                                        VERIFICATION</h5>
-                                                    <button type="button" class="btn-close btn-close-white"
-                                                        data-bs-dismiss="modal"></button>
-                                                </div>
-                                                <div class="modal-body p-4">
-                                                    <label class="d-block text-center fw-bold mb-2"
-                                                        style="color: #FFE5DE;">Status</label>
-                                                    <select name="status_spv"
-                                                        class="form-select form-select-lg fw-bold text-center mb-3"
-                                                        style="background: #fff1f0; color: #dc3545;">
-                                                        <option value="1" {{ $dep->status_spv==1?'selected':'' }}>✅
-                                                            Verified</option>
-                                                        <option value="2" {{ $dep->status_spv==2?'selected':'' }}>❌
-                                                            Revision</option>
-                                                    </select>
-                                                    <label class="text-light">Catatan</label>
-                                                    <textarea name="catatan_spv" rows="3" class="form-control"
-                                                        style="background-color: #FFE5DE;">{{ $dep->catatan_spv }}</textarea>
-                                                </div>
-                                                <div class="modal-footer border-top p-3"
-                                                    style="background-color: #9E3419; border-color: #00ffc4 !important;">
-                                                    <button type="button" class="btn btn-outline-light rounded-pill"
-                                                        data-bs-dismiss="modal">Batal</button>
-                                                    <button type="submit" class="btn fw-bolder rounded-pill"
-                                                        style="background-color: #E39581; color: #2c3e50;">SUBMIT</button>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
+                                    <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                                        
+                                        {{-- PERBAIKAN UTAMA: --}}
+                                        {{-- 1. Tambahkan 'modal-dialog-centered' agar di tengah vertikal --}}
+                                        {{-- 2. Tambahkan style="max-width: 700px;" untuk MEMAKSA modal menjadi lebar --}}
+                                        <div class="modal-dialog modal-dialog-centered" style="max-width: 700px;"> 
+                                            
+                                            <form action="{{ route('labelisasi_pvdc.verification.update', $dep->uuid) }}" method="POST">
+                                                @csrf @method('PUT')
+                                                
+                                                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white" style="background: linear-gradient(145deg, #7a1f12, #9E3419);">
+                                                    
+                                                    {{-- HEADER --}}
+                                                    <div class="modal-header border-bottom border-light-subtle p-3 position-relative">
+                                                        <h5 class="modal-title fw-bolder text-uppercase w-100 text-center" style="color: #00ffc4; letter-spacing: 1px;">
+                                                            <i class="bi bi-gear-fill me-2"></i> VERIFICATION
+                                                        </h5>
+                                                        {{-- Tombol Close --}}
+                                                        <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+                                                    </div>
+
+                                                    {{-- BODY --}}
+                                                    <div class="modal-body p-4 text-center">
+                                                        
+                                                        <p class="mb-4 text-light opacity-75" style="font-size: 0.95rem;">
+                                                            Pastikan data yang akan diverifikasi di check dengan teliti terlebih dahulu.
+                                                        </p>
+
+                                                        <div class="row justify-content-center">
+                                                            <div class="col-10"> {{-- col-10 memastikan konten tidak terlalu mepet pinggir --}}
+                                                                
+                                                                {{-- Pilih Status --}}
+                                                                <div class="mb-4">
+                                                                    <label class="fw-bold mb-2 d-block text-white">Pilih Status Verifikasi</label>
+                                                                    <select name="status_spv" class="form-select form-select-lg fw-bold text-center w-100 shadow-sm" 
+                                                                                style="background: #fff; color: #dc3545; border-radius: 10px; border: none; cursor: pointer;">
+                                                                        <option value="1" {{ $dep->status_spv==1?'selected':'' }}>✅ Verified (Disetujui)</option>
+                                                                        <option value="2" {{ $dep->status_spv==2?'selected':'' }}>❌ Revision (Perlu Perbaikan)</option>
+                                                                    </select>
+                                                                </div>
+
+                                                                {{-- Catatan --}}
+                                                                <div class="mb-2">
+                                                                    <label class="fw-bold mb-2 d-block text-white">Catatan Tambahan (Opsional)</label>
+                                                                    <textarea name="catatan_spv" rows="4" class="form-control w-100 shadow-sm" 
+                                                                                style="background-color: #FFE5DE; border-radius: 10px; border: none;" 
+                                                                                placeholder="Masukkan catatan...">{{ $dep->catatan_spv }}</textarea>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {{-- FOOTER --}}
+                                                    <div class="modal-footer justify-content-center border-top p-3" style="background-color: #9E3419; border-color: rgba(255,255,255,0.2) !important;">
+                                                        <button type="button" class="btn btn-outline-light rounded-pill px-4 me-2 fw-bold" data-bs-dismiss="modal">Batal</button>
+                                                        <button type="submit" class="btn fw-bolder rounded-pill px-5 shadow" style="background-color: #E39581; color: #2c3e50;">
+                                                            <i class="bi bi-box-arrow-in-down me-1"></i> SUBMIT
+                                                        </button>
+                                                    </div>
+
+                                                </div> {{-- End Modal Content --}}
+                                            </form>
+                                        </div> {{-- End Modal Dialog --}}
+                                    </div> 
+                                {{-- End Modal --}}
                             </td>
                         </tr>
                         @empty

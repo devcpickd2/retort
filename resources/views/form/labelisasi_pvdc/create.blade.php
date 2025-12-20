@@ -215,7 +215,14 @@
         let produk = produkSelect.val();
         let batchSelects = $(".batchSelect");
 
-        batchSelects.each(function () {
+        // Store current selections before clearing
+        let currentSelections = {};
+        batchSelects.each(function (index) {
+            let select = $(this);
+            currentSelections[index] = select.val();
+        });
+
+        batchSelects.each(function (index) {
             let select = $(this);
             select.html("");
             select.prop("disabled", true);
@@ -245,6 +252,11 @@
                             </option>
                         `);
                     });
+
+                    // Restore previous selection if it still exists
+                    if (currentSelections[index] && select.find(`option[value="${currentSelections[index]}"]`).length > 0) {
+                        select.val(currentSelections[index]);
+                    }
                 });
         });
     }

@@ -65,7 +65,7 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="mb-1">Cari Nama Produk</div>
+                <div class="mb-1">Cari Data</div>
                 <div class="input-group mb-2">
                     <div class="input-group-prepend">
                         <span class="input-group-text bg-white border-end-0">

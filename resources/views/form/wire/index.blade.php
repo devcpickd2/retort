@@ -210,10 +210,15 @@
                                 @can('can access edit button')
                                 <a href="{{ route('wire.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm mb-1"><i class="bi bi-pencil-square"></i> Edit</a>
                                 @endcan
+                                                                @can('can access update button')
+                                <a href="{{ route('wire.update.form', $dep->uuid) }}" class="btn btn-info btn-sm me-1 mb-1">
+                                    <i class="bi bi-pencil"></i> Update
+                                </a>
+                                @endcan
                                 @can('can access delete button')
                                 <form action="{{ route('wire.destroy', $dep->uuid) }}" method="POST" class="d-inline">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-danger btn-sm mb-1" onclick="return confirm('Hapus?')"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-danger btn-sm mb-1" onclick="return confirm('Hapus?')"><i class="bi bi-trash"></i> Hapus</button>
                                 </form>
                                 @endcan
 
