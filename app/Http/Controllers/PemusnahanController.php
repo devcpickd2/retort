@@ -6,14 +6,15 @@ use App\Models\Pemusnahan;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use TCPDF;
 
 class PemusnahanController extends Controller
 {
     public function index(Request $request)
     {
-        $search     = $request->input('search');
-        $date       = $request->input('date');
-        $userPlant  = Auth::user()->plant;
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $userPlant = Auth::user()->plant;
 
         $data = Pemusnahan::query()
         ->where('plant', $userPlant)
@@ -35,6 +36,55 @@ class PemusnahanController extends Controller
         return view('form.pemusnahan.index', compact('data', 'search', 'date'));
     }
 
+    /**
+     * EXPORT PDF (Tanpa Shift)
+     */
+    public function exportPdf(Request $request)
+    {
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $userPlant = Auth::user()->plant;
+
+        // Ambil Data
+        $items = Pemusnahan::query()
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('kode_produksi', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->orderBy('date', 'asc') // Hapus orderBy shift
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // Setup PDF Landscape A4
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Laporan Pemusnahan Barang / Produk');
+        
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        
+        $pdf->SetMargins(10, 10, 10);
+        $pdf->SetAutoPageBreak(TRUE, 10);
+        $pdf->SetFont('helvetica', '', 9);
+
+        $pdf->AddPage();
+
+        // Render View
+        $html = view('reports.pemusnahan', compact('items', 'request'))->render();
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('Laporan_Pemusnahan_' . date('d-m-Y_His') . '.pdf', 'I');
+        exit();
+    }
     public function create()
     {
         $userPlant = Auth::user()->plant;

@@ -369,6 +369,7 @@ Route::put('/sampling_fg/verification/{uuid}', [Sampling_fgController::class, 'u
 Route::delete('/sampling_fg/{uuid}', [Sampling_fgController::class, 'destroy'])->name('sampling_fg.destroy');
 
 // Chamber
+Route::get('/chamber/export-pdf', [ChamberController::class, 'exportPdf'])->name('chamber.exportPdf');
 Route::get('/chamber', [ChamberController::class, 'index'])->name('chamber.index');
 Route::get('/chamber/create', [ChamberController::class, 'create'])->name('chamber.create');
 Route::post('/chamber', [ChamberController::class, 'store'])->name('chamber.store');
@@ -594,6 +595,7 @@ Route::put('/washing/verification/{uuid}', [WashingController::class, 'updateVer
 Route::delete('/washing/{uuid}', [WashingController::class, 'destroy'])->name('washing.destroy');
 
 // Pemusnahan
+Route::get('/pemusnahan/export-pdf', [PemusnahanController::class, 'exportPdf'])->name('pemusnahan.exportPdf');
 Route::get('/pemusnahan', [PemusnahanController::class, 'index'])->name('pemusnahan.index');
 Route::get('/pemusnahan/create', [PemusnahanController::class, 'create'])->name('pemusnahan.create');
 Route::post('/pemusnahan', [PemusnahanController::class, 'store'])->name('pemusnahan.store');
