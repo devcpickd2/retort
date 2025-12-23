@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('username');
             $table->string('nama_supplier');
             $table->string('jenis_barang');
-            $table->string('nama_supplier')->nullable();
             $table->string('plant');
             $table->timestamps();
         });
