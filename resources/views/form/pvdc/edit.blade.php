@@ -109,9 +109,9 @@
                                         </select>
                                     </td>
                                     @endif
-                                    <td><input type="text" name="data_pvdc[{{ $mi }}][detail][{{ $bi }}][batch]" value="{{ $batch['batch'] }}" class="form-control form-control-sm"></td>
-                                    <td><input type="text" name="data_pvdc[{{ $mi }}][detail][{{ $bi }}][no_lot]" value="{{ $batch['no_lot'] }}" class="form-control form-control-sm"></td>
-                                    <td><input type="time" name="data_pvdc[{{ $mi }}][detail][{{ $bi }}][waktu]" value="{{ $batch['waktu'] }}" class="form-control form-control-sm"></td>
+                                    <td><input type="text" name="data_pvdc[{{ $mi }}][detail][{{ $bi }}][batch]" value="{{ $batch['batch'] ?? '' }}" class="form-control form-control-sm"></td>
+                                    <td><input type="text" name="data_pvdc[{{ $mi }}][detail][{{ $bi }}][no_lot]" value="{{ $batch['no_lot'] ?? '' }}" class="form-control form-control-sm"></td>
+                                    <td><input type="time" name="data_pvdc[{{ $mi }}][detail][{{ $bi }}][waktu]" value="{{ $batch['waktu'] ?? '' }}" class="form-control form-control-sm"></td>
                                     <td>
                                         @if($bi == 0)
                                         <button type="button" class="btn btn-success btn-sm addBatchRow">+ Batch</button>
