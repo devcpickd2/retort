@@ -105,7 +105,7 @@
                                 <input type="hidden" name="{{ $field }}" value="{{ $washing->$field }}">
                                 @endif
                                 @else
-                                <input type="number" name="{{ $field }}" class="form-control form-control-sm text-center" step="0.01"
+                                <input type="number" name="{{ $field }}" class="form-control form-control-sm text-center" step="0.01" min="0"
                                 value="{{ old($field, $washing->$field) }}"
                                 @if($washing->$field) readonly style="background-color:#e9ecef;cursor:not-allowed;" @endif>
                                 @endif
@@ -150,7 +150,7 @@
                         <input type="hidden" name="{{ $field }}" value="{{ $washing->$field }}">
                         @endif
                         @else
-                        <input type="number" name="{{ $field }}" class="form-control form-control-sm text-center" step="0.01"
+                        <input type="number" name="{{ $field }}" class="form-control form-control-sm text-center" step="0.01" min="0"
                         value="{{ old($field, $washing->$field) }}"
                         @if($washing->$field) readonly style="background-color:#e9ecef;cursor:not-allowed;" @endif>
                         @endif
@@ -194,7 +194,7 @@
                         <input type="hidden" name="{{ $field }}" value="{{ $washing->$field }}">
                         @endif
                         @else
-                        <input type="number" name="{{ $field }}" class="form-control form-control-sm text-center" step="0.01"
+                        <input type="number" name="{{ $field }}" class="form-control form-control-sm text-center" step="0.01" min="0"
                         value="{{ old($field, $washing->$field) }}"
                         @if($washing->$field) readonly style="background-color:#e9ecef;cursor:not-allowed;" @endif>
                         @endif
@@ -226,7 +226,7 @@
                     <tr>
                         <td class="text-left align-middle">{{ ucwords(str_replace('_',' ',$field)) }}</td>
                         <td>
-                            <input type="number" name="{{ $field }}" class="form-control form-control-sm text-center" step="0.01"
+                            <input type="number" name="{{ $field }}" class="form-control form-control-sm text-center" step="0.01" min="0"
                             value="{{ old($field, $washing->$field) }}"
                             @if($washing->$field) readonly style="background-color:#e9ecef;cursor:not-allowed;" @endif>
                         </td>

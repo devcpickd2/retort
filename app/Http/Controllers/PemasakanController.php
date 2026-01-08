@@ -269,7 +269,7 @@ public function edit_spv(Request $request, string $uuid)
         'cooking'          => json_encode($request->input('cooking', []), JSON_UNESCAPED_UNICODE),
     ]);
 
-    return redirect()->route('pemasakan.verification')->with('success', 'Data SPV berhasil diperbarui');
+    return redirect()->route('pemasakan.index')->with('success', 'Data SPV berhasil diperbarui');
 }
 
 public function verification(Request $request)
@@ -314,7 +314,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv'  => now(),
     ]);
 
-    return redirect()->route('pemasakan.verification')
+    return redirect()->route('pemasakan.index')
     ->with('success', 'Status Verifikasi Pengecekan Pemasakan berhasil diperbarui.');
 }
 

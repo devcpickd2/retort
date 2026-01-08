@@ -295,7 +295,7 @@ class WashingController extends Controller
 
         $washing->update($data);
 
-        return redirect()->route('washing.verification')->with('success', 'Data Pemeriksaan Washing - Drying berhasil diperbarui');
+        return redirect()->route('washing.index')->with('success', 'Data Pemeriksaan Washing - Drying berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -340,7 +340,7 @@ class WashingController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('washing.verification')
+        return redirect()->route('washing.index')
         ->with('success', 'Status Verifikasi Pemeriksaan Washing - Drying berhasil diperbarui.');
     }
 
