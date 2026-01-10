@@ -279,7 +279,7 @@ class OrganoleptikController extends Controller
             'sensori'          => json_encode($sensoris, JSON_UNESCAPED_UNICODE),
         ]);
 
-        return redirect()->route('organoleptik.verification')
+        return redirect()->route('organoleptik.index')
         ->with('success', '✅ Pemeriksaan Organoleptik berhasil diperbarui.');
     }
 
@@ -325,7 +325,7 @@ class OrganoleptikController extends Controller
             'tgl_update_spv' => now(),
         ]);
 
-        return redirect()->route('organoleptik.verification')
+        return redirect()->route('organoleptik.index')
         ->with('success', '✅ Status Verifikasi Pemeriksaan Organoleptik berhasil diperbarui.');
     }
 

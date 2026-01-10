@@ -186,7 +186,7 @@ class PemusnahanController extends Controller
 
         $pemusnahan->update($data);
 
-        return redirect()->route('pemusnahan.verification')->with('success', 'Data Pemusnahan Barang / Produk berhasil diperbarui');
+        return redirect()->route('pemusnahan.index')->with('success', 'Data Pemusnahan Barang / Produk berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -231,7 +231,7 @@ class PemusnahanController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('pemusnahan.verification')
+        return redirect()->route('pemusnahan.index')
         ->with('success', 'Status Verifikasi Pemusnahan Barang / Produk berhasil diperbarui.');
     }
 
