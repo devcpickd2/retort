@@ -8,6 +8,17 @@
             <h4 class="mb-4">
                 <i class="bi bi-plus-circle"></i> Form Input Pemeriksaan Proses Packing
             </h4>
+            
+            {{-- ===================== 1. GLOBAL ERROR ALERT ===================== --}}
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <form id="pvdcForm" action="{{ route('packing.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -22,16 +33,16 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal</label>
-                                <input type="date" name="date" id="dateInput" class="form-control" required>
+                                <input type="date" name="date" id="dateInput" class="form-control" value="{{ old('date') }}" required>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Shift</label>
                                 <select name="shift" id="shiftInput" class="form-control" required>
                                     <option value="">-- Pilih Shift --</option>
-                                    <option value="1">Shift 1</option>
-                                    <option value="2">Shift 2</option>
-                                    <option value="3">Shift 3</option>
+                                    <option value="1" {{ old('shift') == '1' ? 'selected' : '' }}>Shift 1</option>
+                                    <option value="2" {{ old('shift') == '2' ? 'selected' : '' }}>Shift 2</option>
+                                    <option value="3" {{ old('shift') == '3' ? 'selected' : '' }}>Shift 3</option>
                                 </select>
                             </div>
                         </div>
@@ -42,7 +53,9 @@
                                 <select name="nama_produk" class="form-control selectpicker" data-live-search="true" required>
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach($produks as $produk)
-                                    <option value="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</option>
+                                    <option value="{{ $produk->nama_produk }}" {{ old('nama_produk') == $produk->nama_produk ? 'selected' : '' }}>
+                                        {{ $produk->nama_produk }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -64,35 +77,31 @@
                             <i class="bi bi-check-circle text-success"></i> Centang = <b>OK</b>, Kosong = <b>Tidak OK</b>.
                         </div>
                         <div class="row mb-3">
-                            <!-- Waktu -->
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Waktu</label>
-                                <input type="time" id="timeInput" name="waktu" class="form-control">
+                                <input type="time" id="timeInput" name="waktu" class="form-control" value="{{ old('waktu') }}">
                             </div>
 
-                            <!-- Kalibrasi -->
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Kalibrasi</label>
                                 <select name="kalibrasi" class="form-control">
                                     <option value="">--Pilih--</option>
-                                    <option value="Ok">Ok</option>
-                                    <option value="Tidak Ok">Tidak Ok</option>
+                                    <option value="Ok" {{ old('kalibrasi') == 'Ok' ? 'selected' : '' }}>Ok</option>
+                                    <option value="Tidak Ok" {{ old('kalibrasi') == 'Tidak Ok' ? 'selected' : '' }}>Tidak Ok</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <!-- QR Code -->
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">QR Code</label>
                                 <select name="qrcode" class="form-control">
                                     <option value="">--Pilih--</option>
-                                    <option value="Ok">Ok</option>
-                                    <option value="Tidak Ok">Tidak Ok</option>
+                                    <option value="Ok" {{ old('qrcode') == 'Ok' ? 'selected' : '' }}>Ok</option>
+                                    <option value="Tidak Ok" {{ old('qrcode') == 'Tidak Ok' ? 'selected' : '' }}>Tidak Ok</option>
                                 </select>
                             </div>
 
-                            <!-- Kode Printing (File) -->
                             <div class="col-md-6 file-wrapper">
                                 <label class="form-label fw-bold">Kode Printing (Upload Gambar)</label>
                                 <input type="file" name="kode_printing" class="form-control" accept="image/*">
@@ -100,66 +109,58 @@
                             </div>
                         </div>
 
-                        <!-- Kode Toples -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Kode Toples</label>
-                                <input type="text" name="kode_toples" class="form-control">
+                                <input type="text" name="kode_toples" class="form-control" value="{{ old('kode_toples') }}">
                             </div>
 
-                            <!-- Kode Karton -->
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Kode Karton</label>
-                                <input type="text" name="kode_karton" class="form-control">
+                                <input type="text" name="kode_karton" class="form-control" value="{{ old('kode_karton') }}">
                             </div>
                         </div>
-                        <!-- Suhu -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Suhu</label>
-                                <input type="number" name="suhu" class="form-control" step="0.01">
+                                <input type="number" name="suhu" class="form-control" step="0.01" value="{{ old('suhu') }}" min="0">
                             </div>
-
-                            <!-- Speed -->
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Speed</label>
-                                <input type="number" step="0.01" name="speed" class="form-control">
+                                <input type="number" step="0.01" name="speed" class="form-control" value="{{ old('speed') }}" min="0">
                             </div>
                         </div>
-                        <!-- Kondisi Segel -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Kondisi Segel</label>
                                 <select name="kondisi_segel" class="form-control">
                                     <option value="">--Pilih--</option>
-                                    <option value="OK">OK</option>
-                                    <option value="Tidak OK">Tidak OK</option>
+                                    <option value="OK" {{ old('kondisi_segel') == 'OK' ? 'selected' : '' }}>OK</option>
+                                    <option value="Tidak OK" {{ old('kondisi_segel') == 'Tidak OK' ? 'selected' : '' }}>Tidak OK</option>
                                 </select>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Berat Toples</label>
-                                <input type="number" step="0.01" name="berat_toples" class="form-control">
+                                <input type="number" step="0.01" name="berat_toples" class="form-control" value="{{ old('berat_toples') }}" min="0">
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <!-- Berat Pouch -->
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Berat Pouch</label>
-                                <input type="number" step="0.01" name="berat_pouch" class="form-control">
+                                <input type="number" step="0.01" name="berat_pouch" class="form-control" value="{{ old('berat_pouch') }}" min="0">
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">No. Lot</label>
-                                <input type="text" name="no_lot" class="form-control">
+                                <input type="text" name="no_lot" class="form-control" value="{{ old('no_lot') }}">
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <!-- Tanggal Kedatangan -->
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Tanggal Kedatangan</label>
-                                <input type="date" name="tgl_kedatangan" class="form-control">
+                                <input type="date" name="tgl_kedatangan" class="form-control" value="{{ old('tgl_kedatangan') }}">
                             </div>
 
                             <div class="col-md-6">
@@ -167,7 +168,9 @@
                                 <select name="nama_supplier" class="form-control">
                                     <option value="">-- Pilih Supplier --</option>
                                     @foreach($suppliers as $supplier)
-                                    <option value="{{ $supplier->nama_supplier }}">{{ $supplier->nama_supplier }}</option>
+                                    <option value="{{ $supplier->nama_supplier }}" {{ old('nama_supplier') == $supplier->nama_supplier ? 'selected' : '' }}>
+                                        {{ $supplier->nama_supplier }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -214,6 +217,7 @@
         const shiftInput = document.getElementById("shiftInput");
         const timeInput = document.getElementById("timeInput");
 
+        // Generate Waktu Sekarang
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -221,12 +225,23 @@
         const hh = now.getHours();
         let min = '00';
 
-        dateInput.value = `${yyyy}-${mm}-${dd}`;
-        timeInput.value = `${hh}:${min}`;
+        // LOGIKA PENTING: Hanya isi otomatis jika input KOSONG
+        // Jika validasi gagal, Laravel sudah mengisi value dengan data lama (old)
+        // Jadi kita tidak boleh menimpanya dengan waktu sekarang
+        
+        if (!dateInput.value) {
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
+        
+        if (!timeInput.value) {
+            timeInput.value = `${hh}:${min}`;
+        }
 
-        if (hh >= 7 && hh < 15) shiftInput.value = "1";
-        else if (hh >= 15 && hh < 23) shiftInput.value = "2";
-        else shiftInput.value = "3";
+        if (!shiftInput.value) {
+            if (hh >= 7 && hh < 15) shiftInput.value = "1";
+            else if (hh >= 15 && hh < 23) shiftInput.value = "2";
+            else shiftInput.value = "3";
+        }
     });
 
     function validateFile(input) {

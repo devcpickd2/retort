@@ -57,17 +57,17 @@
                                     <tr>
                                         <td rowspan="3" class="text-center align-middle">Suhu Produk (°C)</td>
                                         <td>
-                                            <input type="number" name="suhu_produk[suhu_1]" id="suhu_1" class="form-control form-control-sm text-center" step="0.01" value="{{ old('suhu_produk.suhu_1', $suhuData['suhu_1'] ?? '') }}">
+                                            <input type="number" name="suhu_produk[suhu_1]" id="suhu_1" class="form-control form-control-sm text-center" step="0.01" value="{{ old('suhu_produk.suhu_1', $suhuData['suhu_1'] ?? '') }}" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <input type="number" name="suhu_produk[suhu_2]" id="suhu_2" class="form-control form-control-sm text-center" step="0.01" value="{{ old('suhu_produk.suhu_2', $suhuData['suhu_2'] ?? '') }}">
+                                            <input type="number" name="suhu_produk[suhu_2]" id="suhu_2" class="form-control form-control-sm text-center" step="0.01" value="{{ old('suhu_produk.suhu_2', $suhuData['suhu_2'] ?? '') }}" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <input type="number" name="suhu_produk[suhu_3]" id="suhu_3" class="form-control form-control-sm text-center" step="0.01" value="{{ old('suhu_produk.suhu_3', $suhuData['suhu_3'] ?? '') }}">
+                                            <input type="number" name="suhu_produk[suhu_3]" id="suhu_3" class="form-control form-control-sm text-center" step="0.01" value="{{ old('suhu_produk.suhu_3', $suhuData['suhu_3'] ?? '') }}" min="0">
                                         </td>
                                     </tr>
                                 </tbody>

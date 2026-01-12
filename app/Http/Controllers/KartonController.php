@@ -282,7 +282,7 @@ class KartonController extends Controller
 
         $karton->update($updateData);
 
-        return redirect()->route('karton.verification')->with('success', 'Kontrol Labelisasi Karton berhasil diperbarui.');
+        return redirect()->route('karton.index')->with('success', 'Kontrol Labelisasi Karton berhasil diperbarui.');
     }
 
     public function verification(Request $request)
@@ -329,7 +329,7 @@ class KartonController extends Controller
         'tgl_update_spv'  => now(),
     ]);
 
-    return redirect()->route('karton.verification')->with('success', 'Status verifikasi Kontrol Labelisasi Karton berhasil diperbarui.');
+    return redirect()->route('karton.index')->with('success', 'Status verifikasi Kontrol Labelisasi Karton berhasil diperbarui.');
 }
 
 public function destroy($uuid)

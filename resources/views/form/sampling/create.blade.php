@@ -77,33 +77,33 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Jumlah</label>
-                                <input type="number" name="jumlah" id="jumlah" class="form-control" required step="0.01">
+                                <input type="number" name="jumlah" id="jumlah" class="form-control" required step="0.01" min="0">
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-3"><label class="form-label">Jamur</label><input type="number" name="jamur" class="form-control" step="0.01"></div>
-                            <div class="col-md-3"><label class="form-label">Lendir</label><input type="number" name="lendir" class="form-control" step="0.01"></div>
-                            <div class="col-md-3"><label class="form-label">Klip Tajam</label><input type="number" name="klip_tajam" class="form-control" step="0.01"></div>
-                            <div class="col-md-3"><label class="form-label">Pin Hole</label><input type="number" name="pin_hole" class="form-control" step="0.01"></div>
+                            <div class="col-md-3"><label class="form-label">Jamur</label><input type="number" name="jamur" class="form-control" step="0.01" min="0"></div>
+                            <div class="col-md-3"><label class="form-label">Lendir</label><input type="number" name="lendir" class="form-control" step="0.01" min="0"></div>
+                            <div class="col-md-3"><label class="form-label">Klip Tajam</label><input type="number" name="klip_tajam" class="form-control" step="0.01" min="0"></div>
+                            <div class="col-md-3"><label class="form-label">Pin Hole</label><input type="number" name="pin_hole" class="form-control" step="0.01" min="0"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-3"><label class="form-label">Air Trap PVDC</label><input type="number" name="air_trap_pvdc" class="form-control" step="0.01"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Air Trap Produk</label><input type="number" name="air_trap_produk" class="form-control"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Keriput</label><input type="number" name="keriput" class="form-control"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Bengkok</label><input type="number" name="bengkok" class="form-control"></div>
+                            <div class="col-md-3"><label class="form-label">Air Trap PVDC</label><input type="number" name="air_trap_pvdc" class="form-control" step="0.01" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Air Trap Produk</label><input type="number" name="air_trap_produk" class="form-control" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Keriput</label><input type="number" name="keriput" class="form-control" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Bengkok</label><input type="number" name="bengkok" class="form-control" min="0"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-3" step="0.01"><label class="form-label">Non Kode</label><input type="number" name="non_kode" class="form-control"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Over Lap</label><input type="number" name="over_lap" class="form-control"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Kecil</label><input type="number" name="kecil" class="form-control"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Terjepit</label><input type="number" name="terjepit" class="form-control"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Non Kode</label><input type="number" name="non_kode" class="form-control" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Over Lap</label><input type="number" name="over_lap" class="form-control" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Kecil</label><input type="number" name="kecil" class="form-control" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Terjepit</label><input type="number" name="terjepit" class="form-control" min="0"></div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-3" step="0.01"><label class="form-label">Double Klip</label><input type="number" name="double_klip" class="form-control"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Seal Halus/Lepas</label><input type="number" name="seal_halus" class="form-control"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Basah</label><input type="number" name="basah" class="form-control"></div>
-                            <div class="col-md-3" step="0.01"><label class="form-label">Dll</label><input type="number" name="dll" class="form-control"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Double Klip</label><input type="number" name="double_klip" class="form-control" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Seal Halus/Lepas</label><input type="number" name="seal_halus" class="form-control" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Basah</label><input type="number" name="basah" class="form-control" min="0"></div>
+                            <div class="col-md-3" step="0.01"><label class="form-label">Dll</label><input type="number" name="dll" class="form-control" min="0"></div>
                         </div>
                     </div>
                 </div>

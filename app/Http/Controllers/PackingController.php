@@ -325,7 +325,7 @@ class PackingController extends Controller
             'keterangan'          => $request->keterangan,
         ]);
 
-        return redirect()->route('packing.verification')
+        return redirect()->route('packing.index')
         ->with('success', 'Pemeriksaan Proses Packing berhasil diperbarui');
     }
 
@@ -370,7 +370,7 @@ class PackingController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('packing.verification')
+        return redirect()->route('packing.index')
         ->with('success', 'Status Verifikasi Pemeriksaan Proses Packing berhasil diperbarui.');
     }
 
