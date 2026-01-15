@@ -19,8 +19,15 @@
     }
     .select2-container--bootstrap-5 .select2-selection { border-radius: 8px !important; }
     
-    .btn-check-group .btn { display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
-    .btn-check-group .btn-outline-success, .btn-check-group .btn-outline-danger { font-weight: 600; }
+    /* Style Tombol Check Group */
+    .btn-check-group .btn { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 0.5rem; 
+        font-weight: 500;
+        transition: all 0.2s;
+    }
     .dynamic-item-card { background-color: #fdfdfd; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 </style>
 @endpush
@@ -92,23 +99,62 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
+    // --- 1. Logic Button OK/Not OK (Event Delegation) ---
     $(document).ready(function() {
-        $('.select2-static').select2({
-            theme: "bootstrap-5",
-            width: '100%' // Pastikan full width
+        
+        $(document).on('click', '.btn-check-group .btn', function(e) {
+            e.preventDefault(); 
+            
+            const button = $(this);
+            const value = button.data('value'); // 'OK' or 'Not OK'
+            const targetInputId = button.data('target-input');
+            
+            // 1. Update Input Hidden
+            if (targetInputId) {
+                $(targetInputId).val(value);
+            }
+
+            // 2. Visual Toggle Logic (Outline Secondary vs Solid Color)
+            const group = button.closest('.btn-check-group');
+            
+            // Reset semua tombol jadi abu-abu (outline-secondary)
+            group.find('.btn').each(function() {
+                $(this).removeClass('btn-success btn-danger').addClass('btn-outline-secondary');
+            });
+
+            // Set warna tombol yang aktif
+            if (value === 'OK') {
+                button.removeClass('btn-outline-secondary').addClass('btn-success');
+            } else {
+                button.removeClass('btn-outline-secondary').addClass('btn-danger');
+            }
+        });
+
+        // Hapus Baris Item
+        $(document).on('click', '.remove-detail-btn', function() {
+            $(this).closest('.dynamic-item-card').remove();
         });
     });
 
+    // --- 2. Logic Render Form Dinamis ---
     document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('details-container');
         const addBtn = document.getElementById('add-detail-btn');
         let detailIndex = 0;
-        const vehicleConditions = @json($vehicleConditions);
+        
+        const vehicleConditions = @json($vehicleConditions ?? []); 
 
         function renderDetailForm(data = null) {
             const i = detailIndex;
             
-            // Default Values
+            // Definisi Field Checkbox (Looping Array)
+            const checkList = [
+                { key: 'condition_design', label: 'Kondisi Design' },
+                { key: 'condition_sealing', label: 'Kondisi Sealing' },
+                { key: 'condition_color', label: 'Kondisi Warna' }
+            ];
+
+            // Setup Default Values
             const no_pol = data?.no_pol || '';
             const vehicle_cond = data?.vehicle_condition || '';
             const pbb_op = data?.pbb_op || '';
@@ -120,10 +166,34 @@
             const qty_sample = data?.quantity_sample || 0;
             const qty_reject = data?.quantity_reject || 0;
             const notes = data?.notes || '';
-            const design_val = data?.condition_design || 'OK';
-            const sealing_val = data?.condition_sealing || 'OK';
-            const color_val = data?.condition_color || 'OK';
             const accept_val = data?.acceptance_status || 'OK';
+
+            // Generate HTML untuk bagian tombol Check (OK/Not OK)
+            let checksHtml = '';
+            checkList.forEach(item => {
+                const val = data?.[item.key] || ''; // Default OK
+                
+                checksHtml += `
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label d-block">${item.label}</label>
+                    <input type="hidden" name="items[${i}][${item.key}]" id="${item.key}_${i}" value="${val}">
+                    
+                    <div class="btn-group btn-check-group w-100" role="group">
+                        <button type="button" class="btn ${val === 'OK' ? 'btn-success' : 'btn-outline-secondary'} w-50" 
+                            data-value="OK" 
+                            data-target-input="#${item.key}_${i}">
+                            <i class="bi bi-check-lg"></i> OK
+                        </button>
+                        
+                        <button type="button" class="btn ${val === 'Not OK' ? 'btn-danger' : 'btn-outline-secondary'} w-50" 
+                            data-value="Not OK" 
+                            data-target-input="#${item.key}_${i}">
+                            <i class="bi bi-x-lg"></i> Not OK
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
 
             const newDetail = document.createElement('div');
             newDetail.classList.add('dynamic-item-card', 'border', 'p-3', 'mb-3', 'rounded', 'shadow-sm'); 
@@ -148,30 +218,8 @@
                         <input type="text" name="items[${i}][lot_batch]" class="form-control" value="${lot_batch}" required>
                     </div>
 
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label d-block">Kondisi Design</label>
-                        <input type="hidden" name="items[${i}][condition_design]" id="design_${i}" value="${design_val}">
-                        <div class="btn-group btn-check-group w-100" role="group">
-                            <button type="button" class="btn ${design_val === 'OK' ? 'btn-success' : 'btn-outline-success'} w-50" data-value="OK" data-target-input="#design_${i}">OK</button>
-                            <button type="button" class="btn ${design_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'} w-50" data-value="Not OK" data-target-input="#design_${i}">Not OK</button>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label d-block">Kondisi Sealing</label>
-                        <input type="hidden" name="items[${i}][condition_sealing]" id="sealing_${i}" value="${sealing_val}">
-                        <div class="btn-group btn-check-group w-100" role="group">
-                            <button type="button" class="btn ${sealing_val === 'OK' ? 'btn-success' : 'btn-outline-success'} w-50" data-value="OK" data-target-input="#sealing_${i}">OK</button>
-                            <button type="button" class="btn ${sealing_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'} w-50" data-value="Not OK" data-target-input="#sealing_${i}">Not OK</button>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label d-block">Kondisi Warna</label>
-                        <input type="hidden" name="items[${i}][condition_color]" id="color_${i}" value="${color_val}">
-                        <div class="btn-group btn-check-group w-100" role="group">
-                            <button type="button" class="btn ${color_val === 'OK' ? 'btn-success' : 'btn-outline-success'} w-50" data-value="OK" data-target-input="#color_${i}">OK</button>
-                            <button type="button" class="btn ${color_val === 'Not OK' ? 'btn-danger' : 'btn-outline-danger'} w-50" data-value="Not OK" data-target-input="#color_${i}">Not OK</button>
-                        </div>
-                    </div>
+                    ${checksHtml} {{-- Render Tombol Loop Disini --}}
+
                     <div class="col-lg-3 col-md-6">
                         <label class="form-label">Dimensi</label>
                         <input type="text" name="items[${i}][condition_dimension]" class="form-control" value="${dimension}">
@@ -189,6 +237,7 @@
                         <label class="form-label">Qty Reject</label>
                         <input type="number" name="items[${i}][quantity_reject]" class="form-control" value="${qty_reject}" min="0" required>
                     </div>
+                    
                     <div class="col-md-6">
                         <label class="form-label">Penerimaan</label>
                         <select name="items[${i}][acceptance_status]" class="form-select select2-dynamic" required>
@@ -224,54 +273,19 @@
 
             container.appendChild(newDetail);
             
-            // Inisialisasi Select2 dengan Width 100%
             $(newDetail).find('.select2-dynamic').select2({
                 theme: "bootstrap-5",
                 placeholder: "Pilih...",
                 allowClear: true,
-                width: '100%', // PENTING: Memaksa lebar penuh mengikuti kolom bootstrap
-                dropdownAutoWidth: false // Mematikan auto width berdasarkan konten text
+                width: '100%',
+                dropdownAutoWidth: false
             });
 
             detailIndex++;
         }
 
         if (addBtn) addBtn.addEventListener('click', () => renderDetailForm(null));
-        
-        if (container) {
-            container.addEventListener('click', function(e) {
-                // Hapus Logic
-                const removeBtn = e.target.closest('.remove-detail-btn');
-                if (removeBtn) removeBtn.closest('.dynamic-item-card').remove();
 
-                // OK/Not OK Logic
-                if (e.target.matches('.btn-check-group .btn')) {
-                    const button = e.target;
-                    const value = button.dataset.value;
-                    const targetInputId = button.dataset.targetInput;
-                    if (!targetInputId) return; 
-                    const targetInput = document.querySelector(targetInputId);
-                    if (targetInput) targetInput.value = value;
-                    
-                    const group = button.closest('.btn-check-group');
-                    group.querySelectorAll('button').forEach(btn => {
-                        if (btn.dataset.value === 'OK') {
-                            btn.classList.replace('btn-success', 'btn-outline-success');
-                        } else {
-                            btn.classList.replace('btn-danger', 'btn-outline-danger');
-                        }
-                    });
-
-                    if (value === 'OK') {
-                        button.classList.replace('btn-outline-success', 'btn-success');
-                    } else {
-                        button.classList.replace('btn-outline-danger', 'btn-danger');
-                    }
-                }
-            });
-        }
-
-        // Render Data Lama
         const oldItems = @json(old('items', []));
         if (oldItems.length > 0) {
             oldItems.forEach(itemData => renderDetailForm(itemData));

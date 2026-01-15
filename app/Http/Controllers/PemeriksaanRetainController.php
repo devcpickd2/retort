@@ -219,7 +219,7 @@ class PemeriksaanRetainController extends Controller
                 'verified_at' => now(),
             ]);
 
-            return redirect()->route('pemeriksaan_retain.verification')
+            return redirect()->route('pemeriksaan_retain.index')
                              ->with('success', 'Data berhasil diverifikasi.');
         } catch (\Exception $e) {
             Log::error('Verifikasi Error: ' . $e->getMessage());

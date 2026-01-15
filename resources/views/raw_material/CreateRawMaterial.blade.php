@@ -166,9 +166,25 @@
                             <div class="col-md-3 col-6 mb-3">
                                 <label class="form-label d-block">{{ $label }}</label>
                                 <input type="hidden" name="{{ $name }}" id="{{ $name }}" value="{{ old($name) }}">
-                                <div class="btn-group btn-check-group" role="group">
-                                    <button type="button" class="btn {{ old($name) === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#{{ $name }}"><i class="bi bi-check-lg"></i> OK</button>
-                                    <button type="button" class="btn {{ old($name) === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#{{ $name }}"><i class="bi bi-x-lg"></i> Not OK</button>
+                                
+                                <div class="btn-group btn-check-group w-100" role="group">
+                                    {{-- Tombol OK --}}
+                                    {{-- Jika value '1', pakai Solid Green. Jika tidak, pakai Outline Grey --}}
+                                    <button type="button" 
+                                        class="btn {{ old($name) === '1' ? 'btn-success' : 'btn-outline-secondary' }}" 
+                                        data-value="1" 
+                                        data-target-input="#{{ $name }}">
+                                        <i class="bi bi-check-lg"></i> OK
+                                    </button>
+
+                                    {{-- Tombol Not OK --}}
+                                    {{-- Jika value '0', pakai Solid Red. Jika tidak, pakai Outline Grey --}}
+                                    <button type="button" 
+                                        class="btn {{ old($name) === '0' ? 'btn-danger' : 'btn-outline-secondary' }}" 
+                                        data-value="0" 
+                                        data-target-input="#{{ $name }}">
+                                        <i class="bi bi-x-lg"></i> Not OK
+                                    </button>
                                 </div>
                             </div>
                             @endforeach
@@ -183,23 +199,28 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
+                            {{-- 1. K.A / FFA (FIXED) --}}
                             <div class="col-md-3 col-6">
                                 <label class="form-label d-block">K.A / FFA</label>
                                 <input type="hidden" name="analisa_ka_ffa" id="analisa_ka_ffa" value="{{ old('analisa_ka_ffa') }}">
-                                <div class="btn-group btn-check-group" role="group">
-                                    <button type="button" class="btn {{ old('analisa_ka_ffa') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#analisa_ka_ffa"><i class="bi bi-check-lg"></i> OK</button>
-                                    <button type="button" class="btn {{ old('analisa_ka_ffa') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#analisa_ka_ffa"><i class="bi bi-x-lg"></i> Not OK</button>
+                                <div class="btn-group btn-check-group w-100" role="group">
+                                    <button type="button" class="btn {{ old('analisa_ka_ffa') === '1' ? 'btn-success' : 'btn-outline-secondary' }}" data-value="1" data-target-input="#analisa_ka_ffa"><i class="bi bi-check-lg"></i> OK</button>
+                                    <button type="button" class="btn {{ old('analisa_ka_ffa') === '0' ? 'btn-danger' : 'btn-outline-secondary' }}" data-value="0" data-target-input="#analisa_ka_ffa"><i class="bi bi-x-lg"></i> Not OK</button>
                                 </div>
                             </div>
+
+                            {{-- 2. Logo Halal (FIXED) --}}
                             <div class="col-md-3 col-6">
                                 <label class="form-label d-block">Logo Halal</label>
                                 <input type="hidden" name="analisa_logo_halal" id="analisa_logo_halal" value="{{ old('analisa_logo_halal') }}">
-                                <div class="btn-group btn-check-group" role="group">
-                                    <button type="button" class="btn {{ old('analisa_logo_halal') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#analisa_logo_halal"><i class="bi bi-check-lg"></i> OK</button>
-                                    <button type="button" class="btn {{ old('analisa_logo_halal') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#analisa_logo_halal"><i class="bi bi-x-lg"></i> Not OK</button>
+                                <div class="btn-group btn-check-group w-100" role="group">
+                                    <button type="button" class="btn {{ old('analisa_logo_halal') === '1' ? 'btn-success' : 'btn-outline-secondary' }}" data-value="1" data-target-input="#analisa_logo_halal"><i class="bi bi-check-lg"></i> OK</button>
+                                    <button type="button" class="btn {{ old('analisa_logo_halal') === '0' ? 'btn-danger' : 'btn-outline-secondary' }}" data-value="0" data-target-input="#analisa_logo_halal"><i class="bi bi-x-lg"></i> Not OK</button>
                                 </div>
                             </div>
+
                             <div class="col-md-6"></div> {{-- Spacer --}}
+
                             <div class="col-md-6">
                                 <label for="analisa_negara_asal" class="form-label">Negara Asal Produsen</label>
                                 <input type="text" class="form-control @error('analisa_negara_asal') is-invalid @enderror" id="analisa_negara_asal" name="analisa_negara_asal" value="{{ old('analisa_negara_asal') }}" required>
@@ -221,25 +242,51 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
+                            {{-- KOLOM KIRI (Dokumen Halal & Status) --}}
                             <div class="col-md-6">
                                 <label class="form-label">Dokumen Halal</label>
-                                <div class="mb-2">
-                                    <label class="form-label d-block" for="dokumen_halal_berlaku">Status Berlaku?</label>
+                                
+                                {{-- Bagian Status Berlaku --}}
+                                <div class="mb-2"> 
+                                    <label class="form-label d-block small mb-1" for="dokumen_halal_berlaku">Status Berlaku?</label>
                                     <input type="hidden" name="dokumen_halal_berlaku" id="dokumen_halal_berlaku" value="{{ old('dokumen_halal_berlaku') }}">
-                                    <div class="btn-group btn-check-group" role="group">
-                                        <button type="button" class="btn {{ old('dokumen_halal_berlaku') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#dokumen_halal_berlaku"><i class="bi bi-check-lg"></i> Berlaku (OK)</button>
-                                        <button type="button" class="btn {{ old('dokumen_halal_berlaku') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#dokumen_halal_berlaku"><i class="bi bi-x-lg"></i> Tidak (X)</button>
+                                    
+                                    {{-- Button Group w-50 (Sesuai kode Anda) --}}
+                                    <div class="btn-group btn-check-group w-50" role="group">
+                                        <button type="button" 
+                                            class="btn btn-sm {{ old('dokumen_halal_berlaku') === '1' ? 'btn-success' : 'btn-outline-secondary' }}" 
+                                            data-value="1" 
+                                            data-target-input="#dokumen_halal_berlaku">
+                                            <i class="bi bi-check-lg"></i> Berlaku (OK)
+                                        </button>
+                                        <button type="button" 
+                                            class="btn btn-sm {{ old('dokumen_halal_berlaku') === '0' ? 'btn-danger' : 'btn-outline-secondary' }}" 
+                                            data-value="0" 
+                                            data-target-input="#dokumen_halal_berlaku">
+                                            <i class="bi bi-x-lg"></i> Tidak (X)
+                                        </button>
                                     </div>
                                 </div>
-                                <label class="form-label" for="dokumen_halal_file">Upload File Halal</label>
-                                <input type="file" class="form-control @error('dokumen_halal_file') is-invalid @enderror" name="dokumen_halal_file" id="dokumen_halal_file">
-                                @error('dokumen_halal_file') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
+
+                                {{-- Input File Halal --}}
+                                <div>
+                                    <label class="form-label small mb-1" for="dokumen_halal_file">Upload File Halal</label>
+                                    <input type="file" class="form-control form-control-sm @error('dokumen_halal_file') is-invalid @enderror" name="dokumen_halal_file" id="dokumen_halal_file">
+                                    @error('dokumen_halal_file') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
+                                </div>
                             </div>
+
+                            {{-- KOLOM KANAN (Dokumen COA) --}}
+                            {{-- UPDATE: Menghapus 'd-flex flex-column' agar tidak dipaksa ke bawah --}}
                             <div class="col-md-6">
                                 <label for="dokumen_coa_file" class="form-label">Dokumen COA</label>
-                                {{-- Menghapus mt-4 agar sejajar dengan label --}}
-                                <input class="form-control @error('dokumen_coa_file') is-invalid @enderror" type="file" id="dokumen_coa_file" name="dokumen_coa_file">
-                                @error('dokumen_coa_file') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
+                                
+                                {{-- UPDATE: Menghapus 'mt-auto' dan div pembungkusnya. Input langsung di bawah label. --}}
+                                {{-- Saya beri margin-top (mt-4) SEDIKIT agar sejajar dengan tombol status di sebelah kiri (Opsional) --}}
+                                <div class="mt-4">
+                                    <input class="form-control form-control-sm @error('dokumen_coa_file') is-invalid @enderror" type="file" id="dokumen_coa_file" name="dokumen_coa_file">
+                                    @error('dokumen_coa_file') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -425,43 +472,44 @@
 
         buttonGroups.forEach(group => {
             group.addEventListener('click', function(e) {
-                // Pastikan yang diklik adalah BUTTON, bukan div .btn-group
-                if (e.target.matches('.btn')) {
-                    const button = e.target;
+                // Cek apakah yang diklik adalah tombol atau icon di dalam tombol
+                const button = e.target.closest('.btn');
+                
+                if (button) {
                     const value = button.dataset.value; // '1' atau '0'
-                    const targetInputId = button.dataset.targetInput; // '#id-input-tersembunyi'
+                    const targetInputId = button.dataset.targetInput; 
                     
-                    if (!targetInputId) return; // Keamanan
+                    if (!targetInputId) return;
                     
                     const targetInput = document.querySelector(targetInputId);
 
-                    // 1. Set nilai hidden input
+                    // 1. Update nilai input hidden
                     if (targetInput) {
                         targetInput.value = value;
                     }
 
-                    // 2. Reset style semua tombol di grup ini
-                    const buttonsInGroup = group.querySelectorAll('button');
+                    // 2. RESET semua tombol dalam grup ini ke mode "Netral" (Abu-abu Outline)
+                    const buttonsInGroup = group.querySelectorAll('.btn');
                     buttonsInGroup.forEach(btn => {
-                        if (btn.dataset.value === '1') { // Tombol OK
-                            btn.classList.remove('btn-success');
-                            btn.classList.add('btn-outline-success');
-                        } else { // Tombol Not OK
-                            btn.classList.remove('btn-danger');
-                            btn.classList.add('btn-outline-danger');
-                        }
+                        btn.classList.remove('btn-success', 'btn-danger'); // Hapus warna solid
+                        btn.classList.add('btn-outline-secondary'); // Tambah outline abu-abu
+                        
+                        // Opsional: Kurangi opacity tombol yang tidak aktif agar kontras makin tinggi
+                        btn.style.opacity = '0.6'; 
                     });
 
-                    // 3. Set style aktif pada tombol yang baru diklik
+                    // 3. SET warna Solid pada tombol yang DIKLIK
+                    button.classList.remove('btn-outline-secondary'); // Hapus outline abu-abu
+                    button.style.opacity = '1'; // Pastikan opacity penuh
+
                     if (value === '1') {
-                        button.classList.remove('btn-outline-success');
-                        button.classList.add('btn-success');
+                        button.classList.add('btn-success'); // Jadi Hijau Solid
                     } else {
-                        button.classList.remove('btn-outline-danger');
-                        button.classList.add('btn-danger');
+                        button.classList.add('btn-danger'); // Jadi Merah Solid
                     }
                 }
             });
+
         });
     });
 </script>

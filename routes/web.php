@@ -238,8 +238,12 @@ Route::get('pemeriksaan-retain/export-pdf', [PemeriksaanRetainController::class,
 Route::resource('pemeriksaan_retain', PemeriksaanRetainController::class)
     ->names('pemeriksaan_retain');
 
+
 Route::get('loading-produks/{loadingProduk}/update', [LoadingProdukController::class, 'updateDetails'])
-    ->name('loading-produks.update');
+    ->name('loading-produks.edit-details');
+
+Route::put('loading-produks/{loadingProduk}/update', [LoadingProdukController::class, 'update'])
+    ->name('loading-produks.update-custom'); 
 Route::get('loading-produks/verification', [LoadingProdukController::class, 'showVerification'])
 ->name('loading-produks.verification');
 Route::put('loading-produks/{uuid}/verify', [LoadingProdukController::class, 'verify'])

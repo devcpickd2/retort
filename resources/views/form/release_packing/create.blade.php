@@ -87,18 +87,18 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Jumlah Box</label>
-                                <input type="number" name="jumlah_box" id="jumlah_box" class="form-control">
+                                <input type="number" name="jumlah_box" id="jumlah_box" class="form-control" min="0">
                             </div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Reject</label>
-                                <input type="number" name="reject" id="reject" class="form-control">
+                                <input type="number" name="reject" id="reject" class="form-control" min="0">
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Release</label>
-                                <input type="number" name="release" id="release" class="form-control">
+                                <input type="number" name="release" id="release" class="form-control" min="0">
                             </div>
                         </div>
                     </div>
