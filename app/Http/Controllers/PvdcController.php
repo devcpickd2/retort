@@ -331,8 +331,8 @@ class PvdcController extends Controller
         $shift      = $request->input('shift');
         $userPlant  = Auth::user()->plant;
 
-        // 2. Query Data (Harus sama logikanya dengan Index)
-        $datalist = Pvdc::query()
+        // 2. Query Data Header
+        $headers = Pvdc::query()
             ->where('plant', $userPlant)
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
@@ -348,48 +348,99 @@ class PvdcController extends Controller
             ->when($shift, function ($query) use ($shift) {
                 $query->where('shift', $shift);
             })
-            ->orderBy('date', 'asc') // Urutan laporan biasanya Ascending berdasarkan tanggal
+            ->orderBy('date', 'asc')
             ->orderBy('shift', 'asc')
             ->get();
 
-            
-        // 3. Bersihkan Output Buffer (Penting agar TCPDF tidak error)
+        // 3. TRANSFORMASI DATA (PENTING!)
+        // Karena detail ada di dalam JSON, kita harus "memecah" (flatten) data 
+        // agar menjadi baris-baris tabel yang siap cetak.
+        
+        $items = collect(); // Collection baru untuk menampung baris tabel
+
+        foreach ($headers as $header) {
+            // Decode JSON
+            $pvdcData = !empty($header->data_pvdc) ? json_decode($header->data_pvdc, true) : [];
+
+            // Cek apakah ada data detail
+            if (empty($pvdcData)) {
+                // Jika tidak ada detail mesin, tetap masukkan header saja (opsional)
+                // $items->push((object) [ ... set null values ... ]);
+                continue; 
+            }
+
+            foreach ($pvdcData as $mesinRow) {
+                // Ambil Nama Mesin
+                $namaMesin = $mesinRow['mesin'] ?? '-';
+                $details   = $mesinRow['detail'] ?? [];
+
+                // Normalisasi detail jika key-nya acak
+                if (is_array($details)) {
+                    $details = array_values($details);
+                }
+
+                foreach ($details as $row) {
+                    // Cari Kode Batch (Mincing) jika perlu (mirip logic di update)
+                    $kodeProduksi = $row['batch'] ?? '-';
+                    if (!empty($row['batch'])) {
+                         $mincing = Mincing::where('uuid', $row['batch'])->first();
+                         if ($mincing) {
+                             $kodeProduksi = $mincing->kode_produksi;
+                         }
+                    }
+
+                    // Push ke collection items sebagai object
+                    $items->push((object) [
+                        // Data Header
+                        'date' => $header->date,
+                        'shift' => $header->shift,
+                        'nama_produk' => $header->nama_produk,
+                        'username' => $header->username,
+                        'catatan' => $header->catatan,
+                        'status_spv' => $header->status_spv,
+                        
+                        // Data Detail (Hasil Decode JSON)
+                        'kode_mesin' => $namaMesin,
+                        'kode_produksi' => $kodeProduksi,
+                        'no_lot' => $row['no_lot'] ?? '-',
+                        'jam_mulai' => $row['waktu'] ?? '-', // Di blade pakai jam_mulai
+                        
+                        // Data Teknis (Sesuaikan dengan key di JSON Anda jika ada)
+                        'suhu' => $row['suhu'] ?? null,
+                        'kecepatan_stuffing' => $row['speed'] ?? null,
+                        'panjang_pcs' => $row['pjg'] ?? null,
+                        'berat_pcs' => $row['berat'] ?? null,
+                        'cek_vakum' => $row['vakum'] ?? null,
+                        'kekuatan_seal' => $row['seal'] ?? null,
+                        'diameter_klip' => $row['klip'] ?? null,
+                    ]);
+                }
+            }
+        }
+
+        // 4. Bersihkan Output Buffer
         if (ob_get_length()) {
             ob_end_clean();
         }
 
-        // 4. Inisialisasi TCPDF
-        $pdf = new TCPDF('P', PDF_UNIT, 'LEGAL', true, 'UTF-8', false);
-        
+        // 5. Setup TCPDF
+        $pdf = new TCPDF('L', PDF_UNIT, 'LEGAL', true, 'UTF-8', false); // Landscape agar muat banyak kolom
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetAuthor('Charoen Pokphand Indonesia');
         $pdf->SetTitle('Laporan Data No. Lot PVDC');
-
-        // Hilangkan Header/Footer bawaan TCPDF (Kita buat custom di Blade)
         $pdf->SetPrintHeader(false);
         $pdf->SetPrintFooter(false);
-
-        // Margin & Auto Page Break
         $pdf->SetMargins(10, 10, 10);
         $pdf->SetAutoPageBreak(TRUE, 10);
-        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-        
-        // Font
         $pdf->SetFont('helvetica', '', 9);
-
-        // Tambah Halaman
         $pdf->AddPage();
 
-        // 5. Render HTML dari Blade View
-        // Pastikan file 'reports.pvdc' sudah ada (kode view PDF ada di jawaban sebelumnya)
-        $html = view('reports.pvdc', compact('datalist', 'request'))->render();
+        // 6. Render View
+        // Kirim $items (data yang sudah di-flatten) ke view
+        $html = view('reports.pvdc', compact('items', 'request'))->render();
 
-        // 6. Tulis HTML ke PDF
         $pdf->writeHTML($html, true, false, true, false, '');
-
-        // 7. Output PDF ke Browser (Inline)
         $pdf->Output('Laporan_PVDC_' . date('Ymd_His') . '.pdf', 'I');
-
         exit();
     }
        
