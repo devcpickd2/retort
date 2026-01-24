@@ -13,7 +13,7 @@ class Plant extends Model
     protected $table = 'plants';
 
     // Tambahkan username ke fillable
-    protected $fillable = ['uuid', 'username', 'plant'];
+    protected $fillable = ['uuid', 'plant'];
 
     // Route model binding pakai UUID
     public function getRouteKeyName()

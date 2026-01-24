@@ -19,7 +19,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $userPlantUuid = auth()->user()->plant; // ambil UUID plant user login
-
+ 
         // mulai query, filter berdasarkan plant UUID
         $query = User::with(['plantRelasi', 'departmentRelasi'])
                      ->where('plant', $userPlantUuid);
