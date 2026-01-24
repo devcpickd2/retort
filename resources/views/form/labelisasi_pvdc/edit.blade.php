@@ -101,6 +101,7 @@
                                             <a href="{{ $row['file'] }}" target="_blank">
                                                 <img src="{{ $row['file'] }}" width="100" class="img-thumbnail">
                                             </a>
+                                            <input type="hidden" name="data_pvdc[{{ $i }}][file_url]" value="{{ $row['file'] }}">
                                             @endif
                                         </div>
                                     </td>
@@ -109,7 +110,6 @@
                                         <div class="invalid-feedback"></div>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-primary btn-sm saveRow">Simpan</button>
                                         <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
                                     </td>
                                 </tr>
@@ -135,181 +135,119 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+
 <script>
-    $(document).ready(function(){
-        $('.selectpicker').selectpicker();
-    });
-</script>
-<script>
-    $(document).ready(function(){
+$(document).ready(function(){
+    $('.selectpicker').selectpicker();
 
-    // ===================== VALIDASI =====================
-        function validateKodeBatch(input){
-            let value = input.val().toUpperCase().replace(/\s+/g,'');
-            input.val(value);
-            input.next(".invalid-feedback").remove();
-            input.removeClass("is-invalid");
+    // VALIDASI KODE BATCH
+    function validateKodeBatch(input){
+        let value = input.val().toUpperCase().replace(/\s+/g,'');
+        input.val(value);
+        input.next(".invalid-feedback").remove();
+        input.removeClass("is-invalid");
 
-            if(value.length !== 10){
-                input.addClass("is-invalid");
-                input.after('<div class="invalid-feedback d-block">Kode batch harus 10 karakter</div>');
-                return false;
-            }
-            if(!/^[A-Z0-9]+$/.test(value)){
-                input.addClass("is-invalid");
-                input.after('<div class="invalid-feedback d-block">Hanya huruf kapital dan angka</div>');
-                return false;
-            }
-            if(!/[A-L]/.test(value.charAt(1))){
-                input.addClass("is-invalid");
-                input.after('<div class="invalid-feedback d-block">Karakter ke-2 harus A-L</div>');
-                return false;
-            }
-            if(!["0","1"].includes(value.charAt(9))){
-                input.addClass("is-invalid");
-                input.after('<div class="invalid-feedback d-block">Karakter terakhir harus 0/1</div>');
-                return false;
-            }
-            return true;
-        }
-
-        function validateFile(input){
-            input.next(".invalid-feedback").remove();
-            input.removeClass("is-invalid");
-
-        // File baru diupload
-            if(input[0].files && input[0].files.length>0){
-                return true;
-            }
-
-        // Cek file lama dari preview
-            const preview = input.closest('td').find('.preview img, .preview a').length;
-            if(preview > 0){
-                return true;
-            }
-
-            input.addClass("is-invalid");
-            input.after('<div class="invalid-feedback d-block">Gambar wajib diunggah!</div>');
+        if(value.length !== 10){
+            showError(input,"Kode produksi harus terdiri dari 10 karakter.");
             return false;
         }
+        const format = /^[A-Z0-9]+$/;
+        if(!format.test(value)){
+            showError(input,"Kode produksi hanya boleh huruf besar dan angka.");
+            return false;
+        }
+        const bulanChar = value.charAt(1);
+        if(!/^[A-L]$/.test(bulanChar)){
+            showError(input,"Karakter ke-2 harus huruf bulan (A–L).");
+            return false;
+        }
+        const rework = value.charAt(9);
+        if(!["0","1"].includes(rework)){
+            showError(input,"Karakter terakhir harus 0 (belum rework) atau 1 (rework).");
+            return false;
+        }
+        return true;
+    }
 
-        $(document).on("input blur",'input[name$="[kode_batch]"]', function(){
-            validateKodeBatch($(this));
-        });
+    function showError(input,msg){
+        input.addClass("is-invalid");
+        input.after(`<div class="invalid-feedback">${msg}</div>`);
+    }
 
-    // ===================== TAMBAH BARIS =====================
-        let index = {{ count($labelisasi_pvdcData)-1 }};
-        const mesinOptions = `{!! collect($mesins)->map(fn($m)=>"<option value='{$m->nama_mesin}'>{$m->nama_mesin}</option>")->implode('') !!}`;
+    $(document).on("input blur",'input[name$="[kode_batch]"]', function(){
+        validateKodeBatch($(this));
+    });
 
-        $('#addRow').click(function(){
-            index++;
-            $('#pvdcBody').append(`
+    // TAMBAH BARIS
+    let index = {{ count($labelisasi_pvdcData) }};
+    const mesinOptions = `{!! collect($mesins)->map(fn($m) => "<option value='{$m->nama_mesin}'>{$m->nama_mesin}</option>")->implode('') !!}`;
+
+    $('#addRow').click(function(){
+        $('#pvdcBody').append(`
         <tr>
             <td>
                 <select name="data_pvdc[${index}][mesin]" class="form-control form-control-sm" required>
                     <option value="">-- Pilih Mesin --</option>${mesinOptions}
                 </select>
             </td>
-            <td><input type="text" name="data_pvdc[${index}][kode_batch]" class="form-control form-control-sm" required></td>
             <td>
-                <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*" required>
+                <input type="text" name="data_pvdc[${index}][kode_batch]" class="form-control form-control-sm" required>
+            </td>
+            <td>
+                <input type="file" name="data_pvdc[${index}][kode_produksi]" class="form-control form-control-sm" accept="image/*">
                 <div class="preview mt-2"></div>
             </td>
-            <td><input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm"><div class="invalid-feedback"></div></td>
             <td>
-                <button type="button" class="btn btn-primary btn-sm saveRow">Simpan</button>
+                <input type="text" name="data_pvdc[${index}][keterangan]" class="form-control form-control-sm">
+            </td>
+            <td>
                 <button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button>
             </td>
-        </tr>
-            `);
+        </tr>`);
+        index++;
+    });
+
+    // HAPUS BARIS
+    $('#pvdcBody').on('click','.removeRow',function(){
+        $(this).closest('tr').remove();
+    });
+
+    // SIMPAN DATA
+    $('#saveBtn').click(function(){
+        const btn = $(this);
+        const form = $('#pvdcEditForm')[0];
+        const formData = new FormData(form);
+
+        let hasData = false;
+        $('#pvdcBody tr').each(function(){
+            const mesin = $(this).find('select[name$="[mesin]"]').val();
+            const kodeBatch = $(this).find('input[name$="[kode_batch]"]').val();
+            if(mesin && kodeBatch) hasData = true;
         });
 
-    // ===================== HAPUS BARIS =====================
-        $('#pvdcBody').on('click', '.removeRow', function(){ $(this).closest('tr').remove(); });
+        if(!hasData){
+            alert('Belum ada data PVDC yang diinputkan!');
+            return;
+        }
 
-    // ===================== SAVE ROW SEMENTARA =====================
-        $('#pvdcBody').on('click', '.saveRow', function(){
-            const row = $(this).closest('tr');
-            const btn = $(this);
-            const mesin = row.find('select[name^="data_pvdc"]').val();
-            const kodeBatch = row.find('input[name$="[kode_batch]"]').val();
-            const fileInput = row.find('input[type="file"]');
-            const file = fileInput[0].files[0];
-            const ket = row.find('input[name$="[keterangan]"]').val();
+        btn.prop('disabled',true).html('Menyimpan...');
 
-            row.find('.invalid-feedback').remove();
-            let valid = true;
-            if(!mesin){ row.find('select[name^="data_pvdc"]').after('<div class="invalid-feedback d-block">Mesin wajib dipilih</div>'); valid=false;}
-            if(!validateKodeBatch(row.find('input[name$="[kode_batch]"]'))) valid=false;
-            if(!validateFile(fileInput)) valid=false;
-            if(!valid) return;
-
-            const formData = new FormData();
-            formData.append('mesin', mesin);
-            formData.append('kode_batch', kodeBatch);
-            if(file) formData.append('file', file);
-            formData.append('keterangan', ket || '');
-            formData.append('_token','{{ csrf_token() }}');
-
-            btn.prop('disabled',true).html('<i class="bi bi-hourglass-split"></i> Menyimpan...');
-            $.ajax({
-                url: "{{ route('labelisasi_pvdc.saveRowTemp') }}",
-                type: "POST",
-                data: formData,
-                processData:false,
-                contentType:false,
-                success:function(res){
-                    if(res.success){
-                        if(res.file){
-                            const preview = `<a href="${res.file}" target="_blank" class="d-block mt-2"><img src="${res.file}" width="100" class="img-thumbnail"></a>`;
-                            row.find('.preview').html(preview);
-                        }
-                        btn.removeClass('btn-primary').addClass('btn-success').html('<i class="bi bi-check-circle"></i> Tersimpan');
-                    }else{
-                        row.find('input[type="file"]').after('<div class="invalid-feedback d-block">'+res.message+'</div>');
-                        btn.prop('disabled',false).html('Simpan');
-                    }
-                },
-                error:function(err){
-                    let errors = err.responseJSON?.errors || {};
-                    if(errors.kode_batch) row.find('input[name$="[kode_batch]"]').after('<div class="invalid-feedback d-block">'+errors.kode_batch[0]+'</div>');
-                    if(errors.file) row.find('input[type="file"]').after('<div class="invalid-feedback d-block">'+errors.file[0]+'</div>');
-                    btn.prop('disabled',false).html('Simpan');
-                }
-            });
-        });
-
-    // ===================== SIMPAN FINAL =====================
-        $('#saveBtn').click(function(){
-            const btn = $(this);
-            let isValid = true;
-            $('#pvdcBody tr').each(function(){
-                const kodeBatchInput = $(this).find('input[name$="[kode_batch]"]');
-                const fileInput = $(this).find('input[type="file"]');
-                const mesinSelect = $(this).find('select[name^="data_pvdc"]');
-                if(!validateKodeBatch(kodeBatchInput)) isValid=false;
-                if(!validateFile(fileInput)) isValid=false;
-                if(!mesinSelect.val()){ mesinSelect.addClass('is-invalid').after('<div class="invalid-feedback d-block">Mesin wajib dipilih</div>'); isValid=false;}
-            });
-            if(!isValid) return;
-
-            btn.prop('disabled',true).html('<i class="bi bi-hourglass-split"></i> Menyimpan...');
-            const formData = new FormData($('#pvdcEditForm')[0]);
-            $.ajax({
-                url: "{{ route('labelisasi_pvdc.edit_spv',$labelisasi_pvdc->uuid) }}",
-                type: "POST",
-                data: formData,
-                processData:false,
-                contentType:false,
-                success:function(res){
-                    if(res.success) window.location.href = res.redirect_url;
-                    else $('#resultArea').html('<div class="alert alert-danger">'+res.message+'</div>');
-                },
-                error:function(){ $('#resultArea').html('<div class="alert alert-danger">Terjadi kesalahan saat menyimpan data.</div>'); },
-                complete:function(){ btn.prop('disabled',false).html('<i class="bi bi-save"></i> Simpan'); }
-            });
+        $.ajax({
+            url: "{{ route('labelisasi_pvdc.update.form', $labelisasi_pvdc->uuid) }}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res){
+                if(res.success) window.location.href = res.redirect_url;
+                else alert(res.message);
+            },
+            complete: function(){
+                btn.prop('disabled',false).html('<i class="bi bi-save"></i> Simpan');
+            }
         });
     });
-</script>
 
+});
+</script>
 @endsection

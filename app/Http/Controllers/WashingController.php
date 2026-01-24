@@ -6,16 +6,19 @@ use App\Models\Washing;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use TCPDF;
 
 class WashingController extends Controller
 {
+
     public function index(Request $request)
     {
-        $search     = $request->input('search');
-        $date       = $request->input('date');
-        $userPlant  = Auth::user()->plant;
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift'); // Pastikan variabel ini ada
+        $userPlant = Auth::user()->plant;
 
-        $data = Washing::query()
+        $data = Washing::with('mincing')  
         ->where('plant', $userPlant)
         ->when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {
@@ -27,14 +30,69 @@ class WashingController extends Controller
         ->when($date, function ($query) use ($date) {
             $query->whereDate('date', $date);
         })
+        ->when($shift, function ($query) use ($shift) {
+            $query->where('shift', $shift);
+        })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.washing.index', compact('data', 'search', 'date'));
+        return view('form.washing.index', compact('data', 'search', 'date', 'shift'));
     }
+    
+    public function exportPdf(Request $request)
+    {
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
 
+        // Ambil data tanpa pagination
+        $items = Washing::query()
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('kode_produksi', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc')
+            ->orderBy('shift', 'asc')
+            ->orderBy('pukul', 'asc')
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // Setup PDF Landscape A4
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Laporan Pemeriksaan Washing - Drying');
+        
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        
+        // Margin Kiri/Kanan sangat tipis (3mm) agar tabel muat
+        $pdf->SetMargins(3, 5, 3);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+        $pdf->SetFont('helvetica', '', 6); // Font sangat kecil
+
+        $pdf->AddPage();
+
+        $html = view('reports.washing', compact('items', 'request'))->render();
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('Laporan_Washing_' . date('d-m-Y_His') . '.pdf', 'I');
+        exit();
+    }
     public function create()
     {
         $userPlant = Auth::user()->plant;
@@ -237,7 +295,7 @@ class WashingController extends Controller
 
         $washing->update($data);
 
-        return redirect()->route('washing.verification')->with('success', 'Data Pemeriksaan Washing - Drying berhasil diperbarui');
+        return redirect()->route('washing.index')->with('success', 'Data Pemeriksaan Washing - Drying berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -282,7 +340,7 @@ class WashingController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('washing.verification')
+        return redirect()->route('washing.index')
         ->with('success', 'Status Verifikasi Pemeriksaan Washing - Drying berhasil diperbarui.');
     }
 

@@ -18,7 +18,7 @@ return new class extends Migration
          $table->uuid('uuid')->unique(); 
          $table->date('date');
          $table->string('username');
-         $table->string('username_updated');
+         $table->string('username_updated')->nullable();
          $table->string('plant');
          $table->longText('mp_chamber');
          $table->longText('karantina_packing');

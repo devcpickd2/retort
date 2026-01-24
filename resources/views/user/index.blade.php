@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
+<div class="container-fluid py-2">
 
     {{-- Alert sukses --}}
     @if(session('success'))
@@ -50,21 +50,21 @@
                             <th>Department</th>
                             <th>Type</th>
                             <th style="width: 15%;">Aksi</th>
-                        </tr>
+                        </tr> 
                     </thead>
                     <tbody>
                      @forelse ($users as $index => $user)
                      <tr>
                         {{-- nomor urut sesuai pagination --}}
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                             {{ $users->firstItem() + $index }}
                         </td>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->username }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->plantRelasi->plant ?? '-' }}</td>
-                        <td>{{ $user->departmentRelasi->nama ?? '-' }}</td>
-                        <td>
+                        <td class="text-center align-middle">{{ $user->name }}</td>
+                        <td class="text-center align-middle">{{ $user->username }}</td>
+                        <td class="text-left align-middle">{{ $user->email }}</td>
+                        <td class="text-center align-middle">{{ $user->plantRelasi->plant ?? '-' }}</td>
+                        <td class="text-center align-middle">{{ $user->departmentRelasi->nama ?? '-' }}</td>
+                        <td class="text-center align-middle">
                             @switch($user->type_user)
                             @case(0) Admin @break
                             @case(1) Manager @break
@@ -78,7 +78,7 @@
                             @default -
                             @endswitch
                         </td>
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                             <a href="{{ route('user.edit', $user->uuid) }}" class="btn btn-warning btn-sm me-1">
                                 <i class="bi bi-pencil"></i>
                             </a>

@@ -43,7 +43,7 @@ use Illuminate\Support\Str;
                             <strong>Catatan:</strong>
                             <ul>
                              <li><b>Kosongkan</b> checkbox apabila <u>memakai lengkap atau sesuai standar</u>. </li>
-                             <li> <strong>Centang</strong> checkbox apabila <u><b>tidak memakai</b></u> atau <u>memakai namun tidak benar atau <b>tidak sesuai standar</b></u>.</li>
+                             <li> <strong>Centang</strong> checkbox apabila <u><b>tidak memakai</b></u> atau <u><b>memakai namun tidak benar</b> atau <b>tidak sesuai standar</b></u>.</li>
                          </ul>
                      </div>
 
@@ -213,6 +213,35 @@ use Illuminate\Support\Str;
     textarea.form-control {
         resize: none;
     }
+    /* Tambahkan ke style Anda */
+    .table thead th {
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table tbody td.text-start {
+        text-align: left;
+    }
+    input[type="checkbox"] {
+        width: 1rem;
+        height: 1rem;
+        margin: auto;
+        display: block;
+    }
+    .card-header strong {
+        display: block;
+        text-align: left;
+    }
+    .table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
 </style>
 
 @endsection

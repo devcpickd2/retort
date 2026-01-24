@@ -56,17 +56,17 @@
                                     <tr>
                                         <td rowspan="3" class="text-center align-middle">Suhu Produk (°C)</td>
                                         <td>
-                                            <input type="number" name="suhu_produk[suhu_1]" id="suhu_1" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="suhu_produk[suhu_1]" id="suhu_1" class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <input type="number" name="suhu_produk[suhu_2]" id="suhu_2" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="suhu_produk[suhu_2]" id="suhu_2" class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <input type="number" name="suhu_produk[suhu_3]" id="suhu_3" class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="suhu_produk[suhu_3]" id="suhu_3" class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -95,13 +95,13 @@
                                 <tbody>
                                     <tr>
                                         <td class="text-start">Ujung</td>
-                                        <td><input type="number" name="kondisi_produk[basah_air_ujung]" id="basah_air_ujung" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="number" name="kondisi_produk[kering_air_ujung]" id="kering_air_ujung" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="kondisi_produk[basah_air_ujung]" id="basah_air_ujung" class="form-control form-control-sm text-center"  min="0"></td>
+                                        <td><input type="number" name="kondisi_produk[kering_air_ujung]" id="kering_air_ujung" class="form-control form-control-sm text-center"  min="0"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Seal</td>
-                                        <td><input type="number" name="kondisi_produk[basah_air_seal]" id="basah_air_seal" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="number" name="kondisi_produk[kering_air_seal]" id="kering_air_seal" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="kondisi_produk[basah_air_seal]" id="basah_air_seal" class="form-control form-control-sm text-center"  min="0"></td>
+                                        <td><input type="number" name="kondisi_produk[kering_air_seal]" id="kering_air_seal" class="form-control form-control-sm text-center"  min="0"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Total</td>
@@ -128,13 +128,13 @@
                                 <tbody>
                                     <tr>
                                         <td class="text-start">Ujung</td>
-                                        <td><input type="number" name="kondisi_produk[basah_minyak_ujung]" id="basah_minyak_ujung" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="number" name="kondisi_produk[kering_minyak_ujung]" id="kering_minyak_ujung" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="kondisi_produk[basah_minyak_ujung]" id="basah_minyak_ujung" class="form-control form-control-sm text-center"  min="0"></td>
+                                        <td><input type="number" name="kondisi_produk[kering_minyak_ujung]" id="kering_minyak_ujung" class="form-control form-control-sm text-center"  min="0"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Seal</td>
-                                        <td><input type="number" name="kondisi_produk[basah_minyak_seal]" id="basah_minyak_seal" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="number" name="kondisi_produk[kering_minyak_seal]" id="kering_minyak_seal" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="kondisi_produk[basah_minyak_seal]" id="basah_minyak_seal" class="form-control form-control-sm text-center"  min="0"></td>
+                                        <td><input type="number" name="kondisi_produk[kering_minyak_seal]" id="kering_minyak_seal" class="form-control form-control-sm text-center"  min="0"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start">Total</td>
@@ -162,8 +162,8 @@
                                 <tbody>
                                     @for($i=1; $i<=3; $i++)
                                     <tr>
-                                        <td><input type="number" name="berat_produk[pcs_{{ $i }}]" id="pcs_{{ $i }}" class="form-control form-control-sm text-center" step="0.01"></td>
-                                        <td><input type="number" name="berat_produk[toples_{{ $i }}]" id="toples_{{ $i }}" class="form-control form-control-sm text-center" step="0.01"></td>
+                                        <td><input type="number" name="berat_produk[pcs_{{ $i }}]" id="pcs_{{ $i }}" class="form-control form-control-sm text-center" step="0.01"  min="0"></td>
+                                        <td><input type="number" name="berat_produk[toples_{{ $i }}]" id="toples_{{ $i }}" class="form-control form-control-sm text-center" step="0.01"  min="0"></td>
                                     </tr>
                                     @endfor
                                 </tbody>

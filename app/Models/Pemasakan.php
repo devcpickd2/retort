@@ -25,5 +25,7 @@ class Pemasakan extends Model
 
     protected $casts = [
         'cooking'  => 'array',
+        'kode_produksi'  => 'array',
+        'jumlah_tray'  => 'array',
     ];
 }

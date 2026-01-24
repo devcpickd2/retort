@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
+<div class="container-fluid py-2">
     {{-- Alert sukses --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -31,8 +31,9 @@
                 <tr class="text-center align-middle">
                     <th style="width: 5%;">No</th>
                     <th style="width: 20%;">Date</th>
-                    <th>Nama Supplier</th>
+                    <th>Nama Supplier / Distributor</th>
                     <th>Jenis Barang</th>
+                    <th>Alamat</th>
                     <th style="width: 20%;">Action</th>
                 </tr>
             </thead>
@@ -46,6 +47,7 @@
                     <td class="align-middle">{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}</td>
                     <td class="align-middle">{{ $dep->nama_supplier }}</td>
                     <td class="align-middle">{{ $dep->jenis_barang }}</td>
+                    <td class="align-middle">{{ $dep->alamat }}</td>
                     <td class="text-center align-middle">
                         <a href="{{ route('supplier.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1" title="Edit">
                             <i class="bi bi-pencil"></i> Edit

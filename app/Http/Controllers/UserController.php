@@ -19,7 +19,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $userPlantUuid = auth()->user()->plant; // ambil UUID plant user login
-
+ 
         // mulai query, filter berdasarkan plant UUID
         $query = User::with(['plantRelasi', 'departmentRelasi'])
                      ->where('plant', $userPlantUuid);
@@ -66,7 +66,7 @@ class UserController extends Controller
             'type_user' => 'required|integer',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'password' => Hash::make($request->password),
@@ -77,8 +77,17 @@ class UserController extends Controller
             'updater' => auth()->user()->name,
         ]);
 
+        // mapping type_user -> role Spatie
+        $roleName = User::TYPE_USER_ROLE_MAP[$request->type_user] ?? null;
+
+        if ($roleName) {
+            // hapus role lama (kalau ada) dan set role baru sesuai type_user
+            $user->syncRoles([$roleName]);
+        }
+
         return redirect()->route('user.index')->with('success', 'User berhasil dibuat');
     }
+
 
     public function edit(User $user)
     {
@@ -109,6 +118,13 @@ class UserController extends Controller
             'type_user' => $request->type_user,
             'updater' => auth()->user()->name,
         ]);
+
+        // mapping type_user -> role Spatie
+        $roleName = User::TYPE_USER_ROLE_MAP[$request->type_user] ?? null;
+
+        if ($roleName) {
+            $user->syncRoles([$roleName]);
+        }
 
         return redirect()->route('user.index')->with('success', 'User berhasil diperbarui');
     }

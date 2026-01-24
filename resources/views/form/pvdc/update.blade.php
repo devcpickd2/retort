@@ -20,7 +20,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal</label>
                                 <input type="date" name="date" class="form-control"
-                                value="{{ old('date', $pvdc->date) }}" readonly>
+                                    value="{{ old('date', $pvdc->date) }}" readonly>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Shift</label>
@@ -35,7 +35,8 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Nama Produk</label>
-                                <input type="text" name="nama_produk" class="form-control" value="{{ old('nama_produk', $pvdc->nama_produk) }}" readonly>
+                                <input type="text" name="nama_produk" class="form-control"
+                                    value="{{ old('nama_produk', $pvdc->nama_produk) }}" readonly>
                                 <!-- <select id="nama_produk" name="nama_produk" class="form-control selectpicker" data-live-search="true" title="Ketik nama produk...">
                                     @foreach($produks as $produk)
                                     <option value="{{ $produk->nama_produk }}" {{ $pvdc->nama_produk == $produk->nama_produk ? 'selected' : '' }}>
@@ -46,7 +47,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Nama Supplier</label>
-                                <input type="text" name="nama_supplier" class="form-control" value="{{ old('nama_supplier', $pvdc->nama_supplier) }}" readonly>
+                                <input type="text" name="nama_supplier" class="form-control"
+                                    value="{{ old('nama_supplier', $pvdc->nama_supplier) }}" readonly>
                                 <!-- <select id="nama_supplier" name="nama_supplier" class="form-control selectpicker" data-live-search="true">
                                     <option value="">-- Pilih Supplier --</option>
                                     @foreach($suppliers as $supplier)
@@ -63,11 +65,13 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal Kedatangan PVDC</label>
-                                <input type="date" name="tgl_kedatangan" class="form-control" value="{{ old('tgl_kedatangan', $pvdc->tgl_kedatangan) }}" readonly>
+                                <input type="date" name="tgl_kedatangan" class="form-control"
+                                    value="{{ old('tgl_kedatangan', $pvdc->tgl_kedatangan) }}" readonly>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal Expired</label>
-                                <input type="date" name="tgl_expired" class="form-control" value="{{ old('tgl_expired', $pvdc->tgl_expired) }}" readonly>
+                                <input type="date" name="tgl_expired" class="form-control"
+                                    value="{{ old('tgl_expired', $pvdc->tgl_expired) }}" readonly>
                             </div>
                         </div>
                     </div>
@@ -104,41 +108,65 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @forelse($pvdcData as $mi => $mesin)
+
                                             @php
-                                            $dataPvdc = json_decode($pvdc->data_pvdc, true) ?? [];
+                                            $details = isset($mesin['detail']) && is_array($mesin['detail'])
+                                            ? $mesin['detail']
+                                            : [];
                                             @endphp
 
-                                            @forelse($dataPvdc as $mi => $mesin)
-                                            @foreach($mesin['detail'] as $bi => $detail)
+                                            @forelse($details as $bi => $detail)
                                             <tr>
-                                                @if($bi == 0)
-                                                <td rowspan="{{ count($mesin['detail']) }}" class="fw-semibold text-dark bg-light">
+                                                @if($loop->first)
+                                                <td rowspan="{{ count($details) }}"
+                                                    class="fw-semibold text-dark bg-light">
                                                     {{ $mesin['mesin'] ?? '-' }}
-                                                    {{-- hidden input mesin lama --}}
-                                                    <input type="hidden" name="data_pvdc_old[{{ $mi }}][mesin]" value="{{ $mesin['mesin'] ?? '' }}">
+
+                                                    <input type="hidden" name="data_pvdc_old[{{ $mi }}][mesin]"
+                                                        value="{{ $mesin['mesin'] ?? '' }}">
                                                 </td>
                                                 @endif
+
                                                 <td>
-                                                    {{ $detail['batch'] ?? '-' }}
-                                                    <input type="hidden" name="data_pvdc_old[{{ $mi }}][detail][{{ $bi }}][batch]" value="{{ $detail['batch'] ?? '' }}">
+                                                    {{ $detail['batch_display'] ?? '-' }}
+
+                                                    <input type="hidden"
+                                                        name="data_pvdc_old[{{ $mi }}][detail][{{ $bi }}][batch]"
+                                                        value="{{ $detail['batch'] ?? '' }}">
                                                 </td>
+
                                                 <td>
                                                     {{ $detail['no_lot'] ?? '-' }}
-                                                    <input type="hidden" name="data_pvdc_old[{{ $mi }}][detail][{{ $bi }}][no_lot]" value="{{ $detail['no_lot'] ?? '' }}">
+                                                    <input type="hidden"
+                                                        name="data_pvdc_old[{{ $mi }}][detail][{{ $bi }}][no_lot]"
+                                                        value="{{ $detail['no_lot'] ?? '' }}">
                                                 </td>
+
                                                 <td>
                                                     {{ $detail['waktu'] ?? '-' }}
-                                                    <input type="hidden" name="data_pvdc_old[{{ $mi }}][detail][{{ $bi }}][waktu]" value="{{ $detail['waktu'] ?? '' }}">
+                                                    <input type="hidden"
+                                                        name="data_pvdc_old[{{ $mi }}][detail][{{ $bi }}][waktu]"
+                                                        value="{{ $detail['waktu'] ?? '' }}">
                                                 </td>
                                             </tr>
-                                            @endforeach
                                             @empty
                                             <tr>
-                                                <td colspan="4" class="text-muted fst-italic">Belum ada data sebelumnya</td>
+                                                <td colspan="4" class="text-muted fst-italic">
+                                                    Tidak ada detail batch
+                                                </td>
                                             </tr>
                                             @endforelse
 
+                                            @empty
+                                            <tr>
+                                                <td colspan="4" class="text-muted fst-italic">
+                                                    Belum ada data sebelumnya
+                                                </td>
+                                            </tr>
+                                            @endforelse
                                         </tbody>
+
                                     </table>
                                 </div>
                             </div>
@@ -149,11 +177,13 @@
                                     <h6 class="fw-bold mb-0 text-dark">
                                         <i class="bi bi-plus-circle text-primary"></i> Tambah Data Baru
                                     </h6>
-                                    <button type="button" id="addMesinRow" class="btn btn-primary btn-sm">+ Tambah Mesin</button>
+                                    <button type="button" id="addMesinRow" class="btn btn-primary btn-sm">+ Tambah
+                                        Mesin</button>
                                 </div>
 
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-sm text-center align-middle" id="pvdcTable">
+                                    <table class="table table-bordered table-sm text-center align-middle"
+                                        id="pvdcTable">
                                         <thead class="table-warning">
                                             <tr>
                                                 <th>Mesin</th>
@@ -166,7 +196,8 @@
                                         <tbody id="pvdcBody">
                                             <tr class="text-center text-muted">
                                                 <td colspan="5">
-                                                    Belum ada data baru. Klik <strong>+ Tambah Mesin</strong> untuk menambah.
+                                                    Belum ada data baru. Klik <strong>+ Tambah Mesin</strong> untuk
+                                                    menambah.
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -182,14 +213,16 @@
                 <div class="card mb-4">
                     <div class="card-header bg-light"><strong>Catatan</strong></div>
                     <div class="card-body">
-                        <textarea name="catatan" class="form-control" rows="3" placeholder="Tambahkan catatan bila ada">{{ old('catatan', $pvdc->catatan) }}</textarea>
+                        <textarea name="catatan" class="form-control" rows="3"
+                            placeholder="Tambahkan catatan bila ada">{{ old('catatan', $pvdc->catatan) }}</textarea>
                     </div>
                 </div>
 
                 {{-- ===================== Tombol Simpan ===================== --}}
                 <div class="d-flex justify-content-between mt-3">
                     <button class="btn btn-success w-auto"><i class="bi bi-save"></i> Update Data</button>
-                    <a href="{{ route('pvdc.index') }}" class="btn btn-secondary w-auto"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    <a href="{{ route('pvdc.index') }}" class="btn btn-secondary w-auto"><i
+                            class="bi bi-arrow-left"></i> Kembali</a>
                 </div>
             </form>
         </div>
@@ -198,21 +231,84 @@
 
 {{-- ===================== SCRIPT ===================== --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
 <script>
     $(document).ready(function(){
-        $('.selectpicker').selectpicker();
+        if (typeof $.fn.selectpicker === 'function') {
+            $('.selectpicker').selectpicker();
+        }
     });
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let mesinIndex = {{ count($dataPvdc) }};
+    $(document).ready(function(){
+    // =================== VALIDASI KODE BATCH ===================
+    const produkValue = "{{ $pvdc->nama_produk }}";
+
+        // Initialize batch loading if product exists
+        if (produkValue) {
+            loadBatchForAllRows();
+        }
+
+    function loadBatchForAllRows() {
+        let batchSelects = $(".batchSelect");
+
+        // Store current selections before clearing
+        let currentSelections = {};
+        batchSelects.each(function (index) {
+            let select = $(this);
+            currentSelections[index] = select.val();
+        });
+
+        batchSelects.each(function (index) {
+            let select = $(this);
+            select.html("");
+            select.prop("disabled", true);
+
+            if (!produkValue) {
+                select.html('<option value="">Pilih Produk Terlebih Dahulu</option>');
+                return;
+            }
+
+            fetch(`/lookup/batch/${produkValue}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (data.length === 0) {
+                        select.html('<option value="">Batch Tidak Ditemukan</option>');
+                        select.prop("disabled", true);
+                        return;
+                    }
+
+                    select.prop("disabled", false);
+                    select.html('<option value="">-- Pilih Batch --</option>');
+
+                    data.forEach(batch => {
+                        select.append(`
+                            <option value="${batch.uuid}" kode_batch="${batch.kode_produksi}">
+                                ${batch.kode_produksi}
+                            </option>
+                        `);
+                    });
+
+                    // Restore previous selection if it still exists
+                    if (currentSelections[index] && select.find(`option[value="${currentSelections[index]}"]`).length > 0) {
+                        select.val(currentSelections[index]);
+                    }
+                });
+        });
+    }
+        let mesinIndex = {{ count($pvdcData) }};
 
     // Tambah Mesin Baru
         document.getElementById('addMesinRow').addEventListener('click', function() {
+            const produkValue = "{{ $pvdc->nama_produk }}";
+            const disabledAttr = produkValue ? '' : 'disabled';
+            const initialOption = produkValue ? '<option value="">-- Pilih Batch --</option>' : '<option value="">Pilih Produk Terlebih Dahulu</option>';
+
             const newRow = `
             <tr class="mesin-row">
                 <td rowspan="1" class="mesin-cell">
@@ -223,7 +319,11 @@
                         @endforeach
                     </select>
                 </td>
-                <td><input type="text" name="data_pvdc[${mesinIndex}][detail][0][batch]" class="form-control form-control-sm"></td>
+                <td>
+                    <select name="data_pvdc[${mesinIndex}][detail][0][batch]" class="form-control form-control-sm batchSelect" ${disabledAttr}>
+                        ${initialOption}
+                    </select>
+                </td>
                 <td><input type="text" name="data_pvdc[${mesinIndex}][detail][0][no_lot]" class="form-control form-control-sm"></td>
                 <td><input type="time" name="data_pvdc[${mesinIndex}][detail][0][waktu]" class="form-control form-control-sm"></td>
                 <td>
@@ -233,6 +333,7 @@
             </tr>
             `;
             document.querySelector('#pvdcBody').insertAdjacentHTML('beforeend', newRow);
+            loadBatchForAllRows();
             mesinIndex++;
         });
 
@@ -249,9 +350,17 @@
                 const batchIdx = currentRowspan;
 
             // Baris batch baru
+                const produkValue = "{{ $pvdc->nama_produk }}";
+                const disabledAttr = produkValue ? '' : 'disabled';
+                const initialOption = produkValue ? '<option value="">-- Pilih Batch --</option>' : '<option value="">Pilih Produk Terlebih Dahulu</option>';
+
                 const newBatchRow = `
                 <tr class="batch-row">
-                    <td><input type="text" name="data_pvdc[${mesinIdx}][detail][${batchIdx}][batch]" class="form-control form-control-sm"></td>
+                    <td>
+                        <select name="data_pvdc[${mesinIdx}][detail][${batchIdx}][batch]" class="form-control form-control-sm batchSelect" ${disabledAttr}>
+                            ${initialOption}
+                        </select>
+                    </td>
                     <td><input type="text" name="data_pvdc[${mesinIdx}][detail][${batchIdx}][no_lot]" class="form-control form-control-sm"></td>
                     <td><input type="time" name="data_pvdc[${mesinIdx}][detail][${batchIdx}][waktu]" class="form-control form-control-sm"></td>
                     <td><button type="button" class="btn btn-danger btn-sm removeRow">Hapus</button></td>
@@ -309,12 +418,21 @@
     });
 </script>
 <style>
-    .table-bordered th, .table-bordered td { text-align: center; vertical-align: middle; }
-    .form-control-sm { min-width: 120px; }
+    .table-bordered th,
+    .table-bordered td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .form-control-sm {
+        min-width: 120px;
+    }
+
     .bg-light input[readonly] {
         background-color: #f8f9fa !important;
         color: #555;
     }
+
     .table-active td {
         background-color: #fff3cd !important;
     }

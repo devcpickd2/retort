@@ -20,3 +20,5 @@ use Illuminate\Support\Facades\Route;
 Route::post('plant-sync', [ApiController::class, 'syncPlant']);
 Route::post('user-sync', [ApiController::class, 'syncUser']);
 Route::post('user-desync', [ApiController::class, 'desyncUser']);
+Route::post('activation', [ApiController::class, 'activation']);
+Route::post('password-change', [ApiController::class, 'changePassword']);

@@ -5,11 +5,12 @@
     {{-- Alert sukses --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <i class="bi bi-check-circle me-2"></i> {{ trim(session('success')) }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
 
+    {{-- Alert error --}}
     @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         {{ session('error') }}
@@ -17,215 +18,356 @@
     </div>
     @endif
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Pemeriksaan Stuffing Sosis Retort</h3>
-                <a href="{{ route('stuffing.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4">Pemeriksaan Stuffing Sosis Retort</h2>
+        <div class="btn-group" role="group">
+            @can('can access add button')
+            <a href="{{ route('stuffing.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
+            @endcan
+            {{-- Tombol Export PDF --}}
+            <button type="button" class="btn btn-danger" id="exportPdfBtn">
+                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+            </button>
+        </div>
+    </div>
+
+    {{-- Filter dan Live Search --}}
+    <form id="filterForm" method="GET" action="{{ route('stuffing.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-3 border rounded bg-white shadow-sm">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Tanggal</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-calendar-date text-muted"></i>
+                        </span>
+                    </div>
+                    <input type="date" name="date" id="filter_date" class="form-control border-start-0"
+                        value="{{ request('date') }}" placeholder="Tanggal Produksi">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Pilih Shift</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-hourglass-split text-muted"></i>
+                        </span>
+                    </div>
+                    <select name="shift" id="filter_shift" class="form-select border-start-0 form-control">
+                        <option value="">Semua Shift</option>
+                        <option value="1" {{ request("shift")=="1" ? "selected" : "" }}>Shift 1</option>
+                        <option value="2" {{ request("shift")=="2" ? "selected" : "" }}>Shift 2</option>
+                        <option value="3" {{ request("shift")=="3" ? "selected" : "" }}>Shift 3</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="mb-1">Cari Data</div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                    </div>
+                    <input type="text" name="search" id="search" class="form-control border-start-0"
+                        value="{{ request('search') }}" placeholder="Cari Area / Produk / Mesin...">
+                </div>
+            </div>
+            <div class="col-md-3 align-self-end">
+                <a href="{{ route('stuffing.index') }}" class="btn btn-primary mb-2">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
                 </a>
             </div>
+        </div>
+    </form>
 
-            {{-- Filter dan Live Search --}}
-            <form id="filterForm" method="GET" action="{{ route('stuffing.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const search = document.getElementById('search');
+            const date = document.getElementById('filter_date');
+            const shift = document.getElementById('filter_shift');
+            const form = document.getElementById('filterForm');
+            const exportPdfBtn = document.getElementById('exportPdfBtn'); // Get Export Button
 
-                <div class="input-group" style="max-width: 220px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-calendar-date text-muted"></i>
-                    </span>
-                    <input type="date" name="date" id="filter_date" class="form-control border-start-0"
-                    value="{{ request('date') }}" placeholder="Tanggal Produksi">
-                </div>
+            let timer;
 
-                <div class="input-group flex-grow-1" style="max-width: 350px;">
-                    <span class="input-group-text bg-white border-end-0">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
-                    <input type="text" name="search" id="search" class="form-control border-start-0"
-                    value="{{ request('search') }}" placeholder="Cari Area...">
-                </div>
-            </form>
+            search.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.submit(), 500);
+            });
 
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const search = document.getElementById('search');
-                    const date = document.getElementById('filter_date');
-                    const form = document.getElementById('filterForm');
-                    let timer;
+            date.addEventListener('change', () => form.submit());
+            if(shift) shift.addEventListener('change', () => form.submit());
 
-                    search.addEventListener('input', () => {
-                        clearTimeout(timer);
-                        timer = setTimeout(() => form.submit(), 500);
-                    });
-
-                    date.addEventListener('change', () => form.submit());
+            // Handle PDF export button click
+            if(exportPdfBtn){
+                exportPdfBtn.addEventListener('click', function() {
+                    const formData = new FormData(form);
+                    // Pastikan route exportPdf sudah dibuat di web.php
+                    const exportUrl = "{{ route('stuffing.exportPdf') }}?" + new URLSearchParams(formData).toString();
+                    window.open(exportUrl, '_blank');
                 });
-            </script>
+            }
+        });
+    </script>
 
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
-                <table class="table table-striped table-bordered align-middle">
-                 <thead class="table-primary text-center">
-                    <tr>
-                        <th>NO.</th>
-                        <th>Date | Shift</th>
-                        <th>Nama Produk</th>
-                        <th>Kode Produksi</th>
-                        <th>Exp. Date</th>
-                        <th>Kode Mesin</th>
-                        <th>Jam Mulai</th>
-                        <th>Pemeriksaan</th>
-                        <th>QC</th>
-                        <th>SPV</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @php 
-                    $no = ($data->currentPage() - 1) * $data->perPage() + 1; 
-                    @endphp
-                    @forelse ($data as $dep)
-                    <tr>
-                        <td class="text-center align-middle">{{ $no++ }}</td>
-                        <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | Shift: {{ $dep->shift }}</td>   
-                        <td class="text-center align-middle">{{ $dep->nama_produk }}</td>
-                        <td class="text-center align-middle">{{ $dep->kode_produksi }}</td>
-                        <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->exp_date)->format('d-m-Y') }}</td>   
-                        <td class="text-center align-middle">{{ $dep->kode_mesin }}</td>
-                        <td class="text-center align-middle">{{ $dep->jam_mulai ?? '-' }}</td>
-                        <td class="text-center align-middle">
-                            @if($dep->id)
-                            <button class="btn btn-info btn-sm mb-2 toggle-btn" type="button" data-bs-toggle="collapse" data-bs-target="#stuffingCollapse{{ $dep->uuid }}" aria-expanded="false" aria-controls="stuffingCollapse{{ $dep->uuid }}">
-                                Details
-                            </button>
-                            <div class="collapse" id="stuffingCollapse{{ $dep->uuid }}">
-                                <div class="table-responsive">
-                                </div>
-                            </div>
-                            <script>
-                                document.addEventListener('DOMContentLoaded', function () {
-                                    const toggleButtons = document.querySelectorAll('.toggle-btn');
-
-                                    toggleButtons.forEach(function(btn) {
-                                        const targetId = btn.getAttribute('data-bs-target');
-                                        const collapseEl = document.querySelector(targetId);
-
-                                        collapseEl.addEventListener('shown.bs.collapse', function () {
-                                            btn.textContent = 'Hide';
-                                        });
-                                        collapseEl.addEventListener('hidden.bs.collapse', function () {
-                                            btn.textContent = 'Details';
-                                        });
+                <table class="table">
+                    <thead class="table-secondary text-center">
+                        <tr>
+                            <th>NO.</th>
+                            <th>Date | Shift</th>
+                            <th>Nama Produk</th>
+                            <th>Kode Produksi</th>
+                            <th>Exp. Date</th>
+                            <th>Kode Mesin</th>
+                            <th>Jam Mulai</th>
+                            <th>Pemeriksaan</th>
+                            <th>QC</th>
+                            <th>SPV</th>
+                            <th>Verification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                        $no = ($data->currentPage() - 1) * $data->perPage() + 1;
+                        @endphp
+                        @forelse ($data as $dep)
+                        <tr>
+                            <td class="text-center">{{ $no++ }}</td>
+                            <td class="text-center align-middle">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y')
+                                }} | Shift: {{ $dep->shift }}</td>
+                            <td class="text-center align-middle">{{ $dep->nama_produk }}</td>
+                            <td class="text-center align-middle">{{ $dep->mincing->kode_produksi ?? '-'}}</td>
+                            <td class="text-center align-middle">{{
+                                \Carbon\Carbon::parse($dep->exp_date)->format('d-m-Y') }}</td>
+                            <td class="text-center align-middle">{{ $dep->kode_mesin }}</td>
+                            <td class="text-center align-middle">{{ $dep->jam_mulai ?? '-' }}</td>
+                            <td class="text-center align-middle">
+                                @if($dep->id)
+                                <button class="btn btn-info btn-sm mb-2 toggle-btn" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#stuffingCollapse{{ $dep->uuid }}"
+                                    aria-expanded="false" aria-controls="stuffingCollapse{{ $dep->uuid }}">
+                                    Details
+                                </button>
+                                {{-- Script toggle button detail --}}
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Gunakan event delegation atau pastikan selector unik jika perlu
+                                        const btn = document.querySelector('[data-bs-target="#stuffingCollapse{{ $dep->uuid }}"]');
+                                        const collapseEl = document.getElementById('stuffingCollapse{{ $dep->uuid }}');
+                                        if(btn && collapseEl){
+                                            collapseEl.addEventListener('shown.bs.collapse', () => btn.textContent = 'Hide');
+                                            collapseEl.addEventListener('hidden.bs.collapse', () => btn.textContent = 'Details');
+                                        }
                                     });
-                                });
-                            </script>
+                                </script>
 
-
-                            <div class="collapse" id="stuffingCollapse{{ $dep->uuid }}">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped table-sm text-center align-middle">
-                                        <tbody>
-                                            @php
-                                            $fields = [
-                                            ['type'=>'title', 'label'=>'Parameter Adonan'],
-                                            ['type'=>'field', 'label'=>'Suhu (°C)', 'key'=>'suhu'],
-                                            ['type'=>'field', 'label'=>'Sensori', 'key'=>'sensori'],
-                                            ['type'=>'title', 'label'=>'Parameter Stuffing'],
-                                            ['type'=>'field', 'label'=>'Kecepatan Stuffing', 'key'=>'kecepatan_stuffing'],
-                                            ['type'=>'field', 'label'=>'Panjang/pcs (cm)', 'key'=>'panjang_pcs'],
-                                            ['type'=>'field', 'label'=>'Berat/pcs (gr)', 'key'=>'berat_pcs'],
-                                            ['type'=>'field', 'label'=>'Cek Vakum', 'key'=>'cek_vakum'],
-                                            ['type'=>'field', 'label'=>'Kebersihan Seal', 'key'=>'kebersihan_seal'],
-                                            ['type'=>'field', 'label'=>'Kekuatan Seal', 'key'=>'kekuatan_seal'],
-                                            ['type'=>'field', 'label'=>'Diameter Klip (mm)', 'key'=>'diameter_klip'],
-                                            ['type'=>'field', 'label'=>'Print Kode', 'key'=>'print_kode'],
-                                            ['type'=>'field', 'label'=>'Lebar Cassing (mm)', 'key'=>'lebar_cassing'],
-                                            ];
-                                            @endphp
-
-                                            @foreach($fields as $item)
-                                            @if($item['type'] === 'title')
-                                            <tr class="table-secondary">
-                                                <td class="text-start fw-bold" colspan="2">{{ $item['label'] }}</td>
-                                            </tr>
-                                            @else
-                                            <tr>
-                                                <td class="text-start">{{ $item['label'] }}</td>
+                                <div class="collapse" id="stuffingCollapse{{ $dep->uuid }}">
+                                    <div class="table-responsive">
+                                        <table
+                                            class="table table-bordered table-striped table-sm text-center align-middle">
+                                            <tbody>
                                                 @php
-                                                $value = $dep->{$item['key']} ?? null;
-                                                $display = in_array($item['key'], ['sensori','cek_vakum','kebersihan_seal','kekuatan_seal','print_kode'])
-                                                ? (!empty($value) ? '✔' : '-') 
-                                                : ($value ?? '-');
+                                                $fields = [
+                                                ['type'=>'title', 'label'=>'Parameter Adonan'],
+                                                ['type'=>'field', 'label'=>'Suhu (°C)', 'key'=>'suhu'],
+                                                ['type'=>'field', 'label'=>'Sensori', 'key'=>'sensori'],
+                                                ['type'=>'title', 'label'=>'Parameter Stuffing'],
+                                                ['type'=>'field', 'label'=>'Kecepatan Stuffing',
+                                                'key'=>'kecepatan_stuffing'],
+                                                ['type'=>'field', 'label'=>'Panjang/pcs (cm)', 'key'=>'panjang_pcs'],
+                                                ['type'=>'field', 'label'=>'Berat/pcs (gr)', 'key'=>'berat_pcs'],
+                                                ['type'=>'field', 'label'=>'Cek Vakum', 'key'=>'cek_vakum'],
+                                                ['type'=>'field', 'label'=>'Kebersihan Seal', 'key'=>'kebersihan_seal'],
+                                                ['type'=>'field', 'label'=>'Kekuatan Seal', 'key'=>'kekuatan_seal'],
+                                                ['type'=>'field', 'label'=>'Diameter Klip (mm)',
+                                                'key'=>'diameter_klip'],
+                                                ['type'=>'field', 'label'=>'Print Kode', 'key'=>'print_kode'],
+                                                ['type'=>'field', 'label'=>'Lebar Cassing (mm)',
+                                                'key'=>'lebar_cassing'],
+                                                ];
                                                 @endphp
-                                                <td>{{ $display }}</td>
-                                            </tr>
-                                            @endif
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            @else
-                            <span>-</span>
-                            @endif
-                        </td>
 
-                        <td class="text-center align-middle">{{ $dep->username }}</td>
-                        <td class="text-center align-middle">
-                            @if ($dep->status_spv == 0)
-                            <span class="fw-bold text-secondary">Created</span>
-                            @elseif ($dep->status_spv == 1)
-                            <span class="fw-bold text-success">Verified</span>
-                            @elseif ($dep->status_spv == 2)
-                            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
-                             class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
-                             <!-- Modal -->
-                             <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="revisionModalLabel{{ $dep->uuid }}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-danger text-white">
-                                            <h5 class="modal-title" id="revisionModalLabel{{ $dep->uuid }}">Detail Revisi</h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <ul class="list-unstyled mb-0">
-                                                <li><strong>Status:</strong> Revision</li>
-                                                <li><strong>Catatan:</strong> {{ $dep->catatan_spv ?? '-' }}</li>
-                                            </ul>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+                                                @foreach($fields as $item)
+                                                @if($item['type'] === 'title')
+                                                <tr class="table-secondary">
+                                                    <td class="text-start fw-bold" colspan="2">{{ $item['label'] }}</td>
+                                                </tr>
+                                                @else
+                                                <tr>
+                                                    <td class="text-start">{{ $item['label'] }}</td>
+                                                    @php
+                                                    $value = $dep->{$item['key']} ?? null;
+                                                    $display = in_array($item['key'],
+                                                    ['sensori','cek_vakum','kebersihan_seal','kekuatan_seal','print_kode'])
+                                                    ? (!empty($value) ? '✔' : '-')
+                                                    : ($value ?? '-');
+                                                    @endphp
+                                                    <td>{{ $display }}</td>
+                                                </tr>
+                                                @endif
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                @else
+                                <span>-</span>
+                                @endif
+                            </td>
+
+                            <td class="text-center align-middle">{{ $dep->username }}</td>
+                            <td class="text-center align-middle">
+                                @if ($dep->status_spv == 0)
+                                <span class="fw-bold text-secondary">Created</span>
+                                @elseif ($dep->status_spv == 1)
+                                <span class="fw-bold text-success">Verified</span>
+                                @elseif ($dep->status_spv == 2)
+                                <a href="javascript:void(0);" data-bs-toggle="modal"
+                                    data-bs-target="#revisionModal{{ $dep->uuid }}"
+                                    class="text-danger fw-bold text-decoration-none"
+                                    style="cursor: pointer;">Revision</a>
+
+                                {{-- Modal Revision --}}
+                                <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title">Detail Revisi</h5>
+                                                <button type="button" class="btn-close btn-close-white"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body text-start">
+                                                <ul class="list-unstyled mb-0">
+                                                    <li><strong>Status:</strong> Revision</li>
+                                                    <li><strong>Catatan:</strong> {{ $dep->catatan_spv ?? '-' }}</li>
+                                                </ul>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary btn-sm"
+                                                    data-bs-dismiss="modal">Tutup</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            @endif
-                        </td>
-                        <td class="text-center align-middle">
-                            <a href="{{ route('stuffing.update.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
-                                <i class="bi bi-pencil"></i> Update
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="11" class="text-center align-middle">Belum ada data stuffing.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-
-            </table>
-        </div>
-
-        {{-- Pagination --}}
-        <div class="mt-3">
-            {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
+                                @endif
+                            </td>
+                            <td class="text-center align-middle">
+                                @can('can access verification button')
+                                <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm mb-1"
+                                    data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
+                                    <i class="bi bi-shield-check me-1"></i> Verifikasi
+                                </button>
+                                @endcan
+                                @can('can access edit button')
+                                <a href="{{ route('stuffing.edit.form', $dep->uuid) }}"
+                                    class="btn btn-warning btn-sm me-1 mb-1">
+                                    <i class="bi bi-pencil-square"></i> Edit Data
+                                </a>
+                                @endcan
+                                @can('can access update button')
+                                <a href="{{ route('stuffing.update.form', $dep->uuid) }}"
+                                    class="btn btn-info btn-sm me-1 mb-1">
+                                    <i class="bi bi-pencil"></i> Update
+                                </a>
+                                @endcan
+                                @can('can access delete button')
+                                <form action="{{ route('stuffing.destroy', $dep->uuid) }}" method="POST"
+                                    class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm mb-1"
+                                        onclick="return confirm('Yakin ingin menghapus?')">
+                                        <i class="bi bi-trash"></i> Hapus
+                                    </button>
+                                </form>
+                                @endcan
+                                {{-- Modal Verify (sama seperti mincing) --}}
+                                <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-md">
+                                        <form action="{{ route('stuffing.verification.update', $dep->uuid) }}"
+                                            method="POST">
+                                            @csrf @method('PUT')
+                                            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white"
+                                                style="background: linear-gradient(145deg, #7a1f12, #9E3419);">
+                                                <div class="modal-header border-bottom border-light-subtle p-4">
+                                                    <h5 class="modal-title fw-bolder fs-3 text-uppercase"
+                                                        style="color: #00ffc4;">
+                                                        <i class="bi bi-gear-fill me-2"></i> VERIFICATION
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-white shadow-none"
+                                                        data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body p-5">
+                                                    <p class="text-light mb-4 fs-6">Pastikan data yang akan diverifikasi
+                                                        di check dengan teliti terlebih dahulu.</p>
+                                                    <div class="row g-4">
+                                                        <div class="col-md-12">
+                                                            <label class="form-label fw-bold mb-2 text-center d-block"
+                                                                style="color: #FFE5DE;">Pilih Status Verifikasi</label>
+                                                            <select name="status_spv"
+                                                                class="form-select form-select-lg fw-bold text-center mx-auto"
+                                                                required
+                                                                style="background: linear-gradient(135deg, #fff1f0, #ffe5de); border: 2px solid #dc3545; color: #dc3545; height: 55px;">
+                                                                <option value="1" {{ $dep->status_spv == 1 ? 'selected'
+                                                                    : '' }} style="color: #198754;">✅ Verified
+                                                                    (Disetujui)</option>
+                                                                <option value="2" {{ $dep->status_spv == 2 ? 'selected'
+                                                                    : '' }} style="color: #dc3545;">❌ Revision (Perlu
+                                                                    Perbaikan)</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-12 mt-3">
+                                                            <label class="form-label fw-bold text-light mb-2">Catatan
+                                                                Tambahan (Opsional)</label>
+                                                            <textarea name="catatan_spv" rows="4"
+                                                                class="form-control text-dark border-0 shadow-none"
+                                                                placeholder="Masukkan catatan..."
+                                                                style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer justify-content-end p-4 border-top"
+                                                    style="background-color: #9E3419; border-color: #00ffc4 !important;">
+                                                    <button type="button"
+                                                        class="btn btn-outline-light fw-bold rounded-pill px-4 me-2"
+                                                        data-bs-dismiss="modal">Batal</button>
+                                                    <button type="submit" class="btn fw-bolder rounded-pill px-5"
+                                                        style="background-color: #E39581; color: #2c3e50;"><i
+                                                            class="bi bi-save-fill me-1"></i> SUBMIT</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="11" class="text-center align-middle">Belum ada data stuffing.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
+
+    {{-- Pagination --}}
+    <div class="mt-3">
+        {{ $data->withQueryString()->links('pagination::bootstrap-5') }}
+    </div>
 </div>
 
-{{-- Auto-hide alert setelah 3 detik --}}
 <script>
     setTimeout(() => {
         const alert = document.querySelector('.alert');
@@ -236,19 +378,22 @@
     }, 3000);
 </script>
 
-{{-- CSS tambahan agar tabel lebih rapi --}}
 <style>
-    .table td, .table th {
+    .table td,
+    .table th {
         font-size: 0.85rem;
-        white-space: nowrap; 
+        white-space: nowrap;
     }
+
     .text-danger {
         font-weight: bold;
     }
+
     .text-muted.fst-italic {
         color: #6c757d !important;
         font-style: italic !important;
     }
+
     .container {
         padding-left: 2px !important;
         padding-right: 2px !important;

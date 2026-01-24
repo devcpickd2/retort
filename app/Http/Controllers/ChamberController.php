@@ -9,32 +9,89 @@ use App\Models\Mesin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use TCPDF;
 
 class ChamberController extends Controller
 {
+    
     public function index(Request $request)
     {
-        $search     = $request->input('search');
-        $date = $request->input('date');
-        $userPlant  = Auth::user()->plant;
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift'); // Tambahan filter Shift
+        $userPlant = Auth::user()->plant;
         
         $data = Chamber::query()
         ->where('plant', $userPlant) 
         ->when($search, function ($query) use ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('username', 'like', "%{$search}%")
-                ->orWhere('no_chamber', 'like', "%{$search}%");
+                ->orWhere('nama_operator', 'like', "%{$search}%"); // Search operator juga
             });
         })
         ->when($date, function ($query) use ($date) {
             $query->whereDate('date', $date);
+        })
+        ->when($shift, function ($query) use ($shift) {
+            $query->where('shift', $shift);
         })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.chamber.index', compact('data', 'search', 'date'));
+        return view('form.chamber.index', compact('data', 'search', 'date', 'shift'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        // Ambil data tanpa pagination untuk PDF
+        $items = Chamber::query()
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%")
+                      ->orWhere('nama_operator', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc')
+            ->orderBy('shift', 'asc')
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // Setup PDF Landscape A4
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Laporan Verifikasi Timer Chamber');
+        
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+        $pdf->SetFont('helvetica', '', 7);
+
+        $pdf->AddPage();
+
+        $html = view('reports.chamber', compact('items', 'request'))->render();
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('Laporan_Chamber_' . date('d-m-Y_His') . '.pdf', 'I');
+        exit();
     }
 
     public function create()
@@ -189,7 +246,7 @@ class ChamberController extends Controller
 
         $chamber->update($data);
 
-        return redirect()->route('chamber.verification')->with('success', 'Verifikasi Timer Chamber berhasil diperbarui');
+        return redirect()->route('chamber.index')->with('success', 'Verifikasi Timer Chamber berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -233,7 +290,7 @@ class ChamberController extends Controller
         'tgl_update_spv' => now(),
     ]);
 
-    return redirect()->route('chamber.verification')
+    return redirect()->route('chamber.index')
     ->with('success', 'Status Verifikasi Timer Chamber berhasil diperbarui.');
 }
 

@@ -38,7 +38,8 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Nama Produk</label>
-                                <select name="nama_produk" class="form-control selectpicker" data-live-search="true" required>
+                                <select name="nama_produk" class="form-control selectpicker" data-live-search="true"
+                                    required>
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach($produks as $produk)
                                     <option value="{{ $produk->nama_produk }}">{{ $produk->nama_produk }}</option>
@@ -47,8 +48,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Kode Produksi</label>
-                                <input type="text" name="kode_produksi" id="kode_produksi"
-                                class="form-control" maxlength="10" required>
+                                <input type="text" name="kode_produksi" id="kode_produksi" class="form-control"
+                                    maxlength="10" required>
                                 <small id="kodeError" class="text-danger d-none"></small>
                             </div>
                         </div>
@@ -66,14 +67,18 @@
                         <div class="table-responsive mb-4">
                             <table class="table table-bordered align-middle text-center">
                                 <thead class="table-light">
-                                    <tr><th colspan="4" class="text-left">Preparation</th></tr>
+                                    <tr>
+                                        <th colspan="4" class="text-left">Preparation</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td class="text-start fw-semibold">Waktu</td>
-                                        <td><input type="time" name="waktu_mulai" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_mulai"
+                                                class="form-control form-control-sm text-center" required></td>
                                         <td class="fw-bold">s/d</td>
-                                        <td><input type="time" name="waktu_selesai" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_selesai"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -83,7 +88,10 @@
                         <div class="table-responsive mb-4">
                             <table class="table table-bordered text-center align-middle" id="tabelNonPremix">
                                 <thead class="table-primary">
-                                    <tr><th colspan="7" class="text-left">Bahan Baku dan Bahan Tambahan (Non-Premix)</th></tr>
+                                    <tr>
+                                        <th colspan="7" class="text-left">Bahan Baku dan Bahan Tambahan (Non-Premix)
+                                        </th>
+                                    </tr>
                                     <tr>
                                         <th>Bahan</th>
                                         <th>Kode</th>
@@ -96,13 +104,20 @@
                                 </thead>
                                 <tbody id="tbodyNonPremix">
                                     <tr>
-                                        <td><input type="text" name="non_premix[0][nama_bahan]" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="text" name="non_premix[0][kode_bahan]" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="number" name="non_premix[0][suhu_bahan]" step="0.01" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="number" name="non_premix[0][ph_bahan]" step="0.01" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="number" name="non_premix[0][berat_bahan]" step="0.01" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="checkbox" name="non_premix[0][sensori]" value="Oke" class="form-check-input"></td>
-                                        <td><button type="button" class="btn btn-sm btn-danger hapusBaris"><i class="bi bi-trash"></i></button></td>
+                                        <td><input type="text" name="non_premix[0][nama_bahan]"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="text" name="non_premix[0][kode_bahan]"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="non_premix[0][suhu_bahan]" step="0.01"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="non_premix[0][ph_bahan]" step="0.01"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="non_premix[0][berat_bahan]" step="0.01"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="checkbox" name="non_premix[0][sensori]" value="Oke"
+                                                class="form-check-input"></td>
+                                        <td><button type="button" class="btn btn-sm btn-danger hapusBaris"><i
+                                                    class="bi bi-trash"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -115,7 +130,9 @@
                         <div class="table-responsive mb-4">
                             <table class="table table-bordered text-center align-middle" id="tabelPremix">
                                 <thead class="table-primary">
-                                    <tr><th colspan="5" class="text-left">Premix</th></tr>
+                                    <tr>
+                                        <th colspan="5" class="text-left">Premix</th>
+                                    </tr>
                                     <tr>
                                         <th>Premix</th>
                                         <th>Kode</th>
@@ -126,11 +143,16 @@
                                 </thead>
                                 <tbody id="tbodyPremix">
                                     <tr>
-                                        <td><input type="text" name="premix[0][nama_premix]" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="text" name="premix[0][kode_premix]" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="number" name="premix[0][berat_premix]" step="0.01" class="form-control form-control-sm text-center"></td>
-                                        <td><input type="checkbox" name="premix[0][sensori_premix]" value="Oke" class="form-check-input"></td>
-                                        <td><button type="button" class="btn btn-sm btn-danger hapusBarisPremix"><i class="bi bi-trash"></i></button></td>
+                                        <td><input type="text" name="premix[0][nama_premix]"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="text" name="premix[0][kode_premix]"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="premix[0][berat_premix]" step="0.01"
+                                                class="form-control form-control-sm text-center"></td>
+                                        <td><input type="checkbox" name="premix[0][sensori_premix]" value="Oke"
+                                                class="form-check-input"></td>
+                                        <td><button type="button" class="btn btn-sm btn-danger hapusBarisPremix"><i
+                                                    class="bi bi-trash"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -156,13 +178,16 @@
                                                 <option value="CCM">CCM</option>
                                             </select>
                                         </td>
-                                        <td colspan="2"><input type="number" name="suhu_sebelum_grinding" step="0.01" class="form-control form-control-sm text-center"></td>
+                                        <td colspan="2"><input type="number" name="suhu_sebelum_grinding" step="0.01"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start fw-semibold">Waktu Mixing Premix (Menit)</td>
-                                        <td><input type="time" name="waktu_mixing_premix_awal" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_mixing_premix_awal"
+                                                class="form-control form-control-sm text-center"></td>
                                         <td class="fw-bold">s/d</td>
-                                        <td><input type="time" name="waktu_mixing_premix_akhir" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_mixing_premix_akhir"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -170,24 +195,31 @@
                             {{-- GEL --}}
                             <table class="table table-bordered text-center align-middle mb-4">
                                 <thead class="table-light">
-                                    <tr><th colspan="4" class="text-left">GEL</th></tr>
+                                    <tr>
+                                        <th colspan="4" class="text-left">GEL</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td class="text-start fw-semibold">Waktu Bowl Cutter (Menit)</td>
-                                        <td><input type="time" name="waktu_bowl_cutter_awal" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_bowl_cutter_awal"
+                                                class="form-control form-control-sm text-center"></td>
                                         <td class="fw-bold">s/d</td>
-                                        <td><input type="time" name="waktu_bowl_cutter_akhir" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_bowl_cutter_akhir"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start fw-semibold">Waktu Aging Emulsi (Menit)</td>
-                                        <td><input type="time" name="waktu_aging_emulsi_awal" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_aging_emulsi_awal"
+                                                class="form-control form-control-sm text-center"></td>
                                         <td class="fw-bold">s/d</td>
-                                        <td><input type="time" name="waktu_aging_emulsi_akhir" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_aging_emulsi_akhir"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start fw-semibold">Suhu Akhir Emulsi Gel (Std &lt;5°C)</td>
-                                        <td colspan="3"><input type="number" name="suhu_akhir_emulsi_gel" step="0.01" class="form-control form-control-sm text-center"></td>
+                                        <td colspan="3"><input type="number" name="suhu_akhir_emulsi_gel" step="0.01"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -197,15 +229,18 @@
                                 <tbody>
                                     <tr>
                                         <td class="text-start fw-semibold">Waktu Mixing (Menit)</td>
-                                        <td><input type="time" name="waktu_mixing" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="time" name="waktu_mixing"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start fw-semibold">Suhu Akhir Mixing (Std 2–5°C)</td>
-                                        <td><input type="number" name="suhu_akhir_mixing" step="0.01" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="suhu_akhir_mixing" step="0.01"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                     <tr>
                                         <td class="text-start fw-semibold">Suhu Akhir Emulsifying (Std 14±2°C)</td>
-                                        <td><input type="number" name="suhu_akhir_emulsi" step="0.01" class="form-control form-control-sm text-center"></td>
+                                        <td><input type="number" name="suhu_akhir_emulsi" step="0.01"
+                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -217,7 +252,8 @@
                 <div class="card mb-4 border-0 shadow-sm">
                     <div class="card-header bg-secondary text-white fw-bold">Catatan</div>
                     <div class="card-body bg-light">
-                        <textarea name="catatan" class="form-control" rows="3" placeholder="Tambahkan catatan bila ada">{{ old('catatan', $data->catatan ?? '') }}</textarea>
+                        <textarea name="catatan" class="form-control" rows="3"
+                            placeholder="Tambahkan catatan bila ada">{{ old('catatan', $data->catatan ?? '') }}</textarea>
                     </div>
                 </div>
 
@@ -243,7 +279,7 @@
 {{-- ===================== SCRIPT ===================== --}}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet"
-href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+    href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
 <script>

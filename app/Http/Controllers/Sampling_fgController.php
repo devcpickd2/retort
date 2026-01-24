@@ -9,6 +9,7 @@ use App\Models\Release_packing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use TCPDF;
 
 class Sampling_fgController extends Controller
 {
@@ -16,6 +17,7 @@ class Sampling_fgController extends Controller
     {
         $search     = $request->input('search');
         $date       = $request->input('date');
+        $shift     = $request->input('shift');
         $userPlant  = Auth::user()->plant;
 
         $data = Sampling_fg::query() 
@@ -30,12 +32,70 @@ class Sampling_fgController extends Controller
         ->when($date, function ($query) use ($date) {
             $query->whereDate('date', $date);
         })
+        ->when($shift, function ($query) use ($shift) { 
+            $query->where('shift', $shift);
+        })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.sampling_fg.index', compact('data', 'search', 'date'));
+        return view('form.sampling_fg.index', compact('data', 'search', 'date','shift'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift');
+        $userPlant = Auth::user()->plant;
+
+        // Ambil Data Tanpa Pagination
+        $items = Sampling_fg::query() 
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('kode_produksi', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc')
+            ->orderBy('shift', 'asc')
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // Setup PDF (Landscape A4)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Laporan Sampling Finish Good');
+        
+        // Remove Default Header/Footer
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        
+        // Set Margins (Tipis 5mm)
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+        $pdf->SetFont('helvetica', '', 7); // Font Kecil (7pt) karena kolom BANYAK
+
+        $pdf->AddPage();
+
+        // Render View
+        // Pastikan Anda membuat file: resources/views/reports/sampling_fg.blade.php
+        $html = view('reports.sampling_fg', compact('items', 'request'))->render();
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('Laporan_Sampling_FG_' . date('d-m-Y_His') . '.pdf', 'I');
+        exit();
     }
 
     public function create()
@@ -253,7 +313,7 @@ class Sampling_fgController extends Controller
 
        $sampling_fg->update($updateData);
 
-       return redirect()->route('sampling_fg.verification')
+       return redirect()->route('sampling_fg.index')
        ->with('success', 'Pemeriksaan Proses sampling_fg Finish Good berhasil diperbarui.');
    }
 
@@ -299,7 +359,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv' => now(),
     ]);
 
-    return redirect()->route('sampling_fg.verification')
+    return redirect()->route('sampling_fg.index')
     ->with('success', 'Status Verifikasi Pemeriksaan Proses sampling_fg Finish Good berhasil diperbarui.');
 }
 

@@ -55,7 +55,7 @@
                             <label class="form-label">Email</label>
                             <input type="email" name="email"
                             class="form-control @error('email') is-invalid @enderror"
-                            placeholder="Masukkan email (opsional)"
+                            placeholder="Masukkan email"
                             value="{{ old('email') }}">
                             @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
@@ -63,58 +63,54 @@
                         {{-- PLANT --}}
                         <div class="mb-3">
                             <label class="form-label fw-bold">Plant</label>
-                            <select name="plant" 
-                            class="form-control @error('plant') is-invalid @enderror">
-                            <option disabled selected>Pilih Plant</option>
-                            @foreach($plants as $pl)
-                            <option value="{{ $pl->id }}" 
-                                {{ old('plant') == $pl->id ? 'selected' : '' }}>
-                                {{ $pl->plant }}
+                            <select name="plant" class="form-control @error('plant') is-invalid @enderror" autocomplete="off">
+                                <option value="" selected>Pilih Plant</option>
+                                @foreach($plants as $pl)
+                                <option value="{{ $pl->id }}">{{ $pl->plant }}</option>
+                                @endforeach
+                            </select>
+                            @error('plant') 
+                            <div class="invalid-feedback d-block">{{ $message }}</div> 
+                            @enderror
+                        </div>
+
+                        {{-- DEPARTEMEN --}}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Department</label>
+                            <select name="department" 
+                            class="form-control @error('department') is-invalid @enderror">
+                            <option disabled selected>Pilih Department</option>
+                            @foreach($departments as $dep)
+                            <option value="{{ $dep->id }}" 
+                                {{ old('department') == $dep->id ? 'selected' : '' }}>
+                                {{ $dep->nama }}
                             </option>
                             @endforeach
                         </select>
-                        @error('plant') 
+                        @error('department') 
                         <div class="invalid-feedback d-block">{{ $message }}</div> 
                         @enderror
                     </div>
 
-                    {{-- DEPARTEMEN --}}
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Department</label>
-                        <select name="department" 
-                        class="form-control @error('department') is-invalid @enderror">
-                        <option disabled selected>Pilih Department</option>
-                        @foreach($departments as $dep)
-                        <option value="{{ $dep->id }}" 
-                            {{ old('department') == $dep->id ? 'selected' : '' }}>
-                            {{ $dep->nama }}
-                        </option>
-                        @endforeach
+                        <label class="form-label fw-bold">Tipe User</label>
+                        <select name="type_user" 
+                        class="form-control @error('type_user') is-invalid @enderror">
+                        <option disabled selected>Pilih User</option>
+                        <option value="0" {{ old('type_user') == 0 ? 'selected' : '' }}>Admin</option>
+                        <option value="1" {{ old('type_user') == 1 ? 'selected' : '' }}>Manager</option>
+                        <option value="2" {{ old('type_user') == 2 ? 'selected' : '' }}>Supervisor</option>
+                        <option value="3" {{ old('type_user') == 3 ? 'selected' : '' }}>Foreman/Forelady Produksi</option>
+                        <option value="8" {{ old('type_user') == 8 ? 'selected' : '' }}>Foreman/Forelady QC</option>
+                        <option value="4" {{ old('type_user') == 4 ? 'selected' : '' }}>Inspector</option>
+                        <option value="5" {{ old('type_user') == 5 ? 'selected' : '' }}>Engineer</option>
+                        <option value="6" {{ old('type_user') == 6 ? 'selected' : '' }}>Warehouse</option>
+                        <option value="7" {{ old('type_user') == 7 ? 'selected' : '' }}>Lab</option>
                     </select>
-                    @error('department') 
-                    <div class="invalid-feedback d-block">{{ $message }}</div> 
+                    @error('type_user')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Tipe User</label>
-                    <select name="type_user" 
-                    class="form-control @error('type_user') is-invalid @enderror">
-                    <option disabled selected>Pilih User</option>
-                    <option value="0" {{ old('type_user') == 0 ? 'selected' : '' }}>Admin</option>
-                    <option value="1" {{ old('type_user') == 1 ? 'selected' : '' }}>Manager</option>
-                    <option value="2" {{ old('type_user') == 2 ? 'selected' : '' }}>Supervisor</option>
-                    <option value="3" {{ old('type_user') == 3 ? 'selected' : '' }}>Foreman/Forelady Produksi</option>
-                    <option value="8" {{ old('type_user') == 8 ? 'selected' : '' }}>Foreman/Forelady QC</option>
-                    <option value="4" {{ old('type_user') == 4 ? 'selected' : '' }}>Inspector</option>
-                    <option value="5" {{ old('type_user') == 5 ? 'selected' : '' }}>Engineer</option>
-                    <option value="6" {{ old('type_user') == 6 ? 'selected' : '' }}>Warehouse</option>
-                    <option value="7" {{ old('type_user') == 7 ? 'selected' : '' }}>Lab</option>
-                </select>
-                @error('type_user')
-                <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
 
             <!-- <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" name="activation" id="activation"

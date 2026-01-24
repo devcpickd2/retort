@@ -9,6 +9,7 @@ use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use TCPDF;
 
 class WireController extends Controller
 {
@@ -16,6 +17,7 @@ class WireController extends Controller
     {
         $search     = $request->input('search');
         $date = $request->input('date');
+        $shift     = $request->input('shift');
         $userPlant  = Auth::user()->plant;
 
         $data = Wire::query()
@@ -29,14 +31,71 @@ class WireController extends Controller
             });
         })
         ->when($date, function ($query) use ($date) {
-            $query->whereDate('date', $date);
+            $query->whereDate('date', $date); 
+        })
+        ->when($shift, function ($query) use ($shift) { 
+            $query->where('shift', $shift); 
         })
         ->orderBy('date', 'desc')
         ->orderBy('created_at', 'desc')
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.wire.index', compact('data', 'search', 'date'));
+        return view('form.wire.index', compact('data', 'search', 'date', 'shift'));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $search    = $request->input('search');
+        $date      = $request->input('date');
+        $shift     = $request->input('shift'); // Ambil input Shift
+        $userPlant = Auth::user()->plant;
+
+        $items = Wire::query()
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_produk', 'like', "%{$search}%")
+                      ->orWhere('nama_supplier', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->when($shift, function ($query) use ($shift) {
+                // Filter Query berdasarkan Shift yang dipilih
+                $query->where('shift', $shift);
+            })
+            ->orderBy('date', 'asc')
+            ->orderBy('shift', 'asc')
+            ->get();
+
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        // Setup PDF (Landscape)
+        $pdf = new \TCPDF('L', PDF_UNIT, 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator(PDF_CREATOR);
+        $pdf->SetTitle('Laporan Data No. Lot Wire');
+        
+        // Remove default header/footer
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        
+        // Set Margins (Left, Top, Right) -> 5mm
+        $pdf->SetMargins(5, 5, 5);
+        $pdf->SetAutoPageBreak(TRUE, 5);
+        $pdf->SetFont('helvetica', '', 8);
+
+        $pdf->AddPage();
+
+        // Render View
+        $html = view('reports.wire', compact('items', 'request'))->render();
+
+        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf->Output('Laporan_Wire_' . date('d-m-Y_His') . '.pdf', 'I');
+        exit();
     }
 
     public function create()
@@ -180,7 +239,7 @@ class WireController extends Controller
             'data_wire'        => json_encode($data_wire, JSON_UNESCAPED_UNICODE),
         ]);
 
-        return redirect()->route('wire.verification')->with('success', 'Data No. Lot Wire berhasil diperbarui');
+        return redirect()->route('wire.index')->with('success', 'Data No. Lot Wire berhasil diperbarui');
     }
 
     public function verification(Request $request)

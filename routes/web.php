@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -10,11 +9,12 @@ use App\Http\Controllers\{
     ProdukController,
     MesinController,
     OperatorController,
-    EngineerController,
+    List_formController,
+    // EngineerController,
     SupplierController,
-    Supplier_rmController,
-    KoordinatorController,
-    List_chamberController,
+    // Supplier_rmController,
+    // KoordinatorController,
+    // List_chamberController,
     Area_hygieneController,
     Area_suhuController,
     Area_sanitasiController,
@@ -23,6 +23,15 @@ use App\Http\Controllers\{
     ProduksiController,
     GmpController,
     PvdcController,
+    MagnetTrapController,
+    RawMaterialInspectionController,
+    PackagingInspectionController,
+    PemeriksaanRetainController,
+    LoadingProdukController,
+    DispositionController,
+    BeritaAcaraController,
+    PemeriksaanKekuatanMagnetTrapController,
+    PenyimpanganKualitasController,
     Labelisasi_pvdcController,
     MincingController,
     MetalController,
@@ -47,7 +56,13 @@ use App\Http\Controllers\{
     Pemasakan_rteController,
     Release_packingController,
     SuhuController,
-    SanitasiController
+    SanitasiController,
+    LookupController,
+    WithdrawlController,
+    TraceabilityController,
+    RecallController,
+    PermissionController,
+    RoleController // Add RoleController
 };
 
 Route::get('/', function () {
@@ -60,14 +75,21 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::resource('user', UserController::class);
+    Route::prefix('access')->group(function () {
+        Route::resource('permissions', PermissionController::class);
+        Route::resource('roles', RoleController::class);
+        Route::get('roles/{role}/manage-access', [RoleController::class, 'manageAccess'])->name('roles.manageAccess');
+        Route::post('roles/{role}/manage-access', [RoleController::class, 'saveAccess'])->name('roles.saveAccess');
+    });
 });
 
 use Spatie\LaravelPdf\Facades\Pdf;
-Route::get('pdf/steamer', function () {
-    return Pdf::view('pdf.pemeriksaan-steamer2', ['data' => 'contoh data'])
-    ->format('a4')
-    ->name('invoice.pdf');
-});
+
+// Route::get('pdf/steamer', function () {
+//     return Pdf::view('pdf.pemeriksaan-steamer2', ['data' => 'contoh data'])
+//     ->format('a4')
+//     ->name('invoice.pdf');
+// });
 
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -78,14 +100,16 @@ Route::post('/set-produksi', [DashboardController::class, 'setProduksi'])->name(
 // Halo test
 Route::get('/halo', [HaloController::class, 'index']);
 
+// Route::get('/departemen-delete-test/{id}', function ($id) {
+//     \App\Models\Departemen::find($id)?->delete();
+//     return redirect()->route('departemen.index')->with('success', 'Data Berhasil dihapus!');
+// });
+
+/*MASTER DATA*/
 // Departemen
 Route::resource('departemen', DepartemenController::class)->parameters([
     'departemen' => 'uuid'
 ]);
-Route::get('/departemen-delete-test/{id}', function ($id) {
-    \App\Models\Departemen::find($id)?->delete();
-    return redirect()->route('departemen.index')->with('success', 'Data Berhasil dihapus!');
-});
 
 // Plant
 Route::resource('plant', PlantController::class)->parameters([
@@ -103,9 +127,9 @@ Route::resource('mesin', MesinController::class)->parameters([
 ]);
 
 // List Chamber
-Route::resource('list_chamber', List_chamberController::class)->parameters([
-    'list_chamber' => 'uuid'
-]);
+// Route::resource('list_chamber', List_chamberController::class)->parameters([
+//     'list_chamber' => 'uuid'
+// ]);
 
 // Produksi (Karyawan Produksi)
 Route::resource('produksi', ProduksiController::class)->parameters([
@@ -118,9 +142,9 @@ Route::resource('operator', OperatorController::class)->parameters([
 ]);
 
 // Engineer
-Route::resource('engineer', EngineerController::class)->parameters([
-    'engineer' => 'uuid'
-]);
+// Route::resource('engineer', EngineerController::class)->parameters([
+//     'engineer' => 'uuid'
+// ]);
 
 // Supplier
 Route::resource('supplier', SupplierController::class)->parameters([
@@ -128,14 +152,14 @@ Route::resource('supplier', SupplierController::class)->parameters([
 ]);
 
 // Supplier RM
-Route::resource('supplier_rm', Supplier_rmController::class)->parameters([
-    'supplier_rm' => 'uuid'
-]);
+// Route::resource('supplier_rm', Supplier_rmController::class)->parameters([
+//     'supplier_rm' => 'uuid'
+// ]);
 
 // Koordinator
-Route::resource('koordinator', KoordinatorController::class)->parameters([
-    'koordinator' => 'uuid'
-]);
+// Route::resource('koordinator', KoordinatorController::class)->parameters([
+//     'koordinator' => 'uuid'
+// ]);
 
 // Area
 Route::resource('area_hygiene', Area_hygieneController::class)->parameters([
@@ -152,6 +176,10 @@ Route::resource('area_sanitasi', Area_sanitasiController::class)->parameters([
     'area_sanitasi' => 'uuid'
 ]);
 
+// UMUM
+Route::get('/lookup/batch/{nama_produk}', [LookupController::class, 'getBatchByProduk']);
+Route::get('/lookup/batch-packing/{nama_produk}', [LookupController::class, 'getAllBatchByProduk']);
+
 // GMP
 Route::get('gmp/verification', [GmpController::class, 'verification'])->name('gmp.verification');
 Route::put('gmp/verification/{uuid}', [GmpController::class, 'updateVerification'])->name('gmp.verification.update');
@@ -160,7 +188,153 @@ Route::resource('gmp', GmpController::class)->parameters([
     'gmp' => 'uuid'
 ]);
 
+// Form QC
+Route::resource('list_form', List_formController::class)->parameters([
+    'list_form' => 'uuid'
+]);
+
+Route::get('/ajax/search-batch-mincing', [MagnetTrapController::class, 'searchBatchMincing'])->name('ajax.search.batch');
+Route::get('checklistmagnettrap/update-form/{checklistmagnettrap}', [MagnetTrapController::class, 'showUpdateForm'])
+    ->name('checklistmagnettrap.showUpdateForm');
+Route::get('checklistmagnettrap/verification', [MagnetTrapController::class, 'showVerificationPage'])->name('checklistmagnettrap.verification');
+Route::put('checklistmagnettrap/{uuid}/verify', [MagnetTrapController::class, 'verify'])->name('checklistmagnettrap.verify');
+Route::get('checklistmagnettrap/export-pdf', [MagnetTrapController::class, 'exportPdf'])->name('checklistmagnettrap.exportPdf');
+Route::resource('checklistmagnettrap', MagnetTrapController::class);
+
+Route::get('/inspections/{inspection}/form-update', [RawMaterialInspectionController::class, 'showUpdateForm'])
+    ->name('inspections.form_update');
+Route::get('/inspections/verification', [RawMaterialInspectionController::class, 'showVerificationPage'])
+    ->name('inspections.verification');
+
+// RUTE BARU: Memproses modal verifikasi Packaging
+Route::put('/inspections/verify/{inspection}', [RawMaterialInspectionController::class, 'verify'])->name('inspections.verify');
+Route::get('/inspections/export-pdf', [RawMaterialInspectionController::class, 'exportPdf'])->name('inspections.exportPdf');
+Route::resource('inspections', RawMaterialInspectionController::class);
+
+// Packaging Inspections
+Route::get('/packaging-inspections/verification', [PackagingInspectionController::class, 'showVerificationList'])
+    ->name('packaging-inspections.verification');
+
+// RUTE BARU: Memproses modal verifikasi Packaging
+Route::put('/packaging-inspections/verify/{inspection}', [PackagingInspectionController::class, 'verify'])->name('packaging-inspections.verify');
+Route::get('/packaging-inspections/edit-for-update/{packagingInspection}', [PackagingInspectionController::class, 'editForUpdate'])->name('packaging-inspections.edit-for-update');
+Route::get('/packaging-inspections/export-pdf', [PackagingInspectionController::class, 'exportPdf'])->name('packaging-inspections.exportPdf');
+Route::resource('packaging-inspections', PackagingInspectionController::class);
+// RUTE BARU: Menampilkan halaman daftar verifikasi Packaging
+Route::get('packaging-inspections/{packagingInspection}/update-view', [PackagingInspectionController::class, 'editForUpdate'])->name('packaging-inspections.edit-for-update');
+Route::get('packaging-inspections/verification', [PackagingInspectionController::class, 'showVerificationList'])
+    ->name('packaging-inspections.verification');
+
+// RUTE BARU: Memproses modal verifikasi Packaging
+Route::put('packaging-inspections/verify/{inspection}', [PackagingInspectionController::class, 'verify'])->name('packaging-inspections.verify');
+Route::resource('packaging-inspections', PackagingInspectionController::class);
+Route::get('pemeriksaan-retain/{pemeriksaanRetain}/update-view', [PemeriksaanRetainController::class, 'editForUpdate'])
+    ->name('pemeriksaan_retain.edit-for-update');
+Route::get('pemeriksaan-retain/verification', [PemeriksaanRetainController::class, 'showVerificationPage'])
+    ->name('pemeriksaan_retain.verification');
+Route::put('pemeriksaan-retain/{pemeriksaanRetain}/verify', [PemeriksaanRetainController::class, 'submitVerification'])
+    ->name('pemeriksaan_retain.verify');
+Route::get('pemeriksaan-retain/export-pdf', [PemeriksaanRetainController::class, 'exportPdf'])->name('pemeriksaan_retain.exportPdf');
+Route::resource('pemeriksaan_retain', PemeriksaanRetainController::class)
+    ->names('pemeriksaan_retain');
+
+
+Route::get('loading-produks/{loadingProduk}/update', [LoadingProdukController::class, 'updateDetails'])
+    ->name('loading-produks.edit-details');
+
+Route::put('loading-produks/{loadingProduk}/update', [LoadingProdukController::class, 'update'])
+    ->name('loading-produks.update-custom');
+Route::get('loading-produks/verification', [LoadingProdukController::class, 'showVerification'])
+    ->name('loading-produks.verification');
+Route::put('loading-produks/{uuid}/verify', [LoadingProdukController::class, 'verify'])
+    ->name('loading-produks.verify');
+Route::get('loading-produks/export-pdf', [LoadingProdukController::class, 'exportPdf'])->name('loading-produks.exportPdf');
+Route::resource('loading-produks', LoadingProdukController::class);
+
+Route::get('/dispositions/{disposition}/update-form', [DispositionController::class, 'showUpdateForm'])
+    ->name('dispositions.update_form');
+Route::get('dispositions-verification', [DispositionController::class, 'verification'])
+    ->name('dispositions.verification');
+
+Route::put('dispositions-verify/{disposition:uuid}', [DispositionController::class, 'verify'])
+    ->name('dispositions.verify');
+Route::get('/dispositions/export-pdf', [DispositionController::class, 'exportPdf'])->name('dispositions.exportPdf');
+Route::resource('dispositions', DispositionController::class);
+
+Route::get('/berita-acara/{beritaAcara}/update-form', [BeritaAcaraController::class, 'showUpdateForm'])
+    ->name('berita-acara.update_form');
+
+Route::prefix('berita-acara-verification')->name('berita-acara.')->group(function () {
+    Route::get('qc-supervisor', [BeritaAcaraController::class, 'verificationSpv'])
+        ->name('verification.spv');
+    Route::post('{beritaAcara}/verify-spv', [BeritaAcaraController::class, 'verifySpv'])
+        ->name('verify.spv');
+});
+Route::get('/berita-acara/export-pdf', [BeritaAcaraController::class, 'exportPdf'])->name('berita-acara.exportPdf');
+Route::resource('berita-acara', BeritaAcaraController::class);
+
+Route::get(
+    '/pemeriksaan-kekuatan-magnet-trap/{pemeriksaanKekuatanMagnetTrap}/update-form',
+    [PemeriksaanKekuatanMagnetTrapController::class, 'showUpdateForm']
+)
+    ->name('pemeriksaan-kekuatan-magnet-trap.update_form');
+Route::prefix('pemeriksaan-kekuatan-magnet-trap-verification')->name('pemeriksaan-kekuatan-magnet-trap.')->group(function () {
+    Route::get('spv', [PemeriksaanKekuatanMagnetTrapController::class, 'verificationSpv'])
+        ->name('verification.spv');
+
+    // {pemeriksaanKekuatanMagnetTrap} harus cocok dengan variabel di method controller
+    Route::post('{pemeriksaanKekuatanMagnetTrap}/verify-spv', [PemeriksaanKekuatanMagnetTrapController::class, 'verifySpv'])
+        ->name('verify.spv');
+});
+Route::resource('pemeriksaan-kekuatan-magnet-trap', PemeriksaanKekuatanMagnetTrapController::class);
+
+Route::get(
+    '/penyimpangan-kualitas/{penyimpanganKualitas}/update-form',
+    [PenyimpanganKualitasController::class, 'showUpdateForm']
+)
+    ->name('penyimpangan-kualitas.update_form');
+Route::prefix('penyimpangan-kualitas-verification')->name('penyimpangan-kualitas.')->group(function () {
+
+    // Rute untuk "Diketahui Oleh"
+    Route::get('diketahui', [PenyimpanganKualitasController::class, 'verificationDiketahui'])
+        ->name('verification.diketahui');
+    Route::post('{penyimpanganKualitas}/verify-diketahui', [PenyimpanganKualitasController::class, 'verifyDiketahui'])
+        ->name('verify.diketahui');
+
+    // Rute untuk "Disetujui Oleh"
+    Route::get('disetujui', [PenyimpanganKualitasController::class, 'verificationDisetujui'])
+        ->name('verification.disetujui');
+    Route::post('{penyimpanganKualitas}/verify-disetujui', [PenyimpanganKualitasController::class, 'verifyDisetujui'])
+        ->name('verify.disetujui');
+});
+Route::get('/penyimpangan-kualitas/export-pdf', [PenyimpanganKualitasController::class, 'exportPdf'])->name('penyimpangan-kualitas.exportPdf');
+Route::resource('penyimpangan-kualitas', PenyimpanganKualitasController::class)->parameters(['penyimpangan-kualitas' => 'penyimpanganKualitas']);
+
+/*KOMPLAIN DAN TRACEABILITY*/
+// Withdrawl
+Route::resource('withdrawl', WithdrawlController::class)->parameters(['withdrawl' => 'uuid']);
+Route::get('/withdrawl/export', [WithdrawlController::class, 'export'])->name('withdrawl.export');
+Route::put('/withdrawl/{uuid}/update-verification', [WithdrawlController::class, 'updateVerification'])->name('withdrawl.updateVerification');
+Route::put('/withdrawl/verify-manager/{uuid}', [WithdrawlController::class, 'updateApproval'])
+    ->name('withdrawl.updateApproval');
+
+// Trace
+Route::resource('traceability', TraceabilityController::class)->parameters(['traceability' => 'uuid']);
+Route::get('/traceability/export', [TraceabilityController::class, 'export'])->name('traceability.export');
+Route::put('/traceability/{uuid}/update-verification', [TraceabilityController::class, 'updateVerification'])->name('traceability.updateVerification');
+Route::put('/traceability/verify-manager/{uuid}', [TraceabilityController::class, 'updateApproval'])
+    ->name('traceability.updateApproval');
+
+// Recall
+Route::resource('recall', RecallController::class)->parameters(['recall' => 'uuid']);
+Route::get('/recall/export', [RecallController::class, 'export'])->name('recall.export');
+Route::put('/recall/{uuid}/update-verification', [RecallController::class, 'updateVerification'])->name('recall.updateVerification');
+Route::put('/recall/verify-manager/{uuid}', [RecallController::class, 'updateApproval'])
+    ->name('recall.updateApproval');
+
+/*FORM PUTRI*/
 // Stuffing
+Route::get('/stuffing/export-pdf', [App\Http\Controllers\StuffingController::class, 'exportPdf'])->name('stuffing.exportPdf');
 Route::get('/stuffing', [StuffingController::class, 'index'])->name('stuffing.index');
 Route::get('/stuffing/create', [StuffingController::class, 'create'])->name('stuffing.create');
 Route::post('/stuffing', [StuffingController::class, 'store'])->name('stuffing.store');
@@ -170,10 +344,11 @@ Route::get('/stuffing/edit/{uuid}', [StuffingController::class, 'edit'])->name('
 Route::put('/stuffing/edit_spv/{uuid}', [StuffingController::class, 'edit_spv'])->name('stuffing.edit_spv');
 Route::get('/stuffing/verification', [StuffingController::class, 'verification'])->name('stuffing.verification');
 Route::put('/stuffing/verification/{uuid}', [StuffingController::class, 'updateVerification'])
-->name('stuffing.verification.update');
+    ->name('stuffing.verification.update');
 Route::delete('/stuffing/{uuid}', [StuffingController::class, 'destroy'])->name('stuffing.destroy');
 
 // Wire
+Route::get('/wire/export-pdf', [WireController::class, 'exportPdf'])->name('wire.exportPdf');
 Route::get('/wire', [WireController::class, 'index'])->name('wire.index');
 Route::get('/wire/create', [WireController::class, 'create'])->name('wire.create');
 Route::post('/wire', [WireController::class, 'store'])->name('wire.store');
@@ -183,10 +358,11 @@ Route::get('/wire/edit/{uuid}', [WireController::class, 'edit'])->name('wire.edi
 Route::put('/wire/edit_spv/{uuid}', [WireController::class, 'edit_spv'])->name('wire.edit_spv');
 Route::get('/wire/verification', [WireController::class, 'verification'])->name('wire.verification');
 Route::put('/wire/verification/{uuid}', [WireController::class, 'updateVerification'])
-->name('wire.verification.update');
+    ->name('wire.verification.update');
 Route::delete('/wire/{uuid}', [WireController::class, 'destroy'])->name('wire.destroy');
 
 // Sampling FG
+Route::get('/sampling_fg/export-pdf', [Sampling_fgController::class, 'exportPdf'])->name('sampling_fg.exportPdf');
 Route::get('/get-jumlah-box', [App\Http\Controllers\sampling_fgController::class, 'getJumlahBox'])->name('get.jumlah.box');
 Route::get('/sampling_fg', [Sampling_fgController::class, 'index'])->name('sampling_fg.index');
 Route::get('/sampling_fg/create', [Sampling_fgController::class, 'create'])->name('sampling_fg.create');
@@ -197,10 +373,11 @@ Route::get('/sampling_fg/edit/{uuid}', [Sampling_fgController::class, 'edit'])->
 Route::put('/sampling_fg/edit_spv/{uuid}', [Sampling_fgController::class, 'edit_spv'])->name('sampling_fg.edit_spv');
 Route::get('/sampling_fg/verification', [Sampling_fgController::class, 'verification'])->name('sampling_fg.verification');
 Route::put('/sampling_fg/verification/{uuid}', [Sampling_fgController::class, 'updateVerification'])
-->name('sampling_fg.verification.update');
+    ->name('sampling_fg.verification.update');
 Route::delete('/sampling_fg/{uuid}', [Sampling_fgController::class, 'destroy'])->name('sampling_fg.destroy');
 
 // Chamber
+Route::get('/chamber/export-pdf', [ChamberController::class, 'exportPdf'])->name('chamber.exportPdf');
 Route::get('/chamber', [ChamberController::class, 'index'])->name('chamber.index');
 Route::get('/chamber/create', [ChamberController::class, 'create'])->name('chamber.create');
 Route::post('/chamber', [ChamberController::class, 'store'])->name('chamber.store');
@@ -210,7 +387,7 @@ Route::get('/chamber/edit/{uuid}', [ChamberController::class, 'edit'])->name('ch
 Route::put('/chamber/edit_spv/{uuid}', [ChamberController::class, 'edit_spv'])->name('chamber.edit_spv');
 Route::get('/chamber/verification', [ChamberController::class, 'verification'])->name('chamber.verification');
 Route::put('/chamber/verification/{uuid}', [ChamberController::class, 'updateVerification'])
-->name('chamber.verification.update');
+    ->name('chamber.verification.update');
 Route::delete('/chamber/{uuid}', [ChamberController::class, 'destroy'])->name('chamber.destroy');
 
 // Timbangan
@@ -223,7 +400,8 @@ Route::get('/timbangan/edit/{uuid}', [TimbanganController::class, 'edit'])->name
 Route::put('/timbangan/edit_spv/{uuid}', [TimbanganController::class, 'edit_spv'])->name('timbangan.edit_spv');
 Route::get('/timbangan/verification', [TimbanganController::class, 'verification'])->name('timbangan.verification');
 Route::put('/timbangan/verification/{uuid}', [TimbanganController::class, 'updateVerification'])
-->name('timbangan.verification.update');
+    ->name('timbangan.verification.update');
+Route::get('/timbangan/export-pdf', [TimbanganController::class, 'exportPdf'])->name('timbangan.exportPdf');
 Route::delete('/timbangan/{uuid}', [TimbanganController::class, 'destroy'])->name('timbangan.destroy');
 
 // Thermometer
@@ -236,7 +414,8 @@ Route::get('/thermometer/edit/{uuid}', [ThermometerController::class, 'edit'])->
 Route::put('/thermometer/edit_spv/{uuid}', [ThermometerController::class, 'edit_spv'])->name('thermometer.edit_spv');
 Route::get('/thermometer/verification', [ThermometerController::class, 'verification'])->name('thermometer.verification');
 Route::put('/thermometer/verification/{uuid}', [ThermometerController::class, 'updateVerification'])
-->name('thermometer.verification.update');
+    ->name('thermometer.verification.update');
+Route::get('/thermometer/export-pdf', [ThermometerController::class, 'exportPdf'])->name('thermometer.exportPdf');
 Route::delete('/thermometer/{uuid}', [ThermometerController::class, 'destroy'])->name('thermometer.destroy');
 
 // Karton
@@ -249,7 +428,8 @@ Route::get('/karton/edit/{uuid}', [KartonController::class, 'edit'])->name('kart
 Route::put('/karton/edit_spv/{uuid}', [KartonController::class, 'edit_spv'])->name('karton.edit_spv');
 Route::get('/karton/verification', [KartonController::class, 'verification'])->name('karton.verification');
 Route::put('/karton/verification/{uuid}', [KartonController::class, 'updateVerification'])
-->name('karton.verification.update');
+    ->name('karton.verification.update');
+Route::get('/karton/export-pdf', [KartonController::class, 'exportPdf'])->name('karton.exportPdf');
 Route::delete('/karton/{uuid}', [KartonController::class, 'destroy'])->name('karton.destroy');
 
 // Sampling
@@ -262,7 +442,8 @@ Route::get('/sampling/edit/{uuid}', [SamplingController::class, 'edit'])->name('
 Route::put('/sampling/edit_spv/{uuid}', [SamplingController::class, 'edit_spv'])->name('sampling.edit_spv');
 Route::get('/sampling/verification', [SamplingController::class, 'verification'])->name('sampling.verification');
 Route::put('/sampling/verification/{uuid}', [SamplingController::class, 'updateVerification'])
-->name('sampling.verification.update');
+    ->name('sampling.verification.update');
+Route::get('/sampling/export-pdf', [SamplingController::class, 'exportPdf'])->name('sampling.exportPdf');
 Route::delete('/sampling/{uuid}', [SamplingController::class, 'destroy'])->name('sampling.destroy');
 
 // Packing
@@ -275,7 +456,8 @@ Route::get('/packing/edit/{uuid}', [PackingController::class, 'edit'])->name('pa
 Route::put('/packing/edit_spv/{uuid}', [PackingController::class, 'edit_spv'])->name('packing.edit_spv');
 Route::get('/packing/verification', [PackingController::class, 'verification'])->name('packing.verification');
 Route::put('/packing/verification/{uuid}', [PackingController::class, 'updateVerification'])
-->name('packing.verification.update');
+    ->name('packing.verification.update');
+Route::get('/packing/export-pdf', [PackingController::class, 'exportPdf'])->name('packing.exportPdf');
 Route::delete('/packing/{uuid}', [PackingController::class, 'destroy'])->name('packing.destroy');
 
 // Pengecekan Klorin
@@ -288,7 +470,8 @@ Route::get('/klorin/edit/{uuid}', [KlorinController::class, 'edit'])->name('klor
 Route::put('/klorin/edit_spv/{uuid}', [KlorinController::class, 'edit_spv'])->name('klorin.edit_spv');
 Route::get('/klorin/verification', [KlorinController::class, 'verification'])->name('klorin.verification');
 Route::put('/klorin/verification/{uuid}', [KlorinController::class, 'updateVerification'])
-->name('klorin.verification.update');
+    ->name('klorin.verification.update');
+Route::get('/klorin/export-pdf', [KlorinController::class, 'exportPdf'])->name('klorin.exportPdf');
 Route::delete('/klorin/{uuid}', [KlorinController::class, 'destroy'])->name('klorin.destroy');
 
 // Organoleptik
@@ -301,7 +484,8 @@ Route::get('/organoleptik/edit/{uuid}', [OrganoleptikController::class, 'edit'])
 Route::put('/organoleptik/edit_spv/{uuid}', [OrganoleptikController::class, 'edit_spv'])->name('organoleptik.edit_spv');
 Route::get('/organoleptik/verification', [OrganoleptikController::class, 'verification'])->name('organoleptik.verification');
 Route::put('/organoleptik/verification/{uuid}', [OrganoleptikController::class, 'updateVerification'])
-->name('organoleptik.verification.update');
+    ->name('organoleptik.verification.update');
+Route::get('/organoleptik/export-pdf', [OrganoleptikController::class, 'exportPdf'])->name('organoleptik.exportPdf');
 Route::delete('/organoleptik/{uuid}', [OrganoleptikController::class, 'destroy'])->name('organoleptik.destroy');
 
 // Sampel
@@ -314,7 +498,8 @@ Route::get('/sampel/edit/{uuid}', [SampelController::class, 'edit'])->name('samp
 Route::put('/sampel/edit_spv/{uuid}', [SampelController::class, 'edit_spv'])->name('sampel.edit_spv');
 Route::get('/sampel/verification', [SampelController::class, 'verification'])->name('sampel.verification');
 Route::put('/sampel/verification/{uuid}', [SampelController::class, 'updateVerification'])
-->name('sampel.verification.update');
+    ->name('sampel.verification.update');
+Route::get('/sampel/export-pdf', [SampelController::class, 'exportPdf'])->name('sampel.exportPdf');
 Route::delete('/sampel/{uuid}', [SampelController::class, 'destroy'])->name('sampel.destroy');
 
 // PVDC
@@ -327,8 +512,9 @@ Route::get('/pvdc/edit/{uuid}', [PvdcController::class, 'edit'])->name('pvdc.edi
 Route::put('/pvdc/edit_spv/{uuid}', [PvdcController::class, 'edit_spv'])->name('pvdc.edit_spv');
 Route::get('/pvdc/verification', [PvdcController::class, 'verification'])->name('pvdc.verification');
 Route::put('/pvdc/verification/{uuid}', [PvdcController::class, 'updateVerification'])
-->name('pvdc.verification.update');
+    ->name('pvdc.verification.update');
 Route::delete('/pvdc/{uuid}', [PvdcController::class, 'destroy'])->name('pvdc.destroy');
+Route::get('/pvdc/export-pdf', [PvdcController::class, 'exportPdf'])->name('pvdc.exportPdf');
 
 // Labelisasi PVDC
 Route::get('/labelisasi_pvdc', [Labelisasi_pvdcController::class, 'index'])->name('labelisasi_pvdc.index');
@@ -340,10 +526,11 @@ Route::get('/labelisasi_pvdc/edit/{uuid}', [Labelisasi_pvdcController::class, 'e
 Route::put('/labelisasi_pvdc/edit_spv/{uuid}', [Labelisasi_pvdcController::class, 'edit_spv'])->name('labelisasi_pvdc.edit_spv');
 Route::get('/labelisasi_pvdc/verification', [Labelisasi_pvdcController::class, 'verification'])->name('labelisasi_pvdc.verification');
 Route::put('/labelisasi_pvdc/verification/{uuid}', [Labelisasi_pvdcController::class, 'updateVerification'])
-->name('labelisasi_pvdc.verification.update');
+    ->name('labelisasi_pvdc.verification.update');
 Route::post('/labelisasi_pvdc/save-row-temp', [Labelisasi_pvdcController::class, 'saveRowTemp'])->name('labelisasi_pvdc.saveRowTemp');
 Route::post('/labelisasi_pvdc/store-final', [Labelisasi_pvdcController::class, 'storeFinal'])->name('labelisasi_pvdc.storeFinal');
 Route::delete('/labelisasi_pvdc/{uuid}', [Labelisasi_pvdcController::class, 'destroy'])->name('labelisasi_pvdc.destroy');
+Route::get('/labelisasi_pvdc/export-pdf', [Labelisasi_pvdcController::class, 'exportPdf'])->name('labelisasi_pvdc.exportPdf');
 
 // Mincing
 Route::get('/mincing', [MincingController::class, 'index'])->name('mincing.index');
@@ -355,7 +542,8 @@ Route::get('/mincing/edit/{uuid}', [MincingController::class, 'edit'])->name('mi
 Route::put('/mincing/edit_spv/{uuid}', [MincingController::class, 'edit_spv'])->name('mincing.edit_spv');
 Route::get('/mincing/verification', [MincingController::class, 'verification'])->name('mincing.verification');
 Route::put('/mincing/verification/{uuid}', [MincingController::class, 'updateVerification'])
-->name('mincing.verification.update');
+    ->name('mincing.verification.update');
+Route::get('/mincing/export-pdf', [MincingController::class, 'exportPdf'])->name('mincing.exportPdf');
 Route::delete('/mincing/{uuid}', [MincingController::class, 'destroy'])->name('mincing.destroy');
 
 // Metal
@@ -368,10 +556,12 @@ Route::get('/metal/edit/{uuid}', [MetalController::class, 'edit'])->name('metal.
 Route::put('/metal/edit_spv/{uuid}', [MetalController::class, 'edit_spv'])->name('metal.edit_spv');
 Route::get('/metal/verification', [MetalController::class, 'verification'])->name('metal.verification');
 Route::put('/metal/verification/{uuid}', [MetalController::class, 'updateVerification'])
-->name('metal.verification.update');
+    ->name('metal.verification.update');
+Route::get('/metal/export-pdf', [MetalController::class, 'exportPdf'])->name('metal.exportPdf');
 Route::delete('/metal/{uuid}', [MetalController::class, 'destroy'])->name('metal.destroy');
 
 // Pemasakan
+Route::get('/pemasakan/export-pdf', [PemasakanController::class, 'exportPdf'])->name('pemasakan.exportPdf');
 Route::get('/pemasakan', [PemasakanController::class, 'index'])->name('pemasakan.index');
 Route::get('/pemasakan/create', [PemasakanController::class, 'create'])->name('pemasakan.create');
 Route::post('/pemasakan', [PemasakanController::class, 'store'])->name('pemasakan.store');
@@ -381,7 +571,7 @@ Route::get('/pemasakan/edit/{uuid}', [PemasakanController::class, 'edit'])->name
 Route::put('/pemasakan/edit_spv/{uuid}', [PemasakanController::class, 'edit_spv'])->name('pemasakan.edit_spv');
 Route::get('/pemasakan/verification', [PemasakanController::class, 'verification'])->name('pemasakan.verification');
 Route::put('/pemasakan/verification/{uuid}', [PemasakanController::class, 'updateVerification'])
-->name('pemasakan.verification.update');
+    ->name('pemasakan.verification.update');
 Route::delete('/pemasakan/{uuid}', [PemasakanController::class, 'destroy'])->name('pemasakan.destroy');
 
 // Prepacking
@@ -394,10 +584,12 @@ Route::get('/prepacking/edit/{uuid}', [PrepackingController::class, 'edit'])->na
 Route::put('/prepacking/edit_spv/{uuid}', [PrepackingController::class, 'edit_spv'])->name('prepacking.edit_spv');
 Route::get('/prepacking/verification', [PrepackingController::class, 'verification'])->name('prepacking.verification');
 Route::put('/prepacking/verification/{uuid}', [PrepackingController::class, 'updateVerification'])
-->name('prepacking.verification.update');
+    ->name('prepacking.verification.update');
+Route::get('/prepacking/export-pdf', [PrepackingController::class, 'exportPdf'])->name('prepacking.exportPdf');
 Route::delete('/prepacking/{uuid}', [PrepackingController::class, 'destroy'])->name('prepacking.destroy');
 
 // Washing
+Route::get('/washing/export-pdf', [WashingController::class, 'exportPdf'])->name('washing.exportPdf');
 Route::get('/washing', [WashingController::class, 'index'])->name('washing.index');
 Route::get('/washing/create', [WashingController::class, 'create'])->name('washing.create');
 Route::post('/washing', [WashingController::class, 'store'])->name('washing.store');
@@ -407,10 +599,11 @@ Route::get('/washing/edit/{uuid}', [WashingController::class, 'edit'])->name('wa
 Route::put('/washing/edit_spv/{uuid}', [WashingController::class, 'edit_spv'])->name('washing.edit_spv');
 Route::get('/washing/verification', [WashingController::class, 'verification'])->name('washing.verification');
 Route::put('/washing/verification/{uuid}', [WashingController::class, 'updateVerification'])
-->name('washing.verification.update');
+    ->name('washing.verification.update');
 Route::delete('/washing/{uuid}', [WashingController::class, 'destroy'])->name('washing.destroy');
 
 // Pemusnahan
+Route::get('/pemusnahan/export-pdf', [PemusnahanController::class, 'exportPdf'])->name('pemusnahan.exportPdf');
 Route::get('/pemusnahan', [PemusnahanController::class, 'index'])->name('pemusnahan.index');
 Route::get('/pemusnahan/create', [PemusnahanController::class, 'create'])->name('pemusnahan.create');
 Route::post('/pemusnahan', [PemusnahanController::class, 'store'])->name('pemusnahan.store');
@@ -420,9 +613,24 @@ Route::get('/pemusnahan/edit/{uuid}', [PemusnahanController::class, 'edit'])->na
 Route::put('/pemusnahan/edit_spv/{uuid}', [PemusnahanController::class, 'edit_spv'])->name('pemusnahan.edit_spv');
 Route::get('/pemusnahan/verification', [PemusnahanController::class, 'verification'])->name('pemusnahan.verification');
 Route::put('/pemusnahan/verification/{uuid}', [PemusnahanController::class, 'updateVerification'])
-->name('pemusnahan.verification.update');
+    ->name('pemusnahan.verification.update');
 Route::delete('/pemusnahan/{uuid}', [PemusnahanController::class, 'destroy'])->name('pemusnahan.destroy');
 
+// Release Packing
+Route::get('/release_packing', [Release_packingController::class, 'index'])->name('release_packing.index');
+Route::get('/release_packing/create', [Release_packingController::class, 'create'])->name('release_packing.create');
+Route::post('/release_packing', [Release_packingController::class, 'store'])->name('release_packing.store');
+Route::get('/release_packing/update/{uuid}', [Release_packingController::class, 'update'])->name('release_packing.update.form');
+Route::put('/release_packing/update_qc/{uuid}', [Release_packingController::class, 'update_qc'])->name('release_packing.update_qc');
+Route::get('/release_packing/edit/{uuid}', [Release_packingController::class, 'edit'])->name('release_packing.edit.form');
+Route::put('/release_packing/edit_spv/{uuid}', [Release_packingController::class, 'edit_spv'])->name('release_packing.edit_spv');
+Route::get('/release_packing/verification', [Release_packingController::class, 'verification'])->name('release_packing.verification');
+Route::put('/release_packing/verification/{uuid}', [Release_packingController::class, 'updateVerification'])
+    ->name('release_packing.verification.update');
+Route::get('/release_packing/export-pdf', [Release_packingController::class, 'exportPdf'])->name('release_packing.exportPdf');
+Route::delete('/release_packing/{uuid}', [Release_packingController::class, 'destroy'])->name('release_packing.destroy');
+
+/*FORM RTE CIKANDE*/
 // Retain RTE
 Route::get('/retain_rte', [Retain_rteController::class, 'index'])->name('retain_rte.index');
 Route::get('/retain_rte/create', [Retain_rteController::class, 'create'])->name('retain_rte.create');
@@ -433,7 +641,8 @@ Route::get('/retain_rte/edit/{uuid}', [Retain_rteController::class, 'edit'])->na
 Route::put('/retain_rte/edit_spv/{uuid}', [Retain_rteController::class, 'edit_spv'])->name('retain_rte.edit_spv');
 Route::get('/retain_rte/verification', [Retain_rteController::class, 'verification'])->name('retain_rte.verification');
 Route::put('/retain_rte/verification/{uuid}', [Retain_rteController::class, 'updateVerification'])
-->name('retain_rte.verification.update');
+    ->name('retain_rte.verification.update');
+Route::get('/retain_rte/export-pdf', [Retain_rteController::class, 'exportPdf'])->name('retain_rte.exportPdf');
 Route::delete('/retain_rte/{uuid}', [Retain_rteController::class, 'destroy'])->name('retain_rte.destroy');
 
 // Release Packing RTE
@@ -446,7 +655,8 @@ Route::get('/release_packing_rte/edit/{uuid}', [Release_packing_rteController::c
 Route::put('/release_packing_rte/edit_spv/{uuid}', [Release_packing_rteController::class, 'edit_spv'])->name('release_packing_rte.edit_spv');
 Route::get('/release_packing_rte/verification', [Release_packing_rteController::class, 'verification'])->name('release_packing_rte.verification');
 Route::put('/release_packing_rte/verification/{uuid}', [Release_packing_rteController::class, 'updateVerification'])
-->name('release_packing_rte.verification.update');
+    ->name('release_packing_rte.verification.update');
+Route::get('/release_packing_rte/export-pdf', [Release_packing_rteController::class, 'exportPdf'])->name('release_packing_rte.exportPdf');
 Route::delete('/release_packing_rte/{uuid}', [Release_packing_rteController::class, 'destroy'])->name('release_packing_rte.destroy');
 
 // Pemasakan RTE
@@ -459,21 +669,15 @@ Route::get('/pemasakan_rte/edit/{uuid}', [Pemasakan_rteController::class, 'edit'
 Route::put('/pemasakan_rte/edit_spv/{uuid}', [Pemasakan_rteController::class, 'edit_spv'])->name('pemasakan_rte.edit_spv');
 Route::get('/pemasakan_rte/verification', [Pemasakan_rteController::class, 'verification'])->name('pemasakan_rte.verification');
 Route::put('/pemasakan_rte/verification/{uuid}', [Pemasakan_rteController::class, 'updateVerification'])
-->name('pemasakan_rte.verification.update');
+    ->name('pemasakan_rte.verification.update');
+Route::get('/pemasakan_rte/export-pdf', [Pemasakan_rteController::class, 'exportPdf'])->name('pemasakan_rte.exportPdf');
 Route::delete('/pemasakan_rte/{uuid}', [Pemasakan_rteController::class, 'destroy'])->name('pemasakan_rte.destroy');
 
-// Release Packing
-Route::get('/release_packing', [Release_packingController::class, 'index'])->name('release_packing.index');
-Route::get('/release_packing/create', [Release_packingController::class, 'create'])->name('release_packing.create');
-Route::post('/release_packing', [Release_packingController::class, 'store'])->name('release_packing.store');
-Route::get('/release_packing/update/{uuid}', [Release_packingController::class, 'update'])->name('release_packing.update.form');
-Route::put('/release_packing/update_qc/{uuid}', [Release_packingController::class, 'update_qc'])->name('release_packing.update_qc');
-Route::get('/release_packing/edit/{uuid}', [Release_packingController::class, 'edit'])->name('release_packing.edit.form');
-Route::put('/release_packing/edit_spv/{uuid}', [Release_packingController::class, 'edit_spv'])->name('release_packing.edit_spv');
-Route::get('/release_packing/verification', [Release_packingController::class, 'verification'])->name('release_packing.verification');
-Route::put('/release_packing/verification/{uuid}', [Release_packingController::class, 'updateVerification'])
-->name('release_packing.verification.update');
-Route::delete('/release_packing/{uuid}', [Release_packingController::class, 'destroy'])->name('release_packing.destroy');
+/*SUHU DAN SANITASI*/
+// Resource GMP tanpa show
+Route::resource('gmp', GmpController::class)->parameters(['gmp' => 'uuid'])->except(['show']);
+Route::get('/gmp/export', [GmpController::class, 'export'])->name('gmp.export');
+Route::put('/gmp/{uuid}/update-verification', [GmpController::class, 'updateVerification'])->name('gmp.updateVerification');
 
 // Suhu Ruang
 Route::get('/suhu', [SuhuController::class, 'index'])->name('suhu.index');
@@ -485,7 +689,8 @@ Route::get('/suhu/edit/{uuid}', [SuhuController::class, 'edit'])->name('suhu.edi
 Route::put('/suhu/edit_spv/{uuid}', [SuhuController::class, 'edit_spv'])->name('suhu.edit_spv');
 Route::get('/suhu/verification', [SuhuController::class, 'verification'])->name('suhu.verification');
 Route::put('/suhu/verification/{uuid}', [SuhuController::class, 'updateVerification'])
-->name('suhu.verification.update');
+    ->name('suhu.verification.update');
+Route::get('/suhu/export-pdf', [SuhuController::class, 'exportPdf'])->name('suhu.exportPdf');
 Route::delete('/suhu/{uuid}', [SuhuController::class, 'destroy'])->name('suhu.destroy');
 
 // Kontrol Sanitasi
@@ -498,5 +703,6 @@ Route::get('/sanitasi/edit/{uuid}', [SanitasiController::class, 'edit'])->name('
 Route::put('/sanitasi/edit_spv/{uuid}', [SanitasiController::class, 'edit_spv'])->name('sanitasi.edit_spv');
 Route::get('/sanitasi/verification', [SanitasiController::class, 'verification'])->name('sanitasi.verification');
 Route::put('/sanitasi/verification/{uuid}', [SanitasiController::class, 'updateVerification'])
-->name('sanitasi.verification.update');
+    ->name('sanitasi.verification.update');
+Route::get('/sanitasi/export-pdf', [SanitasiController::class, 'exportPdf'])->name('sanitasi.exportPdf');
 Route::delete('/sanitasi/{uuid}', [SanitasiController::class, 'destroy'])->name('sanitasi.destroy');

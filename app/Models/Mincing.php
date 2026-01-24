@@ -27,4 +27,20 @@ class Mincing extends Model
         'premix'  => 'array',
         'non_premix'  => 'array',
     ];
+
+    //relasi kode batch 
+    public function stuffing()
+    {
+        return $this->hasMany(stuffing::class);
+    }
+
+    public function pvdc()
+    {
+        return $this->hasMany(pvdc::class);
+    }
+
+    public function wire()
+    {
+        return $this->hasMany(wire::class);
+    }
 }
