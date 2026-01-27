@@ -12,12 +12,12 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            
+
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3>📋 Data Departemen</h3>
-                <a href="{{ route('departemen.create') }}" class="btn btn-success">
+                {{-- <a href="{{ route('departemen.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
-                </a>
+                </a> --}}
             </div>
             <div class="table-responsive">
                 <table class="table table-striped table-bordered align-middle">
@@ -26,7 +26,7 @@
                             <th style="width:5%">No</th>
                             <th style="width:25%">Tanggal Dibuat</th>
                             <th>Nama Departemen</th>
-                            <th style="width:20%">Aksi</th>
+                            {{-- <th style="width:20%">Aksi</th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -39,24 +39,28 @@
                         @forelse ($departemens as $dep)
                         <tr>
                             <td class="text-center align-middle">{{ $no++ }}</td>
-                            <td class="align-middle">{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}</td>
+                            <td class="align-middle">{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}
+                            </td>
                             <td class="align-middle">{{ $dep->nama }}</td>
-                            <td class="text-center align-middle">
-                                <a href="{{ route('departemen.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1" title="Edit">
+                            {{-- <td class="text-center align-middle">
+                                <a href="{{ route('departemen.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1"
+                                    title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <form action="{{ route('departemen.destroy', $dep->uuid) }}" method="POST" class="d-inline">
+                                <form action="{{ route('departemen.destroy', $dep->uuid) }}" method="POST"
+                                    class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus?')" title="Hapus">
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Yakin ingin menghapus?')" title="Hapus">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
-                            </td>
+                            </td> --}}
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4">Belum ada data departemen.</td>
+                            <td colspan="3" class="text-center">Belum ada data departemen.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -74,56 +78,62 @@
 </div>
 
 <style>
-/* Header tabel merah */
-.table thead {
-    background-color: #dc3545;
-    color: #fff;
-}
+    /* Header tabel merah */
+    .table thead {
+        background-color: #dc3545;
+        color: #fff;
+    }
 
-/* Baris tabel stripe */
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f8d7da;
-}
-.table-striped tbody tr:nth-of-type(even) {
-    background-color: #f5c2c7;
-}
+    /* Baris tabel stripe */
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f8d7da;
+    }
 
-/* Hover baris */
-.table tbody tr:hover {
-    background-color: #e4606d;
-    color: #fff;
-}
+    .table-striped tbody tr:nth-of-type(even) {
+        background-color: #f5c2c7;
+    }
 
-/* Border tabel */
-.table-bordered th, .table-bordered td {
-    border-color: #dc3545;
-}
+    /* Hover baris */
+    .table tbody tr:hover {
+        background-color: #e4606d;
+        color: #fff;
+    }
 
-/* Tombol aksi */
-.btn-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
-}
-.btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
-}
-.btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-.btn-danger:hover {
-    background-color: #b02a37;
-    border-color: #a52834;
-}
+    /* Border tabel */
+    .table-bordered th,
+    .table-bordered td {
+        border-color: #dc3545;
+    }
 
-/* Pagination */
-.pagination {
-    justify-content: end;
-}
-.pagination .page-link {
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem;
-}
+    /* Tombol aksi */
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background-color: #b02a37;
+        border-color: #a52834;
+    }
+
+    /* Pagination */
+    .pagination {
+        justify-content: end;
+    }
+
+    .pagination .page-link {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+    }
 </style>
 @endsection
