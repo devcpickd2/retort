@@ -8,7 +8,7 @@
                 <div class="card-header">Create New Role</div>
 
                 <div class="card-body">
-                    <form method="POST" action="{{ route('admin.roles.store') }}">
+                    <form method="POST" action="{{ route('roles.store') }}">
                         @csrf
 
                         <div class="form-group row">
@@ -49,7 +49,7 @@
                                 <button type="submit" class="btn btn-primary">
                                     Create Role
                                 </button>
-                                <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">Cancel</a>
+                                <a href="{{ route('roles.index') }}" class="btn btn-secondary">Cancel</a>
                             </div>
                         </div>
                     </form>
