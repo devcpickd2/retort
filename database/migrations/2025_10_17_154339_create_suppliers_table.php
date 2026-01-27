@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('nama_supplier');
             $table->string('jenis_barang');
             $table->string('plant');
+            $table->string('alamat');
             $table->timestamps();
         });
     }
