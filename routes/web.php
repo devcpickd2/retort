@@ -62,7 +62,7 @@ use App\Http\Controllers\{
     TraceabilityController,
     RecallController,
     PermissionController,
-    RoleController // Add RoleController
+    RoleController
 };
 
 Route::get('/', function () {
@@ -77,33 +77,36 @@ Route::middleware('auth')->group(function () {
     Route::resource('user', UserController::class);
     Route::prefix('access')->group(function () {
         Route::resource('permissions', PermissionController::class);
-        Route::resource('roles', RoleController::class);
-        Route::get('roles/{role}/manage-access', [RoleController::class, 'manageAccess'])->name('roles.manageAccess');
-        Route::post('roles/{role}/manage-access', [RoleController::class, 'saveAccess'])->name('roles.saveAccess');
+        Route::resource('roles', RoleController::class)
+            ->middleware([
+                'permission:can access edit button'
+            ]);;
+        Route::get('roles/{role}/manage-access', [RoleController::class, 'manageAccess'])
+            ->middleware('permission:can access edit button')
+            ->name('roles.manageAccess');
+        Route::post('roles/{role}/manage-access', [RoleController::class, 'saveAccess'])
+            ->middleware('permission:can access edit button')
+        ->name('roles.saveAccess');
     });
 });
 
-use Spatie\LaravelPdf\Facades\Pdf;
+// Route::middleware(['permission:access roles'])->group(function () {
+//         Route::resource('/roles', RoleController::class)->except(['show']);
+//         Route::get('roles/{role}/manage-access', [RoleController::class, 'manageAccess'])->name('roles.manage-access');
+//         Route::put('roles/{role}/manage-access', [RoleController::class, 'updateAccess'])->name('roles.manage-access.update');
 
-// Route::get('pdf/steamer', function () {
-//     return Pdf::view('pdf.pemeriksaan-steamer2', ['data' => 'contoh data'])
-//     ->format('a4')
-//     ->name('invoice.pdf');
-// });
+//         Route::resource('/permissions', PermissionController::class)->except(['show']);
+//     });
+
+use Spatie\LaravelPdf\Facades\Pdf;
 
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::post('/set-produksi', [DashboardController::class, 'setProduksi'])->name('set.produksi');
 
-// Route::get('/', fn() => view('dashboard'))->name('dashboard');
-
 // Halo test
 Route::get('/halo', [HaloController::class, 'index']);
 
-// Route::get('/departemen-delete-test/{id}', function ($id) {
-//     \App\Models\Departemen::find($id)?->delete();
-//     return redirect()->route('departemen.index')->with('success', 'Data Berhasil dihapus!');
-// });
 
 /*MASTER DATA*/
 // Departemen
@@ -126,11 +129,6 @@ Route::resource('mesin', MesinController::class)->parameters([
     'mesin' => 'uuid'
 ]);
 
-// List Chamber
-// Route::resource('list_chamber', List_chamberController::class)->parameters([
-//     'list_chamber' => 'uuid'
-// ]);
-
 // Produksi (Karyawan Produksi)
 Route::resource('produksi', ProduksiController::class)->parameters([
     'produksi' => 'uuid'
@@ -141,25 +139,10 @@ Route::resource('operator', OperatorController::class)->parameters([
     'operator' => 'uuid'
 ]);
 
-// Engineer
-// Route::resource('engineer', EngineerController::class)->parameters([
-//     'engineer' => 'uuid'
-// ]);
-
 // Supplier
 Route::resource('supplier', SupplierController::class)->parameters([
     'supplier' => 'uuid'
 ]);
-
-// Supplier RM
-// Route::resource('supplier_rm', Supplier_rmController::class)->parameters([
-//     'supplier_rm' => 'uuid'
-// ]);
-
-// Koordinator
-// Route::resource('koordinator', KoordinatorController::class)->parameters([
-//     'koordinator' => 'uuid'
-// ]);
 
 // Area
 Route::resource('area_hygiene', Area_hygieneController::class)->parameters([
