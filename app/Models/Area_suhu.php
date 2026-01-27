@@ -9,6 +9,13 @@ use App\Traits\HasUuid;
 class Area_suhu extends Model
 {
     use HasFactory, HasUuid;
-    
-    protected $fillable = ['area', 'standar', 'username', 'plant', 'uuid'];
+
+    protected $fillable = [
+        'uuid',
+        'username',
+        'plant',
+        'area',
+        'standar_min',
+        'standar_max',
+    ];
 }

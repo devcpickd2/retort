@@ -10,17 +10,19 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('area_suhus', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique(); 
-            $table->string('username');
-            $table->string('area');
-            $table->string('standar');
-            $table->string('plant');
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('area_suhus', function (Blueprint $table) {
+        $table->id();
+        $table->uuid('uuid')->unique();
+        $table->string('username');
+        $table->string('plant');
+        $table->string('area');
+        $table->decimal('standar_min', 5, 2);
+        $table->decimal('standar_max', 5, 2);
+        $table->timestamps();
+    });
+}
+
 
     /**
      * Reverse the migrations.

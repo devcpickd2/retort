@@ -22,10 +22,11 @@
 
             {{-- Search Form --}}
             <form method="GET" class="mb-3 d-flex justify-content-end">
-                <input type="text" name="search" value="{{ request('search') }}" class="form-control me-2" placeholder="Cari area..." style="width: 250px;">
+                <input type="text" name="search" value="{{ request('search') }}" class="form-control me-2"
+                    placeholder="Cari area..." style="width: 250px;">
                 <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
             </form>
-            
+
             <table class="table table-striped table-bordered align-middle">
                 <thead>
                     <tr class="text-center align-middle">
@@ -45,15 +46,26 @@
                         <td class="text-center align-middle">{{ $no++ }}</td>
                         <td class="align-middle">{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}</td>
                         <td class="align-middle">{{ $dep->area }}</td>
-                        <td class="text-center align-middle">{{ $dep->standar }}</td>
                         <td class="text-center align-middle">
-                            <a href="{{ route('area_suhu.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1" title="Edit">
+                            <span class="badge bg-success">
+                                Min {{ $dep->standar_min }} °C
+                            </span>
+                            -
+                            <span class="badge bg-success">
+                                Max {{ $dep->standar_max }} °C
+                            </span>
+                        </td>
+
+                        <td class="text-center align-middle">
+                            <a href="{{ route('area_suhu.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1"
+                                title="Edit">
                                 <i class="bi bi-pencil"></i> Edit
                             </a>
                             <form action="{{ route('area_suhu.destroy', $dep->uuid) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus?')" title="Hapus">
+                                <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Yakin ingin menghapus?')" title="Hapus">
                                     <i class="bi bi-trash"></i> Hapus
                                 </button>
                             </form>
@@ -87,56 +99,62 @@
 </script>
 
 <style>
-/* Header tabel merah */
-.table thead {
-    background-color: #dc3545 !important;
-    color: #fff;
-}
+    /* Header tabel merah */
+    .table thead {
+        background-color: #dc3545 !important;
+        color: #fff;
+    }
 
-/* Baris stripe merah muda */
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f8d7da;
-}
-.table-striped tbody tr:nth-of-type(even) {
-    background-color: #f5c2c7;
-}
+    /* Baris stripe merah muda */
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: #f8d7da;
+    }
 
-/* Hover baris merah gelap */
-.table tbody tr:hover {
-    background-color: #e4606d !important;
-    color: #fff;
-}
+    .table-striped tbody tr:nth-of-type(even) {
+        background-color: #f5c2c7;
+    }
 
-/* Border tabel merah */
-.table-bordered th, .table-bordered td {
-    border-color: #dc3545;
-}
+    /* Hover baris merah gelap */
+    .table tbody tr:hover {
+        background-color: #e4606d !important;
+        color: #fff;
+    }
 
-/* Tombol aksi */
-.btn-warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
-}
-.btn-warning:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
-}
-.btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-.btn-danger:hover {
-    background-color: #b02a37;
-    border-color: #a52834;
-}
+    /* Border tabel merah */
+    .table-bordered th,
+    .table-bordered td {
+        border-color: #dc3545;
+    }
 
-/* Pagination */
-.pagination {
-    justify-content: end;
-}
-.pagination .page-link {
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem;
-}
+    /* Tombol aksi */
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+    }
+
+    .btn-warning:hover {
+        background-color: #e0a800;
+        border-color: #d39e00;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+        background-color: #b02a37;
+        border-color: #a52834;
+    }
+
+    /* Pagination */
+    .pagination {
+        justify-content: end;
+    }
+
+    .pagination .page-link {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.5rem;
+    }
 </style>
 @endsection
