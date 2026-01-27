@@ -129,13 +129,13 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Suhu</label>
                                 <input type="number" step="0.01" name="suhu" class="form-control"
-                                value="{{ $packing->suhu }}">
+                                value="{{ $packing->suhu }}" min="0">
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Speed</label>
                                 <input type="number" step="0.01" name="speed" class="form-control"
-                                value="{{ $packing->speed }}">
+                                value="{{ $packing->speed }}" min="0">
                             </div>
                         </div>
 
@@ -151,7 +151,7 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Berat Toples</label>
                                 <input type="number" step="0.01" name="berat_toples" class="form-control"
-                                value="{{ $packing->berat_toples }}">
+                                value="{{ $packing->berat_toples }}" min="0">
                             </div>
                         </div>
 
@@ -159,7 +159,7 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Berat Pouch</label>
                                 <input type="number" step="0.01" name="berat_pouch" class="form-control"
-                                value="{{ $packing->berat_pouch }}">
+                                value="{{ $packing->berat_pouch }}" min="0">
                             </div>
 
                             <div class="col-md-6">

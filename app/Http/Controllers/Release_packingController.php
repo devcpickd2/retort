@@ -153,7 +153,7 @@ class Release_packingController extends Controller
 
         $release_packing->update($data);
 
-        return redirect()->route('release_packing.verification')->with('success', 'Data Release Packing berhasil diperbarui');
+        return redirect()->route('release_packing.index')->with('success', 'Data Release Packing berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -198,7 +198,7 @@ class Release_packingController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('release_packing.verification')
+        return redirect()->route('release_packing.index')
         ->with('success', 'Status Verifikasi Data Release Packing diperbarui.');
     }
 

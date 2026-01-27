@@ -17,17 +17,18 @@ class ApiController extends Controller
     private function _mapRole($roleName)
     {
         $mapping = [
-            'Admin' => 0,
-            'Manager' => 1,
-            'Supervisor' => 2,
-            'Produksi' => 3,
-            'Forelady' => 8,
-            'QC Inspector' => 4,
+            'superadmin' => 0,
+            'admin' => 1,
+            'Manager' => 2,
+            'SPV QC' => 3,
+            'Forelady' => 4,
+            'Produksi' => 5,
+            'QC Inspector' => 6,
         ];
 
         return $mapping[$roleName] ?? null;
     }
-    
+
     public function syncUser(Request $request)
     {
         $data = $request->json()->all();
@@ -106,7 +107,10 @@ class ApiController extends Controller
         try {
             $plant = Plant::updateOrCreate(
                 ['uuid' => $plantData['uuid'] ?? Str::uuid()],
-                ['plant' => $plantData['plant']]
+                [
+                    'plant' => $plantData['plant'],
+                    'kode'  => $plantData['kode'] ?? strtoupper(substr($plantData['plant'], 0, 3)),
+                ]
             );
 
             if (!empty($plantData['departments']) && is_array($plantData['departments'])) {

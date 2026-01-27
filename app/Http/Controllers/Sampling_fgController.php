@@ -313,7 +313,7 @@ class Sampling_fgController extends Controller
 
        $sampling_fg->update($updateData);
 
-       return redirect()->route('sampling_fg.verification')
+       return redirect()->route('sampling_fg.index')
        ->with('success', 'Pemeriksaan Proses sampling_fg Finish Good berhasil diperbarui.');
    }
 
@@ -359,7 +359,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv' => now(),
     ]);
 
-    return redirect()->route('sampling_fg.verification')
+    return redirect()->route('sampling_fg.index')
     ->with('success', 'Status Verifikasi Pemeriksaan Proses sampling_fg Finish Good berhasil diperbarui.');
 }
 

@@ -177,7 +177,7 @@ class PrepackingController extends Controller
     
     $prepacking->update($data);
 
-    return redirect()->route('prepacking.verification')->with('success', 'Data Pengecekan Prepacking berhasil diperbarui');
+    return redirect()->route('prepacking.index')->with('success', 'Data Pengecekan Prepacking berhasil diperbarui');
 }
 
 public function verification(Request $request)
@@ -222,7 +222,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv'  => now(),
     ]);
 
-    return redirect()->route('prepacking.verification')
+    return redirect()->route('prepacking.index')
     ->with('success', 'Status Verifikasi Pengecekan Pre Packing berhasil diperbarui.');
 }
 

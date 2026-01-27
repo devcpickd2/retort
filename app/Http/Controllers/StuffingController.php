@@ -302,7 +302,7 @@ class StuffingController extends Controller
         ];
         $stuffing->update($data);
 
-        return redirect()->route('stuffing.verification')->with('success', 'Pemeriksaan Stuffing Sosis Retort berhasil diperbarui');
+        return redirect()->route('stuffing.index')->with('success', 'Pemeriksaan Stuffing Sosis Retort berhasil diperbarui');
     }
 
     public function verification(Request $request)

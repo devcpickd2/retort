@@ -19,7 +19,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal</label>
-                                <input type="date" name="date" id="dateInput" class="form-control" required>
+                                <input type="date" name="date" id="dateInput" class="form-control" required max="9999-12-31">
                             </div>
                         </div>
 
@@ -75,7 +75,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Jumlah / Tambahan</label>
-                                <input type="number" name="jumlah" id="jumlah" class="form-control" required>
+                                <input type="number" name="jumlah" id="jumlah" class="form-control" required min="0">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Nama Supplier</label>

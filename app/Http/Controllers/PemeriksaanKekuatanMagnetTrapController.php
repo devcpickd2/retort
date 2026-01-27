@@ -181,12 +181,12 @@ class PemeriksaanKekuatanMagnetTrapController extends Controller
 
             $message = $validatedData['status_spv'] == 1 ? 'Data berhasil diverifikasi.' : 'Data ditandai untuk revisi.';
             // Route name diubah
-            return redirect()->route('pemeriksaan-kekuatan-magnet-trap.verification.spv')->with('success', $message);
+            return redirect()->route('pemeriksaan-kekuatan-magnet-trap.index')->with('success', $message);
 
         } catch (\Exception $e) {
             Log::error('Error verifikasi SPV Magnet Trap: ' . $e->getMessage());
             // Route name diubah
-            return redirect()->route('pemeriksaan-kekuatan-magnet-trap.verification.spv')->with('error', 'Terjadi kesalahan saat menyimpan data.');
+            return redirect()->route('pemeriksaan-kekuatan-magnet-trap.index')->with('error', 'Terjadi kesalahan saat menyimpan data.');
         }
     }
 

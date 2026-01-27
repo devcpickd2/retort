@@ -81,7 +81,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Jumlah Box</label>
                                 <input type="number" name="jumlah_box" id="jumlah_box" class="form-control"
-                                value="{{ old('jumlah_box', $release_packing->jumlah_box) }}">
+                                value="{{ old('jumlah_box', $release_packing->jumlah_box) }}" min="0">
                             </div>
                         </div>
 
@@ -89,12 +89,12 @@
                             <div class="col-md-6">
                                 <label class="form-label">Reject</label>
                                 <input type="number" name="reject" id="reject" class="form-control"
-                                value="{{ old('reject', $release_packing->reject) }}">
+                                value="{{ old('reject', $release_packing->reject) }}" min="0">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Release</label>
                                 <input type="number" name="release" id="release" class="form-control"
-                                value="{{ old('release', $release_packing->release) }}">
+                                value="{{ old('release', $release_packing->release) }}" min="0">
                             </div>
                         </div>
                     </div>

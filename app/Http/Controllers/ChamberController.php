@@ -246,7 +246,7 @@ class ChamberController extends Controller
 
         $chamber->update($data);
 
-        return redirect()->route('chamber.verification')->with('success', 'Verifikasi Timer Chamber berhasil diperbarui');
+        return redirect()->route('chamber.index')->with('success', 'Verifikasi Timer Chamber berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -290,7 +290,7 @@ class ChamberController extends Controller
         'tgl_update_spv' => now(),
     ]);
 
-    return redirect()->route('chamber.verification')
+    return redirect()->route('chamber.index')
     ->with('success', 'Status Verifikasi Timer Chamber berhasil diperbarui.');
 }
 

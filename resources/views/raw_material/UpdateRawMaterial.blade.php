@@ -14,7 +14,7 @@
     
     /* Input Readonly Custom Style */
     .form-control[readonly], .form-select[disabled] {
-        background-color: #e9ecef; /* Abu-abu seperti disabled bootstrap */
+        background-color: #e9ecef; 
         cursor: not-allowed;
     }
 
@@ -25,10 +25,27 @@
     }
     .select2-container--bootstrap-5 .select2-selection { border-radius: 8px !important; }
     
+    /* --- STYLE TOMBOL BARU (NETRAL DEFAULT) --- */
     .btn-check-group .btn {
         display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+        transition: all 0.2s ease;
     }
-    .btn-check-group .btn-outline-success, .btn-check-group .btn-outline-danger { font-weight: 600; }
+    /* Saat aktif (Solid) */
+    .btn-check-group .btn-success, .btn-check-group .btn-danger {
+        font-weight: 600; border: none;
+    }
+    /* Saat tidak aktif (Netral/Abu-abu) */
+    .btn-check-group .btn-outline-secondary {
+        color: #6c757d; border-color: #ced4da;
+    }
+    .btn-check-group .btn-outline-secondary:hover {
+        background-color: #e9ecef; color: #495057;
+    }
+    /* Saat Disabled */
+    .btn-check-group .btn[disabled] {
+        opacity: 0.6; cursor: not-allowed;
+    }
+
     .product-detail-item { background-color: #fdfdfd; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 </style>
 @endpush
@@ -75,15 +92,12 @@
                                     name="setup_kedatangan" 
                                     value="{{ old('setup_kedatangan', $inspection->setup_kedatangan ? $inspection->setup_kedatangan->format('Y-m-d\TH:i') : '') }}" 
                                     required
-                                    {{-- LOGIKA READONLY: Jika data ada di DB, kunci --}}
                                     {{ $inspection->setup_kedatangan ? 'readonly' : '' }}>
                                 @error('setup_kedatangan') <span class="invalid-feedback"><strong>{{ $message }}</strong></span> @enderror
                             </div>
                             
                             <div class="col-12">
                                 <label for="bahan_baku" class="form-label">Bahan Baku</label>
-
-                                {{-- LOGIKA SELECT: Jika ada isi, disabled. Jika disabled, butuh input hidden agar nilai terkirim --}}
                                 @php $isBahanBakuFilled = !empty($inspection->bahan_baku); @endphp
                                 
                                 <select class="form-select select2 @error('bahan_baku') is-invalid @enderror" 
@@ -98,7 +112,6 @@
                                     <option value="Bumbu ABC" {{ old('bahan_baku', $inspection->bahan_baku) == 'Bumbu ABC' ? 'selected' : '' }}>Bumbu ABC</option>
                                 </select>
                                 
-                                {{-- Input hidden wajib ada jika select disabled --}}
                                 @if($isBahanBakuFilled)
                                     <input type="hidden" name="bahan_baku" value="{{ $inspection->bahan_baku }}">
                                 @endif
@@ -154,21 +167,20 @@
                             @foreach ($kondisiFisikFields as $name => $label)
                             <div class="col-md-3 col-6 mb-3">
                                 <label class="form-label d-block">{{ $label }}</label>
-                                {{-- Cek apakah nilai sudah ada di DB (bukan null) --}}
                                 @php $isFilled = !is_null($inspection->$name); @endphp
                                 
                                 <input type="hidden" name="{{ $name }}" id="{{ $name }}" value="{{ old($name, $inspection->$name ? '1' : '0') }}">
-                                <div class="btn-group btn-check-group" role="group">
-                                    {{-- Tambahkan attribut disabled jika data sudah ada --}}
+                                <div class="btn-group btn-check-group w-100" role="group">
+                                    {{-- UPDATE UX: Gunakan btn-outline-secondary untuk default --}}
                                     <button type="button" 
-                                        class="btn {{ old($name, $inspection->$name ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-success' }}" 
+                                        class="btn {{ old($name, $inspection->$name ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-secondary' }}" 
                                         data-value="1" 
                                         data-target-input="#{{ $name }}"
                                         {{ $isFilled ? 'disabled' : '' }}>
                                         <i class="bi bi-check-lg"></i> OK
                                     </button>
                                     <button type="button" 
-                                        class="btn {{ old($name, $inspection->$name ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" 
+                                        class="btn {{ old($name, $inspection->$name ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-secondary' }}" 
                                         data-value="0" 
                                         data-target-input="#{{ $name }}"
                                         {{ $isFilled ? 'disabled' : '' }}>
@@ -193,9 +205,9 @@
                                 <label class="form-label d-block">K.A / FFA</label>
                                 @php $isKaFfaFilled = !is_null($inspection->analisa_ka_ffa); @endphp
                                 <input type="hidden" name="analisa_ka_ffa" id="analisa_ka_ffa" value="{{ old('analisa_ka_ffa', $inspection->analisa_ka_ffa ? '1' : '0') }}">
-                                <div class="btn-group btn-check-group" role="group">
-                                    <button type="button" class="btn {{ old('analisa_ka_ffa', $inspection->analisa_ka_ffa ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#analisa_ka_ffa" {{ $isKaFfaFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> OK</button>
-                                    <button type="button" class="btn {{ old('analisa_ka_ffa', $inspection->analisa_ka_ffa ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#analisa_ka_ffa" {{ $isKaFfaFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Not OK</button>
+                                <div class="btn-group btn-check-group w-100" role="group">
+                                    <button type="button" class="btn {{ old('analisa_ka_ffa', $inspection->analisa_ka_ffa ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-secondary' }}" data-value="1" data-target-input="#analisa_ka_ffa" {{ $isKaFfaFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> OK</button>
+                                    <button type="button" class="btn {{ old('analisa_ka_ffa', $inspection->analisa_ka_ffa ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-secondary' }}" data-value="0" data-target-input="#analisa_ka_ffa" {{ $isKaFfaFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Not OK</button>
                                 </div>
                             </div>
 
@@ -204,9 +216,9 @@
                                 <label class="form-label d-block">Logo Halal</label>
                                 @php $isHalalFilled = !is_null($inspection->analisa_logo_halal); @endphp
                                 <input type="hidden" name="analisa_logo_halal" id="analisa_logo_halal" value="{{ old('analisa_logo_halal', $inspection->analisa_logo_halal ? '1' : '0') }}">
-                                <div class="btn-group btn-check-group" role="group">
-                                    <button type="button" class="btn {{ old('analisa_logo_halal', $inspection->analisa_logo_halal ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#analisa_logo_halal" {{ $isHalalFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> OK</button>
-                                    <button type="button" class="btn {{ old('analisa_logo_halal', $inspection->analisa_logo_halal ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#analisa_logo_halal" {{ $isHalalFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Not OK</button>
+                                <div class="btn-group btn-check-group w-100" role="group">
+                                    <button type="button" class="btn {{ old('analisa_logo_halal', $inspection->analisa_logo_halal ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-secondary' }}" data-value="1" data-target-input="#analisa_logo_halal" {{ $isHalalFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> OK</button>
+                                    <button type="button" class="btn {{ old('analisa_logo_halal', $inspection->analisa_logo_halal ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-secondary' }}" data-value="0" data-target-input="#analisa_logo_halal" {{ $isHalalFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Not OK</button>
                                 </div>
                             </div>
 
@@ -230,7 +242,7 @@
                     </div>
                 </div>
 
-                {{-- CARD DOKUMEN PENDUKUNG --}}
+                {{-- CARD DOKUMEN PENDUKUNG (UPDATED UX) --}}
                 <div class="card mb-4">
                     <div class="card-header">
                         <strong><i class="bi bi-file-earmark-text"></i> Dokumen Pendukung</strong>
@@ -240,40 +252,44 @@
                             <div class="col-md-6">
                                 <label class="form-label">Dokumen Halal</label>
                                 <div class="mb-2">
-                                    <label class="form-label d-block">Status Berlaku?</label>
+                                    <label class="form-label d-block small mb-1">Status Berlaku?</label>
                                     @php $isDokHalalFilled = !is_null($inspection->dokumen_halal_berlaku); @endphp
                                     <input type="hidden" name="dokumen_halal_berlaku" id="dokumen_halal_berlaku" value="{{ old('dokumen_halal_berlaku', $inspection->dokumen_halal_berlaku ? '1' : '0') }}">
-                                    <div class="btn-group btn-check-group" role="group">
-                                        <button type="button" class="btn {{ old('dokumen_halal_berlaku', $inspection->dokumen_halal_berlaku ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-success' }}" data-value="1" data-target-input="#dokumen_halal_berlaku" {{ $isDokHalalFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> Berlaku (OK)</button>
-                                        <button type="button" class="btn {{ old('dokumen_halal_berlaku', $inspection->dokumen_halal_berlaku ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-danger' }}" data-value="0" data-target-input="#dokumen_halal_berlaku" {{ $isDokHalalFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Tidak (X)</button>
+                                    
+                                    {{-- Tombol Kecil & W-50 --}}
+                                    <div class="btn-group btn-check-group w-50" role="group">
+                                        <button type="button" class="btn btn-sm {{ old('dokumen_halal_berlaku', $inspection->dokumen_halal_berlaku ? '1' : '0') === '1' ? 'btn-success' : 'btn-outline-secondary' }}" data-value="1" data-target-input="#dokumen_halal_berlaku" {{ $isDokHalalFilled ? 'disabled' : '' }}><i class="bi bi-check-lg"></i> Berlaku (OK)</button>
+                                        <button type="button" class="btn btn-sm {{ old('dokumen_halal_berlaku', $inspection->dokumen_halal_berlaku ? '1' : '0') === '0' ? 'btn-danger' : 'btn-outline-secondary' }}" data-value="0" data-target-input="#dokumen_halal_berlaku" {{ $isDokHalalFilled ? 'disabled' : '' }}><i class="bi bi-x-lg"></i> Tidak (X)</button>
                                     </div>
                                 </div>
                                 
-                                {{-- Jika file sudah ada, sembunyikan input file agar tidak bisa diganti --}}
                                 @if($inspection->dokumen_halal_file)
-                                    <div class="alert alert-light border">
-                                        <i class="bi bi-file-check"></i> File sudah terupload: 
-                                        <a href="{{ asset('storage/' . $inspection->dokumen_halal_file) }}" target="_blank">Lihat File</a>
-                                        <div class="text-muted small mt-1">(File tidak dapat diubah)</div>
+                                    <div class="alert alert-light border py-2">
+                                        <i class="bi bi-file-check"></i> File: 
+                                        <a href="{{ asset('storage/' . $inspection->dokumen_halal_file) }}" target="_blank">Lihat</a>
+                                        <span class="text-muted small ms-2">(Terkunci)</span>
                                     </div>
                                 @else
-                                    <label class="form-label" for="dokumen_halal_file">Upload File Halal Baru</label>
-                                    <input type="file" class="form-control" name="dokumen_halal_file" id="dokumen_halal_file">
+                                    <label class="form-label small mb-1" for="dokumen_halal_file">Upload File Halal Baru</label>
+                                    <input type="file" class="form-control form-control-sm" name="dokumen_halal_file" id="dokumen_halal_file">
                                 @endif
                             </div>
 
                             <div class="col-md-6">
-                                {{-- Sama untuk COA --}}
+                                <label class="form-label">Dokumen COA</label>
+                                {{-- Spacer dihapus agar input naik --}}
                                 @if($inspection->dokumen_coa_file)
-                                    <label class="form-label">Dokumen COA</label>
-                                    <div class="alert alert-light border">
-                                        <i class="bi bi-file-check"></i> File sudah terupload: 
-                                        <a href="{{ asset('storage/' . $inspection->dokumen_coa_file) }}" target="_blank">Lihat File</a>
-                                        <div class="text-muted small mt-1">(File tidak dapat diubah)</div>
+                                    <div class="alert alert-light border py-2 mt-4"> {{-- mt-4 untuk sejajar visual dgn kiri --}}
+                                        <i class="bi bi-file-check"></i> File: 
+                                        <a href="{{ asset('storage/' . $inspection->dokumen_coa_file) }}" target="_blank">Lihat</a>
+                                        <span class="text-muted small ms-2">(Terkunci)</span>
                                     </div>
                                 @else
-                                    <label for="dokumen_coa_file" class="form-label">Dokumen COA Baru</label>
-                                    <input class="form-control" type="file" id="dokumen_coa_file" name="dokumen_coa_file">
+                                    {{-- Input langsung dibawah label --}}
+                                    <div class="mt-4">
+                                        <label for="dokumen_coa_file" class="visually-hidden">Upload File COA</label>
+                                        <input class="form-control form-control-sm" type="file" id="dokumen_coa_file" name="dokumen_coa_file">
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -387,11 +403,6 @@
         const addBtn = document.getElementById('add-detail-btn');
         let detailIndex = 0; 
 
-        /**
-         * Fungsi renderDetailForm dimodifikasi
-         * Cek apakah data berasal dari database (isExistingData).
-         * Jika ya, set atribut readonly.
-         */
         function renderDetailForm(data = null) {
             const i = detailIndex; 
             
@@ -467,7 +478,6 @@
                         renderDetailForm(detail);
                     });
                 } else {
-                    // Jika tidak ada data sama sekali, tampilkan form kosong baru
                     renderDetailForm(null);
                 }
             } catch (e) {
@@ -476,6 +486,7 @@
             }
         }
 
+        // --- SCRIPT UPDATE: LOGIKA TOMBOL NETRAL KE BERWARNA ---
         const buttonGroups = document.querySelectorAll('.btn-check-group');
 
         buttonGroups.forEach(group => {
@@ -496,22 +507,18 @@
                         targetInput.value = value;
                     }
 
+                    // Reset semua tombol ke 'Netral' (Outline Secondary)
                     const buttonsInGroup = group.querySelectorAll('button');
                     buttonsInGroup.forEach(btn => {
-                        if (btn.dataset.value === '1') { 
-                            btn.classList.remove('btn-success');
-                            btn.classList.add('btn-outline-success');
-                        } else { 
-                            btn.classList.remove('btn-danger');
-                            btn.classList.add('btn-outline-danger');
-                        }
+                        btn.classList.remove('btn-success', 'btn-danger'); // Hapus warna
+                        btn.classList.add('btn-outline-secondary'); // Tambah netral
                     });
 
+                    // Set warna pada tombol yang diklik
+                    button.classList.remove('btn-outline-secondary'); // Hapus netral
                     if (value === '1') {
-                        button.classList.remove('btn-outline-success');
                         button.classList.add('btn-success');
                     } else {
-                        button.classList.remove('btn-outline-danger');
                         button.classList.add('btn-danger');
                     }
                 }

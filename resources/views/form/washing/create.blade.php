@@ -78,15 +78,15 @@
                                     <tr>
                                         <td class="text-left align-middle">Panjang Produk Akhir (Cm)</td>
                                         <td>
-                                            <input type="number" name="panjang_produk" id="panjang_produk"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                            <input type="number" name="panjang_produk" id="panjang_produk" 
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Diameter Produk Akhir (Mm)</td>
                                         <td>
                                             <input type="number" name="diameter_produk" id="diameter_produk"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
@@ -177,28 +177,28 @@
                                         <td class="text-left align-middle">Konsentrasi PC Kleer 1 (%)</td>
                                         <td>
                                             <input type="number" name="konsentrasi_pckleer" id="konsentrasi_pckleer"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Suhu PC Kleer 1 (°C)</td>
                                         <td>
                                             <input type="number" name="suhu_pckleer_1" id="suhu_pckleer_1"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0"> 
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Suhu PC Kleer 2 (°C)</td>
                                         <td>
                                             <input type="number" name="suhu_pckleer_2" id="suhu_pckleer_2"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">pH PC Kleer</td>
                                         <td>
                                             <input type="number" name="ph_pckleer" id="ph_pckleer"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
@@ -235,21 +235,21 @@
                                         <td class="text-left align-middle">Konsentrasi Pottasium Sorbate (%)</td>
                                         <td>
                                             <input type="number" name="konsentrasi_pottasium" id="konsentrasi_pottasium"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Suhu Pottasium Sorbate (°C)</td>
                                         <td>
                                             <input type="number" name="suhu_pottasium" id="suhu_pottasium"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">pH Pottasium Sorbate</td>
                                         <td>
                                             <input type="number" name="ph_pottasium" id="ph_pottasium"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
@@ -286,35 +286,35 @@
                                         <td class="text-left align-middle">Suhu Heater (°C)</td>
                                         <td>
                                             <input type="number" name="suhu_heater" id="suhu_heater"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Speed Conv. Drying 1</td>
                                         <td>
                                             <input type="number" name="speed_1" id="speed_1"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Speed Conv. Drying 2</td>
                                         <td>
                                             <input type="number" name="speed_2" id="speed_2"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Speed Conv. Drying 3</td>
                                         <td>
                                             <input type="number" name="speed_3" id="speed_3"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-left align-middle">Speed Conv. Drying 4</td>
                                         <td>
                                             <input type="number" name="speed_4" id="speed_4"
-                                                class="form-control form-control-sm text-center" step="0.01">
+                                                class="form-control form-control-sm text-center" step="0.01" min="0">
                                         </td>
                                     </tr>
                                 </tbody>
@@ -405,7 +405,7 @@
             batchSelect.innerHTML = '<option value="">-- Pilih Batch --</option>';
 
             data.forEach(batch => {
-                batchSelect.innerHTML += `<option value="${batch.uuid}">${batch.kode_produksi}</option>`;
+                batchSelect.innerHTML += `<option value="${batch.kode_produksi}">${batch.kode_produksi}</option>`;
             });
         });
     });

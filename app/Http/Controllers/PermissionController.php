@@ -87,7 +87,7 @@ class PermissionController extends Controller
 
         return redirect()->route('permissions.index')
                          ->with('success', 'Permission updated successfully.');
-    }
+    } 
 
     /**
      * Remove the specified resource from storage.

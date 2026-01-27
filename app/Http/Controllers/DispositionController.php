@@ -208,11 +208,11 @@ class DispositionController extends Controller
             $disposition->save();
 
             $message = $validatedData['status_spv'] == 1 ? 'Data berhasil diverifikasi.' : 'Data ditandai untuk revisi.';
-            return redirect()->route('dispositions.verification')->with('success', $message);
+            return redirect()->route('dispositions.index')->with('success', $message);
 
         } catch (\Exception $e) {
             // Handle jika ada error
-            return redirect()->route('dispositions.verification')->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
+            return redirect()->route('dispositions.index')->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
         }
     }
 

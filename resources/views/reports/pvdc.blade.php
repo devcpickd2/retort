@@ -2,174 +2,171 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <title>Laporan PVDC</title>
     <style>
-        body { font-family: helvetica; font-size: 9px; }
-        .title { font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 10px; }
-        table { border-collapse: collapse; width: 100%; }
+        @page { margin: 10px 20px; } /* Margin halaman minimal */
         
-        .tbl-header td { padding: 3px; font-size: 10px; }
-        
-        /* Table Utama dengan Border */
-        .tbl-main, .tbl-main th, .tbl-main td {
-            border: 0.5px solid #000;
-        }
-        .tbl-main th {
-            font-weight: bold;
-            text-align: center;
-            background-color: #f0f0f0;
-            padding: 4px;
-        }
-        .tbl-main td {
-            padding: 3px;
-            vertical-align: top;
+        body {
+            font-family: 'Helvetica', sans-serif;
+            font-size: 9px;
+            color: #333;
         }
 
-        .center { text-align: center; }
-        .bold { font-weight: bold; }
-        .mb-2 { margin-bottom: 10px; }
-        
-        /* Grid Layout untuk Mesin */
-        .grid-container {
+        /* HEADER DOKUMEN */
+        .header-table {
             width: 100%;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #000;
         }
-        .grid-item {
-            width: 33%; /* 3 Kolom per baris */
-            float: left;
-            padding: 2px;
+        .judul-laporan {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
         }
-        .clearfix { clear: both; }
+
+        /* INFO FILTER */
+        .info-table {
+            width: 100%;
+            font-size: 9px;
+            margin-bottom: 5px;
+        }
+        .info-table td {
+            padding: 1px 0; /* Jarak antar baris info rapat */
+        }
+
+        /* TABEL UTAMA - KUNCI PRESISI DI SINI */
+        .tbl-data {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* WAJIB: Agar kolom tidak melar sendiri */
+        }
+
+        .tbl-data th, 
+        .tbl-data td {
+            border: 1px solid #000;
+            padding: 4px 2px; /* Atas/Bawah 4px, Kiri/Kanan 2px */
+            vertical-align: middle; /* Teks selalu di tengah vertikal */
+            word-wrap: break-word; /* Teks panjang akan turun ke bawah, tidak melebar */
+            overflow: hidden; /* Mencegah konten keluar garis */
+        }
+
+        .tbl-data th {
+            background-color: #ffffff;
+            font-weight: bold;
+            text-align: center;
+            height: 20px; /* Tinggi header fix */
+        }
+
+        .tbl-data td {
+            text-align: center;
+            height: 15px; /* Tinggi baris data minimal */
+        }
+
+        /* Helper alignment */
+        .text-left { text-align: left !important; padding-left: 4px !important; }
+        .text-center { text-align: center !important; }
+        
+        /* Footer */
+        .footer-wrapper {
+            width: 100%;
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
     </style>
 </head>
 <body>
 
-@foreach ($datalist as $data)
-    {{-- Header Perusahaan --}}
-    <table width="100%">
+    {{-- 1. HEADER --}}
+    <table class="header-table" cellpadding="0" cellspacing="0">
         <tr>
-            <td>
-                <b>PT Charoen Pokphand Indonesia</b><br>
-                Food Division
+            <td width="30%" style="vertical-align: top;">
+                <strong>PT Charoen Pokphand Indonesia</strong><br>
+                <span style="font-size: 8px;">Food Division - Plant Ngoro</span>
+            </td>
+            <td width="40%" class="judul-laporan">
+                LAPORAN HARIAN<br>PEMERIKSAAN NO. LOT PVDC
+            </td>
+            <td width="30%" style="text-align: right; font-size: 8px; vertical-align: top;">
+                <strong>Dicetak:</strong> {{ date('d-m-Y H:i') }}<br>
+                <strong>Oleh:</strong> {{ Auth::user()->username ?? 'superadmin' }}
             </td>
         </tr>
     </table>
 
-    <div class="title">DATA NO. LOT PVDC</div>
-
-    {{-- Info Utama --}}
-    <table width="100%" class="tbl-header mb-2">
+    {{-- 2. INFO FILTER --}}
+    <table class="info-table">
         <tr>
-            <td width="20%">Hari / Tgl</td>
-            <td width="30%">: {{ \Carbon\Carbon::parse($data->date)->translatedFormat('l, d-m-Y') }}</td>
-            <td width="20%">Shift</td>
-            <td width="30%">: {{ $data->shift }}</td>
+            <td width="15%"><strong>Tanggal Laporan</strong></td>
+            <td width="35%">: {{ $request->date ? \Carbon\Carbon::parse($request->date)->format('d-m-Y') : 'SEMUA TANGGAL' }}</td>
+            <td width="15%"><strong>Filter Produk</strong></td>
+            <td width="35%">: {{ $request->nama_produk ?? 'SEMUA PRODUK' }}</td>
         </tr>
         <tr>
-            <td>Nama Produk</td>
-            <td>: {{ $data->nama_produk }}</td>
-            <td>Nama Supplier</td>
-            <td>: {{ $data->nama_supplier }}</td>
-        </tr>
-        <tr>
-            <td>Tgl Kedatangan</td>
-            <td>: {{ \Carbon\Carbon::parse($data->tgl_kedatangan)->format('d-m-Y') }}</td>
-            <td>Tgl Expired</td>
-            <td>: {{ \Carbon\Carbon::parse($data->tgl_expired)->format('d-m-Y') }}</td>
+            <td><strong>Shift</strong></td>
+            <td>: {{ $request->shift ? $request->shift : 'SEMUA SHIFT' }}</td>
+            <td><strong>Pencarian</strong></td>
+            <td>: {{ $request->search ?? '-' }}</td>
         </tr>
     </table>
 
-    {{-- Data PVDC (Looping Mesin) --}}
-    @php
-        $pvdcItems = json_decode($data->data_pvdc ?? '[]', true);
-        // Bagi menjadi chunks agar rapi per baris (misal 3 mesin per baris tabel)
-        $chunks = array_chunk($pvdcItems, 3);
-    @endphp
+    {{-- 3. TABEL DATA --}}
+    {{-- Menggunakan border=1 di HTML juga membantu kompatibilitas PDF reader lama --}}
+    <table class="tbl-data" border="1" cellspacing="0" cellpadding="0">
+        {{-- COLGROUP: INI KUNCI AGAR GARIS LURUS PRESISI --}}
+        {{-- Total Width = 100% --}}
+        <colgroup>
+            <col style="width: 4%">  <col style="width: 8%">  <col style="width: 5%">  <col style="width: 23%"> <col style="width: 6%">  <col style="width: 10%"> <col style="width: 12%"> <col style="width: 6%">  <col style="width: 20%"> <col style="width: 6%">  </colgroup>
 
-    <table class="tbl-main mb-2">
-        @foreach($chunks as $row)
-            {{-- Header Nama Mesin --}}
+        <thead>
             <tr>
-                @foreach($row as $item)
-                    <th width="{{ 100 / count($row) }}%">Mesin: {{ $item['mesin'] ?? '-' }}</th>
-                @endforeach
-                {{-- Isi kolom kosong jika baris terakhir kurang dari 3 --}}
-                @for($i = count($row); $i < 3; $i++)
-                    <th width="33%"></th>
-                @endfor
+                <th>No</th>
+                <th>Tgl</th>
+                <th>Shift</th>
+                <th>Produk</th>
+                <th>Mesin</th>
+                <th>Batch</th>
+                <th>No. Lot</th>
+                <th>Jam</th>
+                <th>Catatan</th>
+                <th>QC</th>
             </tr>
-
-            {{-- Body Detail Batch --}}
+        </thead>
+        <tbody>
+            @forelse($items as $index => $item)
             <tr>
-                @foreach($row as $item)
-                    <td style="padding: 0;">
-                        {{-- Tabel Nested untuk Detail --}}
-                        <table width="100%" style="border: none;">
-                            <tr style="background-color: #fafafa;">
-                                <td class="center bold" style="border-bottom: 0.5px solid #ccc; width:15%">No</td>
-                                <td class="center bold" style="border-bottom: 0.5px solid #ccc; width:25%">Batch</td>
-                                <td class="center bold" style="border-bottom: 0.5px solid #ccc; width:35%">No. Lot</td>
-                                <td class="center bold" style="border-bottom: 0.5px solid #ccc; width:25%">Waktu</td>
-                            </tr>
-                            @if(!empty($item['detail']))
-                                @foreach($item['detail'] as $idx => $det)
-                                <tr>
-                                    <td class="center" style="border-bottom: 0.1px solid #eee;">{{ $idx + 1 }}</td>
-                                    <td class="center" style="border-bottom: 0.1px solid #eee;">{{ $det['batch'] ?? '' }}</td>
-                                    <td class="center" style="border-bottom: 0.1px solid #eee;">{{ $det['no_lot'] ?? '' }}</td>
-                                    <td class="center" style="border-bottom: 0.1px solid #eee;">{{ $det['waktu'] ?? '' }}</td>
-                                </tr>
-                                @endforeach
-                            @else
-                                <tr><td colspan="4" class="center">-</td></tr>
-                            @endif
-                        </table>
-                    </td>
-                @endforeach
-                @for($i = count($row); $i < 3; $i++)
-                    <td></td>
-                @endfor
+                <td>{{ $index + 1 }}</td>
+                <td>{{ \Carbon\Carbon::parse($item->date)->format('d-m-y') }}</td>
+                <td>{{ $item->shift }}</td>
+                <td class="text-left">{{ substr($item->nama_produk, 0, 35) }}</td>
+                <td>{{ $item->kode_mesin }}</td>
+                <td>{{ $item->kode_produksi }}</td>
+                <td>{{ $item->no_lot }}</td>
+                <td>{{ $item->jam_mulai }}</td>
+                <td class="text-left">{{ $item->catatan }}</td>
+                <td>
+                    @if($item->status_spv == 1) OK
+                    @elseif($item->status_spv == 2) REV
+                    @else - @endif
+                </td>
             </tr>
-        @endforeach
+            @empty
+            <tr>
+                <td colspan="10" style="padding: 15px; text-align: center;">Data tidak ditemukan pada periode ini.</td>
+            </tr>
+            @endforelse
+        </tbody>
     </table>
 
-    {{-- Catatan --}}
-    <div style="font-size: 10px; margin-bottom: 20px;">
-        <b>Catatan:</b> {{ $data->catatan ?? '-' }}
-    </div>
-
-    {{-- Tanda Tangan --}}
-    <table width="100%" class="tbl-main center">
+    {{-- 4. TANDA TANGAN --}}
+    <table class="footer-wrapper">
         <tr>
-            <td width="50%"><b>Dibuat Oleh (QC)</b></td>
-            <td width="50%"><b>Disetujui Oleh (SPV)</b></td>
-        </tr>
-        <tr>
-            <td height="50px">
-                <br>
-                {{ $data->username }}
-                <br>
-                <small>{{ $data->created_at->format('d-m-Y H:i') }}</small>
+            <td width="75%"></td> <td width="25%" style="text-align: center;">
+                <div style="margin-bottom: 50px;">Disetujui Oleh,</div>
+                <div style="font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 2px;">SPV / QC Head</div>
             </td>
-            <td>
-                @if($data->status_spv == 1)
-                    <br>
-                    {{ \App\Models\User::where('username', $data->nama_spv)->first()->name ?? $data->nama_spv }}
-                    <br>
-                    <small>{{ $data->tgl_update_spv ? \Carbon\Carbon::parse($data->tgl_update_spv)->format('d-m-Y H:i') : '' }}</small>
-                @else
-                    <br><span style="color:red;">Belum Diverifikasi</span><br>
-                @endif
-            </td>
-        </tr>
-        <tr>
-            <td>QC Inspector</td>
-            <td>Supervisor QC</td>
         </tr>
     </table>
-
-    @if (!$loop->last)
-        <div style="page-break-after: always;"></div>
-    @endif
-@endforeach
 
 </body>
 </html>

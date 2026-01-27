@@ -269,7 +269,7 @@ public function edit_spv(Request $request, string $uuid)
 
     $sampling->update($updateData);
 
-    return redirect()->route('sampling.verification')
+    return redirect()->route('sampling.index')
     ->with('success', 'Data Sampling Produk berhasil diperbarui.');
 }
 
@@ -316,7 +316,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv' => now(),
     ]);
 
-    return redirect()->route('sampling.verification')
+    return redirect()->route('sampling.index')
     ->with('success', 'Status Verifikasi Data Sampling Produk berhasil diperbarui.');
 }
 

@@ -239,7 +239,7 @@ class WireController extends Controller
             'data_wire'        => json_encode($data_wire, JSON_UNESCAPED_UNICODE),
         ]);
 
-        return redirect()->route('wire.verification')->with('success', 'Data No. Lot Wire berhasil diperbarui');
+        return redirect()->route('wire.index')->with('success', 'Data No. Lot Wire berhasil diperbarui');
     }
 
     public function verification(Request $request)

@@ -115,9 +115,7 @@
         let mm = String(now.getMonth() + 1).padStart(2, '0');
         let dd = String(now.getDate()).padStart(2, '0');
         let hh = String(now.getHours()).padStart(2, '0');
-
-        // menit selalu kelipatan 00
-        let min = '00';
+        let min = String(now.getMinutes()).padStart(2, '0');
 
         dateInput.value = `${yyyy}-${mm}-${dd}`;
         timeInput.value = `${hh}:${min}`;

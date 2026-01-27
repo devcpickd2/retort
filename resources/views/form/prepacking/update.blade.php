@@ -58,7 +58,7 @@
                                     <td rowspan="3" class="text-center align-middle">Suhu Produk (°C)</td>
                                     @endif
                                     <td>
-                                        <input type="number" name="suhu_produk[suhu_{{ $i }}]" value="{{ $value }}" id="suhu_{{ $i }}" class="form-control form-control-sm text-center" step="0.01" {{ $value != '' ? 'readonly' : '' }}>
+                                        <input type="number" name="suhu_produk[suhu_{{ $i }}]" value="{{ $value }}" id="suhu_{{ $i }}" class="form-control form-control-sm text-center" step="0.01" min="0" {{ $value != '' ? 'readonly' : '' }}>
                                     </td>
                                 </tr>
                                 @endfor
@@ -91,16 +91,16 @@
                                 <tr>
                                     <td class="text-start">{{ ucfirst($bagian) }}</td>
                                     <td>
-                                        <input type="number" name="kondisi_produk[basah_air_{{ $bagian }}]" id="basah_air_{{ $bagian }}" value="{{ $kondisiData['basah_air_'.$bagian] ?? '' }}" class="form-control form-control-sm text-center" {{ ($kondisiData['basah_air_'.$bagian] ?? '') != '' ? 'readonly' : '' }}>
+                                        <input type="number" name="kondisi_produk[basah_air_{{ $bagian }}]" id="basah_air_{{ $bagian }}" value="{{ $kondisiData['basah_air_'.$bagian] ?? '' }}" class="form-control form-control-sm text-center" min="0" {{ ($kondisiData['basah_air_'.$bagian] ?? '') != '' ? 'readonly' : '' }}>
                                     </td>
                                     <td>
-                                        <input type="number" name="kondisi_produk[kering_air_{{ $bagian }}]" id="kering_air_{{ $bagian }}" value="{{ $kondisiData['kering_air_'.$bagian] ?? '' }}" class="form-control form-control-sm text-center" {{ ($kondisiData['kering_air_'.$bagian] ?? '') != '' ? 'readonly' : '' }}>
+                                        <input type="number" name="kondisi_produk[kering_air_{{ $bagian }}]" id="kering_air_{{ $bagian }}" value="{{ $kondisiData['kering_air_'.$bagian] ?? '' }}" class="form-control form-control-sm text-center"  min="0" {{ ($kondisiData['kering_air_'.$bagian] ?? '') != '' ? 'readonly' : '' }}>
                                     </td>
                                 </tr>
                                 @endforeach
                                 <tr>
                                     <td class="text-start">Total</td>
-                                    <td><input type="number" id="basah_air_total" value="0" class="form-control form-control-sm text-center" readonly></td>
+                                    <td><input type="number" id="basah_air_total" value="0" class="form-control form-control-sm text-center"  readonly></td>
                                     <td><input type="number" id="kering_air_total" value="0" class="form-control form-control-sm text-center" readonly></td>
                                 </tr>
                             </tbody>
@@ -125,10 +125,10 @@
                                 <tr>
                                     <td class="text-start">{{ ucfirst($bagian) }}</td>
                                     <td>
-                                        <input type="number" name="kondisi_produk[basah_minyak_{{ $bagian }}]" id="basah_minyak_{{ $bagian }}" value="{{ $kondisiData['basah_minyak_'.$bagian] ?? '' }}" class="form-control form-control-sm text-center" {{ ($kondisiData['basah_minyak_'.$bagian] ?? '') != '' ? 'readonly' : '' }}>
+                                        <input type="number" name="kondisi_produk[basah_minyak_{{ $bagian }}]" id="basah_minyak_{{ $bagian }}" value="{{ $kondisiData['basah_minyak_'.$bagian] ?? '' }}" class="form-control form-control-sm text-center" min="0" {{ ($kondisiData['basah_minyak_'.$bagian] ?? '') != '' ? 'readonly' : '' }}>
                                     </td>
                                     <td>
-                                        <input type="number" name="kondisi_produk[kering_minyak_{{ $bagian }}]" id="kering_minyak_{{ $bagian }}" value="{{ $kondisiData['kering_minyak_'.$bagian] ?? '' }}" class="form-control form-control-sm text-center" {{ ($kondisiData['kering_minyak_'.$bagian] ?? '') != '' ? 'readonly' : '' }}>
+                                        <input type="number" name="kondisi_produk[kering_minyak_{{ $bagian }}]" id="kering_minyak_{{ $bagian }}" value="{{ $kondisiData['kering_minyak_'.$bagian] ?? '' }}" class="form-control form-control-sm text-center"   min="0" {{ ($kondisiData['kering_minyak_'.$bagian] ?? '') != '' ? 'readonly' : '' }}>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -159,10 +159,10 @@
                                 @for($i=1; $i<=3; $i++)
                                 <tr>
                                     <td>
-                                        <input type="number" name="berat_produk[pcs_{{ $i }}]" id="pcs_{{ $i }}" value="{{ $beratData['pcs_'.$i] ?? '' }}" class="form-control form-control-sm text-center" step="0.01" {{ ($beratData['pcs_'.$i] ?? '') != '' ? 'readonly' : '' }}>
+                                        <input type="number" name="berat_produk[pcs_{{ $i }}]" id="pcs_{{ $i }}" value="{{ $beratData['pcs_'.$i] ?? '' }}" class="form-control form-control-sm text-center" step="0.01"  min="0" {{ ($beratData['pcs_'.$i] ?? '') != '' ? 'readonly' : '' }}>
                                     </td>
                                     <td>
-                                        <input type="number" name="berat_produk[toples_{{ $i }}]" id="toples_{{ $i }}" value="{{ $beratData['toples_'.$i] ?? '' }}" class="form-control form-control-sm text-center" step="0.01" {{ ($beratData['toples_'.$i] ?? '') != '' ? 'readonly' : '' }}>
+                                        <input type="number" name="berat_produk[toples_{{ $i }}]" id="toples_{{ $i }}" value="{{ $beratData['toples_'.$i] ?? '' }}" class="form-control form-control-sm text-center" step="0.01"   min="0" {{ ($beratData['toples_'.$i] ?? '') != '' ? 'readonly' : '' }}>
                                     </td>
                                 </tr>
                                 @endfor

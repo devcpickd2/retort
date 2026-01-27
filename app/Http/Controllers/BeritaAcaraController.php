@@ -199,11 +199,11 @@ class BeritaAcaraController extends Controller
             $beritaAcara->save();
 
             $message = $validatedData['status_spv'] == 1 ? 'Data berhasil diverifikasi.' : 'Data ditandai untuk revisi.';
-            return redirect()->route('berita-acara.verification.spv')->with('success', $message);
+            return redirect()->route('berita-acara.index')->with('success', $message);
 
         } catch (\Exception $e) {
             Log::error('Error verifikasi SPV: ' . $e->getMessage());
-            return redirect()->route('berita-acara.verification.spv')->with('error', 'Terjadi kesalahan saat menyimpan data.');
+            return redirect()->route('berita-acara.index')->with('error', 'Terjadi kesalahan saat menyimpan data.');
         }
     }
 
