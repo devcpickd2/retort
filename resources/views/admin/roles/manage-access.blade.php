@@ -27,8 +27,8 @@
                             @endforeach
                         </div>
                         <div class="mt-4">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                            <a href="{{ route('roles.index') }}" class="btn btn-secondary">Back</a>
+                            <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+                            <a href="{{ route('roles.index') }}" class="btn btn-secondary btn-sm">Cancel</a>
                         </div>
                     </form>
                 </div>

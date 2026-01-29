@@ -6,10 +6,10 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    Roles
-                    @can('role-create')
+                    <h3 class="h4 mb-0">&nbsp;Roles</h3>
+                    <!-- @can('role-create')
                     <a href="{{ route('roles.create') }}" class="btn btn-primary btn-sm float-right">Add New Role</a>
-                    @endcan
+                    @endcan -->
                 </div>
                 <div class="card-body">
                     @if (session('success'))
@@ -32,16 +32,16 @@
                                 <td>{{ $role->name }}</td>
                                 <td>
                                     <form action="{{ route('roles.destroy', $role->id) }}" method="POST">
-                                        <a class="btn btn-info btn-sm" href="{{ route('roles.show', $role->id) }}">Show</a>
-                                        <a class="btn btn-warning btn-sm" href="{{ route('roles.manageAccess', $role->id) }}">Manage Access</a>
-                                        @can('role-edit')
+                                        @can('can access edit button')
                                         <a class="btn btn-primary btn-sm" href="{{ route('roles.edit', $role->id) }}">Edit</a>
                                         @endcan
-                                        @can('role-delete')
+                                        <a class="btn btn-info btn-sm" href="{{ route('roles.show', $role->id) }}">Show</a>
+                                        <a class="btn btn-warning btn-sm" href="{{ route('roles.manageAccess', $role->id) }}">Manage Access</a>
+                                        <!-- @can('role-delete')
                                         @csrf
-                                        @method('DELETE')
+                                        @method
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this role?')">Delete</button>
-                                        @endcan
+                                        @endcan -->
                                     </form>
                                 </td>
                             </tr>
