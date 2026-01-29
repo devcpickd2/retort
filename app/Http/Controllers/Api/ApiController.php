@@ -103,20 +103,42 @@ class ApiController extends Controller
 
         DB::beginTransaction();
         try {
-            $plant = Plant::updateOrCreate(
-                ['uuid' => $plantData['uuid'] ?? Str::uuid()],
-                [
-                    'plant' => $plantData['plant'],
-                    'kode'  => $plantData['kode'] ?? strtoupper(substr($plantData['plant'], 0, 3)),
-                ]
-            );
+
+            $plant = Plant::where('uuid', $plantData['uuid'])
+                ->orWhere('plant', 'LIKE', '%' . $plantData['uuid'] . '%')
+                ->first();
+
+            if($plant) {
+                $plant->update([
+                    'uuid' => $plantData['uuid'],
+                    'plant' => $plantData['plant']
+                ]);
+            } else {
+                $plant = Plant::create([
+                    'uuid' => $plantData['uuid'],
+                    'plant' => $plantData['plant']
+                ]);
+            }
 
             if (!empty($plantData['departments']) && is_array($plantData['departments'])) {
                 foreach ($plantData['departments'] as $deptData) {
-                    Departemen::updateOrCreate(
-                        ['uuid' => $deptData['uuid'] ?? Str::uuid()],
-                        ['nama' => $deptData['department']]
-                    );
+                    $departemen = Departemen::where('uuid', $deptData['uuid'])
+                        ->orWhere('nama', 'LIKE', '%' . $deptData['department'] . '%')
+                        ->first();
+
+                    if($departemen) {
+                        $departemen->update([
+                            'uuid' => $deptData['uuid'],
+                            'plant_uuid' => $plant->uuid,
+                            'nama' => $deptData['department']
+                        ]);
+                    } else {
+                        Departemen::create([
+                            'uuid' => $deptData['uuid'],
+                            'plant_uuid' => $plant->uuid,
+                            'nama' => $deptData['department']
+                        ]);
+                    }
                 }
             }
 

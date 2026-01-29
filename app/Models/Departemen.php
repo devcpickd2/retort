@@ -12,7 +12,7 @@ class Departemen extends Model
 
     protected $table = 'departemens';
 
-    protected $fillable = ['uuid', 'nama'];
+    protected $fillable = ['uuid', 'plant_uuid' , 'nama'];
 
     // pakai route binding berdasarkan UUID
     public function getRouteKeyName()
