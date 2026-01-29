@@ -120,28 +120,6 @@ class ApiController extends Controller
                 ]);
             }
 
-            if (!empty($plantData['departments']) && is_array($plantData['departments'])) {
-                foreach ($plantData['departments'] as $deptData) {
-                    $departemen = Departemen::where('uuid', $deptData['uuid'])
-                        ->orWhere('nama', 'LIKE', '%' . $deptData['department'] . '%')
-                        ->first();
-
-                    if($departemen) {
-                        $departemen->update([
-                            'uuid' => $deptData['uuid'],
-                            'plant_uuid' => $plant->uuid,
-                            'nama' => $deptData['department']
-                        ]);
-                    } else {
-                        Departemen::create([
-                            'uuid' => $deptData['uuid'],
-                            'plant_uuid' => $plant->uuid,
-                            'nama' => $deptData['department']
-                        ]);
-                    }
-                }
-            }
-
             DB::commit();
             return response()->json(['status' => 'success', 'message' => 'Plant & Departemen synced successfully']);
         } catch (Throwable $e) {
