@@ -63,13 +63,13 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Reject</label>
-                                <input type="number" name="reject" id="reject" class="form-control"
+                                <input type="number" name="reject" id="reject" class="form-control" min="1" 
                                 value="{{ old('reject', $release_packing_rte->reject) }}">
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Release</label>
-                                <input type="number" name="release" id="release" class="form-control"
+                                <input type="number" name="release" id="release" class="form-control" min="1" 
                                 value="{{ old('release', $release_packing_rte->release) }}">
                             </div>
                         </div>

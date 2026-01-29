@@ -180,14 +180,6 @@ Route::resource('area_sanitasi', Area_sanitasiController::class)->parameters([
 Route::get('/lookup/batch/{nama_produk}', [LookupController::class, 'getBatchByProduk']);
 Route::get('/lookup/batch-packing/{nama_produk}', [LookupController::class, 'getAllBatchByProduk']);
 
-// GMP
-Route::get('gmp/verification', [GmpController::class, 'verification'])->name('gmp.verification');
-Route::put('gmp/verification/{uuid}', [GmpController::class, 'updateVerification'])->name('gmp.verification.update');
-Route::get('/gmp/export', [GmpController::class, 'export'])->name('gmp.export');
-Route::resource('gmp', GmpController::class)->parameters([
-    'gmp' => 'uuid'
-]);
-
 // Form QC
 Route::resource('list_form', List_formController::class)->parameters([
     'list_form' => 'uuid'
@@ -306,7 +298,7 @@ Route::prefix('penyimpangan-kualitas-verification')->name('penyimpangan-kualitas
         ->name('verification.disetujui');
     Route::post('{penyimpanganKualitas}/verify-disetujui', [PenyimpanganKualitasController::class, 'verifyDisetujui'])
         ->name('verify.disetujui');
-});
+}); 
 Route::get('/penyimpangan-kualitas/export-pdf', [PenyimpanganKualitasController::class, 'exportPdf'])->name('penyimpangan-kualitas.exportPdf');
 Route::resource('penyimpangan-kualitas', PenyimpanganKualitasController::class)->parameters(['penyimpangan-kualitas' => 'penyimpanganKualitas']);
 
@@ -678,6 +670,14 @@ Route::delete('/pemasakan_rte/{uuid}', [Pemasakan_rteController::class, 'destroy
 Route::resource('gmp', GmpController::class)->parameters(['gmp' => 'uuid'])->except(['show']);
 Route::get('/gmp/export', [GmpController::class, 'export'])->name('gmp.export');
 Route::put('/gmp/{uuid}/update-verification', [GmpController::class, 'updateVerification'])->name('gmp.updateVerification');
+
+// GMP
+Route::get('gmp/verification', [GmpController::class, 'verification'])->name('gmp.verification');
+Route::put('gmp/verification/{uuid}', [GmpController::class, 'updateVerification'])->name('gmp.verification.update');
+Route::get('/gmp/export', [GmpController::class, 'export'])->name('gmp.export');
+Route::resource('gmp', GmpController::class)->parameters([
+    'gmp' => 'uuid'
+]);
 
 // Suhu Ruang
 Route::get('/suhu', [SuhuController::class, 'index'])->name('suhu.index');

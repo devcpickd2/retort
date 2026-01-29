@@ -21,9 +21,11 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h3><i class="bi bi-list-check"></i> Laporan Withdrawl</h3>
+                @can('can access add button')
                 <a href="{{ route('withdrawl.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
+                @endcan
             </div>
 
             {{-- Filter dan Live Search --}}
@@ -64,7 +66,7 @@
 
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
-             <table class="table table-striped table-bordered align-middle table-hover">
+               <table class="table table-striped table-bordered align-middle table-hover">
                 <thead class="table-primary text-center">
                     <tr>
                         <th>NO.</th>
@@ -101,11 +103,11 @@
 
                             @if(!empty($withdrawl))
                             <a href="#" data-bs-toggle="modal" data-bs-target="#withdrawlModal{{ $dep->uuid }}" 
-                             style="font-weight: bold; text-decoration: underline;">
-                             Detail
-                         </a>
+                               style="font-weight: bold; text-decoration: underline;">
+                               Detail
+                           </a>
 
-                         <div class="modal fade" id="withdrawlModal{{ $dep->uuid }}" tabindex="-1"
+                           <div class="modal fade" id="withdrawlModal{{ $dep->uuid }}" tabindex="-1"
                             aria-labelledby="withdrawlModalLabel{{ $dep->uuid }}" aria-hidden="true">
                             <div class="modal-dialog" style="max-width: 60%;">
                                 <div class="modal-content">
@@ -157,11 +159,11 @@
                         <span class="fw-bold text-secondary"><b>Created</b></span>
                         @else
                         <b><a href="#" class="{{ $dep->status_spv == 1 ? 'text-success' : 'text-danger' }} fw-bold"
-                           data-bs-toggle="modal" data-bs-target="#modalSpv{{ $dep->uuid }}">
-                           {{ $dep->status_spv == 1 ? 'Verified' : 'Revision' }}</a></b>
-                           @endif
-                           {{-- Modal SPV --}}
-                           <div class="modal fade" id="modalSpv{{ $dep->uuid }}" tabindex="-1">
+                         data-bs-toggle="modal" data-bs-target="#modalSpv{{ $dep->uuid }}">
+                         {{ $dep->status_spv == 1 ? 'Verified' : 'Revision' }}</a></b>
+                         @endif
+                         {{-- Modal SPV --}}
+                         <div class="modal fade" id="modalSpv{{ $dep->uuid }}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header {{ $dep->status_spv == 1 ? 'bg-success' : 'bg-danger' }} text-white">
@@ -186,11 +188,11 @@
                         <span class="fw-bold text-secondary"><b>Pending</b></span>
                         @else
                         <b><a href="#" class="{{ $dep->status_manager == 1 ? 'text-success' : 'text-danger' }} fw-bold"
-                         data-bs-toggle="modal" data-bs-target="#modalManager{{ $dep->uuid }}">
-                         {{ $dep->status_manager == 1 ? 'Verified' : 'Revision' }}</a></b>
-                         @endif
-                         {{-- Modal Manager --}}
-                         <div class="modal fade" id="modalManager{{ $dep->uuid }}" tabindex="-1">
+                           data-bs-toggle="modal" data-bs-target="#modalManager{{ $dep->uuid }}">
+                           {{ $dep->status_manager == 1 ? 'Verified' : 'Revision' }}</a></b>
+                           @endif
+                           {{-- Modal Manager --}}
+                           <div class="modal fade" id="modalManager{{ $dep->uuid }}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header {{ $dep->status_manager == 1 ? 'bg-success' : 'bg-danger' }} text-white">
@@ -211,18 +213,24 @@
                         </div>
                     </td>
                     <td class="text-center align-middle">
+                        @can('can access verification button')
                         <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" 
                         data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
                         <i class="bi bi-shield-check me-1"></i> Verifikasi SPV
                     </button>
-
+                    @endcan
+                    @can('can access verification manager')
                     <button type="button" class="btn btn-info btn-sm fw-bold shadow-sm"
                     data-bs-toggle="modal" data-bs-target="#verifyManagerModal{{ $dep->uuid }}">
                     <i class="bi bi-person-check-fill me-1"></i> Persetujuan Manager
                 </button>
+                @endcan
+                @can('can access edit button')
                 <a href="{{ route('withdrawl.edit', $dep->uuid) }}" class="btn btn-warning btn-sm">
                     <i class="bi bi-pencil"></i> Edit
                 </a>
+                @endcan
+                @can('can access delete button')
                 <form action="{{ route('withdrawl.destroy', $dep->uuid) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
@@ -231,6 +239,7 @@
                     <i class="bi bi-trash"></i> Hapus
                 </button>
             </form>
+            @endcan
             <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="verifyModalLabel{{ $dep->uuid }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-md">
                     <form action="{{ route('withdrawl.updateVerification', $dep->uuid) }}" method="POST">
@@ -273,7 +282,6 @@
                 </form>
             </div>
         </div>
-        @if ($type_user == 0 || $type_user == 1)
         <div class="modal fade" id="verifyManagerModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="verifyManagerModalLabel{{ $dep->uuid }}" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-md">
                 <form action="{{ route('withdrawl.updateApproval', $dep->uuid) }}" method="POST">
@@ -318,8 +326,6 @@
         </form>
     </div>
 </div>
-@endif
-
 </td>
 
 </tr>

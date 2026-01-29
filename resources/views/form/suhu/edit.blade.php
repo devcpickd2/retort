@@ -119,7 +119,7 @@
                 <button type="submit" class="btn btn-warning">
                     <i class="bi bi-save"></i> Update
                 </button>
-                <a href="{{ route('suhu.verification') }}" class="btn btn-secondary">
+                <a href="{{ route('suhu.index') }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
             </div>

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Klorin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -19,19 +19,19 @@ class KlorinController extends Controller
         $userPlant  = Auth::user()->plant;
 
         $data = Klorin::query()
-        ->where('plant', $userPlant)
-        ->when($search, function ($query) use ($search) { 
-            $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', "%{$search}%");
-            });
-        })
-        ->when($date, function ($query) use ($date) {
-            $query->whereDate('date', $date);
-        })
-        ->orderBy('date', 'desc')
-        ->orderBy('created_at', 'desc')
-        ->paginate(10)
-        ->appends($request->all());
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends($request->all());
 
         return view('form.klorin.index', compact('data', 'search', 'date'));
     }
@@ -64,12 +64,12 @@ class KlorinController extends Controller
 
         // Kompres dan simpan gambar
         $footbasinPath = $request->hasFile('footbasin')
-        ? $this->compressAndStore($request->file('footbasin'), 'footbasin')
-        : null;
+            ? $this->compressAndStore($request->file('footbasin'), 'footbasin')
+            : null;
 
         $handbasinPath = $request->hasFile('handbasin')
-        ? $this->compressAndStore($request->file('handbasin'), 'handbasin')
-        : null;
+            ? $this->compressAndStore($request->file('handbasin'), 'handbasin')
+            : null;
 
         Klorin::create([
             'date'                => $request->date,
@@ -177,7 +177,7 @@ class KlorinController extends Controller
 
         $klorin->update($updateData);
 
-        return redirect()->route('klorin.verification')->with('success', 'Pengecekan Klorin berhasil diperbarui.');
+        return redirect()->route('klorin.index')->with('success', 'Pengecekan Klorin berhasil diperbarui.');
     }
 
     public function verification(Request $request)
@@ -187,21 +187,21 @@ class KlorinController extends Controller
         $userPlant  = Auth::user()->plant;
 
         $data = Klorin::query()
-        ->where('plant', $userPlant)
-        ->when($search, function ($query) use ($search) { 
-            $query->where(function ($q) use ($search) {
-                $q->where('username', 'like', "%{$search}%");
-            });
-        })
-        ->when($date, function ($query) use ($date) {
-            $query->whereDate('date', $date);
-        })
-        ->orderBy('date', 'desc')
-        ->orderBy('created_at', 'desc')
-        ->paginate(10)
-        ->appends($request->all());
+            ->where('plant', $userPlant)
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%");
+                });
+            })
+            ->when($date, function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            })
+            ->orderBy('date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->appends($request->all());
 
-        return view('form.klorin.verification', compact('data', 'search', 'date'));
+        return view('form.klorin.index', compact('data', 'search', 'date'));
     }
 
     public function updateVerification(Request $request, $uuid)
@@ -220,7 +220,7 @@ class KlorinController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('klorin.verification')->with('success', 'Status verifikasi berhasil diperbarui.');
+        return redirect()->route('klorin.index')->with('success', 'Status verifikasi berhasil diperbarui.');
     }
 
     public function destroy($uuid)
@@ -236,7 +236,7 @@ class KlorinController extends Controller
 
         $klorin->delete();
 
-        return redirect()->route('klorin.verification')->with('success', 'Data Pengecekan Klorin berhasil dihapus.');
+        return redirect()->route('klorin.index')->with('success', 'Data Pengecekan Klorin berhasil dihapus.');
     }
 
     public function exportPdf(Request $request)
@@ -303,8 +303,8 @@ class KlorinController extends Controller
             ->scale(width: 1280) // ubah resolusi ke max 1280px
             ->toJpeg(quality: 75); // kompres kualitas 75%
 
-            Storage::put("$path/$filename", (string) $image);
+        Storage::put("$path/$filename", (string) $image);
 
-            return "$path/$filename";
-        }
+        return "$path/$filename";
     }
+}

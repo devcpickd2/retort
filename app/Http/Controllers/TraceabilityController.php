@@ -12,7 +12,7 @@ use Carbon\Carbon;
 class TraceabilityController extends Controller
 {
     public function __construct()
-    {
+    { 
         $this->middleware('auth');
     }
 
@@ -22,7 +22,7 @@ class TraceabilityController extends Controller
         $date       = $request->input('date');
         $userPlant  = Auth::user()->plant;
 
-        $type_user = Auth::user()->type_user;
+        // $type_user = Auth::user()->type_user;
 
         $data = Traceability::query()
         ->where('plant', $userPlant)
@@ -45,7 +45,7 @@ class TraceabilityController extends Controller
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.traceability.index', compact('data', 'search', 'date', 'type_user'));
+        return view('form.traceability.index', compact('data', 'search', 'date'));
     }
 
     public function updateVerification(Request $request, $uuid)
@@ -137,7 +137,7 @@ class TraceabilityController extends Controller
         $data['username']            = $username;
         $data['plant']               = $userPlant;
         $data['status_manager']      = "0";
-        $data['tgl_update_produksi'] = now()->addHour();
+        // $data['tgl_update_produksi'] = now()->addHour();
         $data['status_spv']          = "0";
         $data['kelengkapan_form']    = json_encode($request->input('kelengkapan_form', []), JSON_UNESCAPED_UNICODE);
 

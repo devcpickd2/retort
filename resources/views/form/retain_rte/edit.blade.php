@@ -99,17 +99,17 @@
                                     </td>
                                     <td>
                                         <input type="number" name="analisa[{{ $i }}][fisik]" 
-                                        class="form-control form-control-sm fisik" step="0.1"
+                                        class="form-control form-control-sm fisik" min="1" 
                                         value="{{ old("analisa.$i.fisik", $analisa['fisik'] ?? '') }}">
                                     </td>
                                     <td>
                                         <input type="number" name="analisa[{{ $i }}][aroma]" 
-                                        class="form-control form-control-sm aroma" step="0.1"
+                                        class="form-control form-control-sm aroma" min="1" 
                                         value="{{ old("analisa.$i.aroma", $analisa['aroma'] ?? '') }}">
                                     </td>
                                     <td>
                                         <input type="number" name="analisa[{{ $i }}][rasa]" 
-                                        class="form-control form-control-sm rasa" step="0.1"
+                                        class="form-control form-control-sm rasa" min="1" 
                                         value="{{ old("analisa.$i.rasa", $analisa['rasa'] ?? '') }}">
                                     </td>
                                     <td>
@@ -141,7 +141,7 @@
                 <button class="btn btn-primary w-auto">
                     <i class="bi bi-save"></i> Update
                 </button>
-                <a href="{{ route('retain_rte.verification') }}" class="btn btn-secondary w-auto">
+                <a href="{{ route('retain_rte.index') }}" class="btn btn-secondary w-auto">
                     <i class="bi bi-arrow-left"></i> Batal
                 </a>
             </div>

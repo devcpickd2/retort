@@ -80,7 +80,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-save"></i> Update
                     </button>
-                    <a href="{{ route('sampel.verification') }}" class="btn btn-secondary">
+                    <a href="{{ route('sampel.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Batal
                     </a>
                 </div>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Recall;
 use App\Models\User;
+use App\Models\List_form;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -56,18 +57,18 @@ class RecallController extends Controller
 
     //     $userPlant = Auth::user()->plant;
 
-    //     $traceability = Traceability::where('uuid', $uuid)
+    //     $recall = recall::where('uuid', $uuid)
     //     ->where('plant', $userPlant)
     //     ->firstOrFail();
 
-    //     $traceability->status_spv = $request->status_spv; 
-    //     $traceability->catatan_spv = $request->catatan_spv;
-    //     $traceability->nama_spv = Auth::user()->username;
-    //     $traceability->tgl_update_spv = now();
-    //     $traceability->save();
+    //     $recall->status_spv = $request->status_spv; 
+    //     $recall->catatan_spv = $request->catatan_spv;
+    //     $recall->nama_spv = Auth::user()->username;
+    //     $recall->tgl_update_spv = now();
+    //     $recall->save();
 
-    //     return redirect()->route('traceability.index')
-    //     ->with('success', 'Status Verifikasi Laporan Traceability Berhasil diperbarui.');
+    //     return redirect()->route('recall.index')
+    //     ->with('success', 'Status Verifikasi Laporan recall Berhasil diperbarui.');
     // }
 
     // public function updateApproval(Request $request, $uuid)
@@ -78,19 +79,19 @@ class RecallController extends Controller
     //     ]);
     //     $userPlant = Auth::user()->plant;
 
-    //     $traceability = Traceability::where('uuid', $uuid)
+    //     $recall = recall::where('uuid', $uuid)
     //     ->where('plant', $userPlant)
     //     ->firstOrFail();
 
-    //     $traceability->persetujuan_trace = "Setuju"; 
-    //     $traceability->status_manager = $request->status_manager; 
-    //     $traceability->catatan_manager = $request->catatan_manager;
-    //     $traceability->nama_manager = Auth::user()->username;
-    //     $traceability->tgl_update_manager = now();
-    //     $traceability->save();
+    //     $recall->persetujuan_trace = "Setuju"; 
+    //     $recall->status_manager = $request->status_manager; 
+    //     $recall->catatan_manager = $request->catatan_manager;
+    //     $recall->nama_manager = Auth::user()->username;
+    //     $recall->tgl_update_manager = now();
+    //     $recall->save();
 
-    //     return redirect()->route('traceability.index')
-    //     ->with('success', 'Status Persetujuan Laporan Traceability Berhasil diperbarui.');
+    //     return redirect()->route('recall.index')
+    //     ->with('success', 'Status Persetujuan Laporan recall Berhasil diperbarui.');
     // }
 
     public function create()
@@ -106,40 +107,6 @@ class RecallController extends Controller
         $username   = Auth::user()->username ?? 'User RTT';
         $userPlant  = Auth::user()->plant;
 
-        $table->uuid('uuid')->unique(); 
-        $table->string('username');
-        $table->string('username_updated')->nullable();
-        $table->date('date');
-        $table->string('plant');
-        $table->string('penyebab');
-        $table->string('asal_informasi');
-        $table->string('jenis_pangan')->nullable();
-        $table->string('nama_dagang')->nullable();
-        $table->decimal('berat_bersih', 8, 2)->nullable();
-        $table->string('jenis_kemasan')->nullable();
-        $table->string('kode_produksi')->nullable();
-        $table->date('tanggal_produksi')->nullable();
-        $table->date('tanggal_kadaluarsa')->nullable();
-        $table->string('no_pendaftaran')->nullable();
-        $table->string('diproduksi_oleh')->nullable();
-        $table->decimal('jumlah_produksi', 8, 2)->nullable();
-        $table->decimal('jumlah_terkirim', 8, 2)->nullable();
-        $table->decimal('jumlah_tersisa', 8, 2)->nullable();
-        $table->string('tindak_lanjut')->nullable();
-        $table->longText('distribusi')->nullable();
-        $table->longText('neraca_penarikan')->nullable();
-        $table->longText('simulasi')->nullable();
-        $table->decimal('total_waktu', 8, 2)->nullable();
-        $table->longText('evaluasi')->nullable();
-        $table->string('nama_manager')->nullable();
-        $table->string('status_manager')->nullable();
-        $table->string('catatan_manager')->nullable();
-        $table->timestamp('tgl_update_manager')->nullable();
-        $table->string('nama_spv')->nullable();
-        $table->string('status_spv')->nullable();
-        $table->string('catatan_spv')->nullable();
-        $table->timestamp('tgl_update_spv')->nullable();
-
         $request->validate([
             'date'             => 'required|date',
             'penyebab'         => 'required|string',
@@ -152,58 +119,59 @@ class RecallController extends Controller
             'tanggal_produksi' => 'nullable|date',
             'tanggal_kadaluarsa'  => 'nullable|string',
             'no_pendaftaran'      => 'nullable|string',
-            'diproduksi_oleh'      => 'nullable|string',
+            'diproduksi_oleh'     => 'nullable|string',
             'jumlah_produksi'     => 'nullable|numeric',
             'jumlah_terkirim'     => 'nullable|numeric',
-            'jumlah_tersisa'     => 'nullable|numeric',
+            'jumlah_tersisa'      => 'nullable|numeric',
             'tindak_lanjut'       => 'nullable|string',
-            'kelengkapan_form'              => 'nullable|array',
-            'kelengkapan_form.*.laporan'    => 'nullable|string',
-            'kelengkapan_form.*.no_dokumen'     => 'nullable|string',
-            'kelengkapan_form.*.kelengkapan'    => 'nullable|string',
-            'kelengkapan_form.*.waktu_telusur'  => 'nullable|string',
-            'total_waktu'   => 'nullable|string',
-            'kesimpulan'    => 'nullable|string',
+            'distribusi'              => 'nullable|array',
+            'neraca_penarikan'        => 'nullable|array',
+            'simulasi'                => 'nullable|array',
+            'total_waktu'             => 'nullable|numeric',
+            'evaluasi'                => 'nullable|array',
         ]);
 
         $data = $request->only([
-            'date', 'penyebab', 'asal_informasi', 'jenis_pangan', 'nama_dagang', 'berat_bersih', 'jenis_kemasan', 'kode_produksi', 'tanggal_produksi', 'tanggal_kadaluarsa', 'no_pendaftaran', 'jumlah_produksi', 'tindak_lanjut', 'total_waktu', 'kesimpulan'
+            'date', 'penyebab', 'asal_informasi', 'jenis_pangan', 'nama_dagang', 'berat_bersih', 'jenis_kemasan', 'kode_produksi', 'tanggal_produksi', 'tanggal_kadaluarsa', 'no_pendaftaran', 'jumlah_produksi', 'jumlah_terkirim', 'jumlah_tersisa','tindak_lanjut', 'total_waktu'
         ]);
 
         $data['username']            = $username;
         $data['plant']               = $userPlant;
         $data['status_manager']      = "0";
-        $data['tgl_update_produksi'] = now()->addHour();
+        // $data['tgl_update_produksi'] = now()->addHour();
         $data['status_spv']          = "0";
-        $data['kelengkapan_form']    = json_encode($request->input('kelengkapan_form', []), JSON_UNESCAPED_UNICODE);
+        $data['distribusi']          = json_encode($request->input('distribusi', []), JSON_UNESCAPED_UNICODE);
+        $data['neraca_penarikan']    = json_encode($request->input('neraca_penarikan', []), JSON_UNESCAPED_UNICODE);
+        $data['simulasi']            = json_encode($request->input('simulasi', []), JSON_UNESCAPED_UNICODE);
+        $data['evaluasi']            = json_encode($request->input('evaluasi', []), JSON_UNESCAPED_UNICODE);
 
-        Traceability::create($data);
+        recall::create($data);
 
-        return redirect()->route('traceability.index')->with('success', 'Laporan traceability berhasil dibuat');
+        return redirect()->route('recall.index')->with('success', 'Laporan Recall berhasil dibuat');
     }
 
     public function edit(string $uuid)
     {
-        $traceability = Traceability::where('uuid', $uuid)
+        $recall = recall::where('uuid', $uuid)
         ->where('plant', Auth::user()->plant)
         ->firstOrFail();
 
         $userPlant = Auth::user()->plant;
         $forms = List_form::where('plant', $userPlant)->get();
 
-        $traceabilityData = !empty($traceability->kelengkapan_form)
-        ? json_decode($traceability->kelengkapan_form, true)
+        $recallData = !empty($recall->kelengkapan_form)
+        ? json_decode($recall->kelengkapan_form, true)
         : [];
-        return view('form.traceability.edit', compact('traceability', 'traceabilityData', 'forms'));
+        return view('form.recall.edit', compact('recall', 'recallData', 'forms'));
     }
 
     public function update(Request $request, string $uuid)
     {
         $userPlant = Auth::user()->plant;
         $userType  = Auth::user()->type_user ?? null;
-        $username_updated = Auth::user()->username ?? 'User RTM';
+        $username_updated = Auth::user()->username ?? 'User RTT';
 
-        $traceability = Traceability::where('uuid', $uuid)
+        $recall = recall::where('uuid', $uuid)
         ->where('plant', $userPlant)
         ->firstOrFail();
 
@@ -219,16 +187,17 @@ class RecallController extends Controller
             'tanggal_produksi' => 'nullable|date',
             'tanggal_kadaluarsa'  => 'nullable|string',
             'no_pendaftaran'      => 'nullable|string',
+            'diproduksi_oleh'     => 'nullable|string',
             'jumlah_produksi'     => 'nullable|numeric',
+            'jumlah_terkirim'     => 'nullable|numeric',
+            'jumlah_tersisa'      => 'nullable|numeric',
             'tindak_lanjut'       => 'nullable|string',
-            'kelengkapan_form'              => 'nullable|array',
-            'kelengkapan_form.*.laporan'    => 'nullable|string',
-            'kelengkapan_form.*.no_dokumen'     => 'nullable|string',
-            'kelengkapan_form.*.kelengkapan'    => 'nullable|string',
-            'kelengkapan_form.*.waktu_telusur'  => 'nullable|string',
-            'total_waktu'   => 'nullable|string',
-            'kesimpulan'    => 'nullable|string',
-        ]);
+            'distribusi'              => 'nullable|array',
+            'neraca_penarikan'        => 'nullable|array',
+            'simulasi'                => 'nullable|array',
+            'total_waktu'             => 'nullable|numeric',
+            'evaluasi'                => 'nullable|array',
+        ]); 
 
         $data = [
             'date'             => $request->date,
@@ -242,31 +211,36 @@ class RecallController extends Controller
             'tanggal_produksi'    => $request->tanggal_produksi,
             'tanggal_kadaluarsa'  => $request->tanggal_kadaluarsa,
             'no_pendaftaran'      => $request->no_pendaftaran,
+            'diproduksi_oleh'     => $request->diproduksi_oleh,
             'jumlah_produksi'     => $request->jumlah_produksi,
+            'jumlah_terkirim'     => $request->jumlah_terkirim,
+            'jumlah_tersisa'     => $request->jumlah_tersisa,
             'tindak_lanjut'       => $request->tindak_lanjut,
             'total_waktu'         => $request->total_waktu,
-            'kesimpulan'          => $request->kesimpulan,
-            'kelengkapan_form'    => json_encode($request->input('kelengkapan_form', []), JSON_UNESCAPED_UNICODE),
+            'distribusi'    => json_encode($request->input('distribusi', []), JSON_UNESCAPED_UNICODE),
+            'neraca_penarikan'    => json_encode($request->input('neraca_penarikan', []), JSON_UNESCAPED_UNICODE),
+            'simulasi'    => json_encode($request->input('simulasi', []), JSON_UNESCAPED_UNICODE),
+            'evaluasi'    => json_encode($request->input('evaluasi', []), JSON_UNESCAPED_UNICODE),
             'username_updated'    => $username_updated,
         ];
 
-        $traceability->update($data);
+        $recall->update($data);
 
-        return redirect()->route('traceability.index')->with('success', 'Data Laporan traceability berhasil diperbarui.');
+        return redirect()->route('recall.index')->with('success', 'Data Laporan Recall berhasil diperbarui.');
     }
 
     public function destroy(string $uuid)
     {
         $userPlant = Auth::user()->plant;
 
-        $traceability = Traceability::where('uuid', $uuid)
+        $recall = recall::where('uuid', $uuid)
         ->where('plant', $userPlant)
         ->firstOrFail();
 
-        $traceability->delete();
+        $recall->delete();
 
-        return redirect()->route('traceability.index')
-        ->with('success', 'Data Laporan Traceability berhasil dihapus'); 
+        return redirect()->route('recall.index')
+        ->with('success', 'Data Laporan Recall berhasil dihapus'); 
     }
 
 }

@@ -25,7 +25,7 @@ class BeritaAcara extends Model
         'ppic_verified_at' => 'datetime',
         'spv_verified_at' => 'datetime',
     ];
-
+ 
     /**
      * Boot method untuk otomatisasi pengisian data sistem
      */

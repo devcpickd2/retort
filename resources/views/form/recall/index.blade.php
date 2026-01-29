@@ -20,16 +20,16 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Laporan Traceability</h3>
+                <h3><i class="bi bi-list-check"></i> Recall</h3>
                 @can('can access add button')
-                <a href="{{ route('traceability.create') }}" class="btn btn-success">
+                <a href="{{ route('recall.create') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
                 @endcan
             </div>
 
             {{-- Filter dan Live Search --}}
-            <form id="filterForm" method="GET" action="{{ route('traceability.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
+            <form id="filterForm" method="GET" action="{{ route('recall.index') }}" class="d-flex flex-wrap align-items-center gap-2 mb-3 p-2 border rounded bg-light shadow-sm">
 
                 <div class="input-group" style="max-width: 220px;"> 
                     <span class="input-group-text bg-white border-end-0">
@@ -118,10 +118,10 @@
 
                         <td class="text-center align-middle">
                             @php
-                            $traceability = json_decode($dep->kelengkapan_form, true);
+                            $recall = json_decode($dep->kelengkapan_form, true);
                             @endphp
 
-                            @if(!empty($traceability))
+                            @if(!empty($recall))
                             <a href="#" data-bs-toggle="modal" data-bs-target="#traceModal{{ $dep->uuid }}" 
                              style="font-weight: bold; text-decoration: underline;">
                              Detail
@@ -151,7 +151,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach($traceability as $i => $row)
+                                                    @foreach($recall as $i => $row)
                                                     <tr>
                                                         <td>{{ $i + 1 }}</td>
                                                         <td>{{ $row['laporan'] ?? '-' }}</td>
@@ -161,7 +161,7 @@
                                                     </tr>
                                                     @endforeach
                                                     <tr>
-                                                        <td colspan="4">Total Waktu Traceability</td>
+                                                        <td colspan="4">Total Waktu recall</td>
                                                         <td>{{ $dep->total_waktu }}</td>
                                                     </tr>
                                                 </tbody>
@@ -191,7 +191,7 @@
                             <div class="modal-content">
 
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Dari hasil Traceability yang telah dilakukan, dapat disimpulkan:</h5>
+                                    <h5 class="modal-title">Dari hasil recall yang telah dilakukan, dapat disimpulkan:</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
 
@@ -280,12 +280,12 @@
            </button>
            @endcan
            @can('can access edit button')
-           <a href="{{ route('traceability.edit', $dep->uuid) }}" class="btn btn-warning btn-sm">
+           <a href="{{ route('recall.edit', $dep->uuid) }}" class="btn btn-warning btn-sm">
             <i class="bi bi-pencil"></i> Edit
         </a>
         @endcan
         @can('can access delete button')
-        <form action="{{ route('traceability.destroy', $dep->uuid) }}" method="POST" class="d-inline">
+        <form action="{{ route('recall.destroy', $dep->uuid) }}" method="POST" class="d-inline">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn btn-danger btn-sm"
@@ -296,7 +296,7 @@
     @endcan
     <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="verifyModalLabel{{ $dep->uuid }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md">
-            <form action="{{ route('traceability.updateVerification', $dep->uuid) }}" method="POST">
+            <form action="{{ route('recall.updateVerification', $dep->uuid) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -338,7 +338,7 @@
 </div>
 <div class="modal fade" id="verifyManagerModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="verifyManagerModalLabel{{ $dep->uuid }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-md">
-        <form action="{{ route('traceability.updateApproval', $dep->uuid) }}" method="POST">
+        <form action="{{ route('recall.updateApproval', $dep->uuid) }}" method="POST">
             @csrf
             @method('PUT')
 
@@ -386,7 +386,7 @@
 </tr>
 @empty
 <tr>
-    <td colspan="20" class="text-center">Belum ada data traceability.</td>
+    <td colspan="20" class="text-center">Belum ada data recall.</td>
 </tr>
 @endforelse
 </tbody>

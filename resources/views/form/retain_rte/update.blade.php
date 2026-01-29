@@ -37,7 +37,7 @@
                 </div>
 
                 {{-- Bagian Pemeriksaan --}}
-                <div class="card mb-3">
+                <div class="card mb-3"> 
                     <div class="card-header bg-info text-white">
                         <strong>Pemeriksaan</strong>
                     </div>
@@ -93,21 +93,21 @@
                                         <td>
                                             <input type="number" name="analisa[{{ $i }}][fisik]"
                                             class="form-control form-control-sm fisik"
-                                            step="0.1"
+                                            min="1" 
                                             value="{{ old("analisa.$i.fisik", $analisa['fisik'] ?? '') }}"
                                             {{ !empty($analisa['fisik']) ? 'readonly' : '' }}>
                                         </td>
                                         <td>
                                             <input type="number" name="analisa[{{ $i }}][aroma]"
                                             class="form-control form-control-sm aroma"
-                                            step="0.1"
+                                            min="1" 
                                             value="{{ old("analisa.$i.aroma", $analisa['aroma'] ?? '') }}"
                                             {{ !empty($analisa['aroma']) ? 'readonly' : '' }}>
                                         </td>
                                         <td>
                                             <input type="number" name="analisa[{{ $i }}][rasa]"
                                             class="form-control form-control-sm rasa"
-                                            step="0.1"
+                                            min="1" 
                                             value="{{ old("analisa.$i.rasa", $analisa['rasa'] ?? '') }}"
                                             {{ !empty($analisa['rasa']) ? 'readonly' : '' }}>
                                         </td>

@@ -311,7 +311,7 @@
         <i class="bi bi-save"></i> Simpan
     </button>
 
-    <a href="{{ route('withdrawl.index') }}" class="btn btn-secondary">
+    <a href="{{ route('traceability.index') }}" class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> Kembali
     </a>
 </div>

@@ -145,7 +145,7 @@
                                 <td>{{ $disp->kepada }}</td>
                                 
                                 <td class="text-center">
-                                    @if($disp->disposisi_produk) <span class="badge bg-primary">Produk</span> @endif
+                                    @if($disp->disposisi_produk) <span class="badge bg-info">Produk</span> @endif
                                     @if($disp->disposisi_material) <span class="badge bg-warning text-dark">Material</span> @endif
                                     @if($disp->disposisi_prosedur) <span class="badge bg-info text-dark">Prosedur</span> @endif
                                 </td>

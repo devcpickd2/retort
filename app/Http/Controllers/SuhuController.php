@@ -28,7 +28,7 @@ class SuhuController extends Controller
        ->when($date, function ($query) use ($date) {
         $query->whereDate('date', $date);
     })
-       ->when($shift, function ($query) use ($shift) {
+       ->when($shift, function ($query) use ($shift) { 
         $query->where('shift', $shift);
     })
        ->orderBy('date', 'desc')
@@ -262,7 +262,7 @@ public function verification(Request $request)
   ->paginate(10)
   ->appends($request->all());
 
-  return view('form.suhu.verification', compact('data', 'search', 'date', 'area_suhus'));
+  return view('form.suhu.index', compact('data', 'search', 'date', 'area_suhus'));
 }
 
 public function updateVerification(Request $request, $uuid)
@@ -281,7 +281,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv'  => now(),
     ]);
 
-    return redirect()->route('suhu.verification')
+    return redirect()->route('suhu.index')
     ->with('success', 'Status Verifikasi Pemeriksaan Suhu dan RH berhasil diperbarui.');
 }
 
@@ -290,7 +290,7 @@ public function updateVerification(Request $request, $uuid)
         $suhu = Suhu::where('uuid', $uuid)->firstOrFail();
         $suhu->delete();
 
-        return redirect()->route('suhu.verification')
+        return redirect()->route('suhu.index')
         ->with('success', 'Pemeriksaan Suhu dan RH berhasil dihapus');
     }
 

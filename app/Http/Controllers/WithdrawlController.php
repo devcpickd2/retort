@@ -12,7 +12,7 @@ use Carbon\Carbon;
 
 class WithdrawlController extends Controller
 {
-    public function __construct()
+    public function __construct() 
     {
         $this->middleware('auth');
     }
@@ -23,7 +23,7 @@ class WithdrawlController extends Controller
         $date       = $request->input('date');
         $userPlant  = Auth::user()->plant;
 
-        $type_user = Auth::user()->type_user;
+        // $type_user = Auth::user()->type_user;
 
         $data = Withdrawl::query()
         ->where('plant', $userPlant)
@@ -44,7 +44,7 @@ class WithdrawlController extends Controller
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.withdrawl.index', compact('data', 'search', 'date', 'type_user'));
+        return view('form.withdrawl.index', compact('data', 'search', 'date'));
     }
 
     public function updateVerification(Request $request, $uuid)
@@ -137,7 +137,7 @@ class WithdrawlController extends Controller
         $data['username']            = $username;
         $data['plant']               = $userPlant;
         $data['status_manager']      = "0";
-        $data['tgl_update_produksi'] = now()->addHour();
+        // $data['tgl_update_produksi'] = now()->addHour();
         $data['status_spv']          = "0";
         $data['rincian']             = json_encode($request->input('rincian', []), JSON_UNESCAPED_UNICODE);
 

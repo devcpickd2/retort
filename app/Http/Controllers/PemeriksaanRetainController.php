@@ -8,14 +8,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Produk;
 
 class PemeriksaanRetainController extends Controller
 {
-    public function index(Request $request) 
+    public function index(Request $request)
     {
         $query = PemeriksaanRetain::withCount('items')
-                    ->with('creator') 
-                    ->latest();
+            ->with('creator')
+            ->latest();
 
         // Optional: Filter otomatis agar user hanya melihat data Plant-nya sendiri
         /*
@@ -28,22 +29,24 @@ class PemeriksaanRetainController extends Controller
         $query->when($request->end_date, fn($q) => $q->where('tanggal', '<=', $request->end_date));
 
         $pemeriksaanRetains = $query->paginate(15);
-            
-        return view('pemeriksaan_retain.index', compact('pemeriksaanRetains')); 
+
+        return view('pemeriksaan_retain.index', compact('pemeriksaanRetains'));
     }
 
     public function create()
     {
-        return view('pemeriksaan_retain.create');
+        $userPlant = Auth::user()->plant;
+        $produks = Produk::where('plant', $userPlant)->get();
+        return view('pemeriksaan_retain.create', compact('produks'));
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'hari' => 'required|string|max:100',
-            'tanggal' => 'required|date',
+            'tanggal' => 'required|date', 
             'keterangan' => 'nullable|string',
-            'items' => 'required|array|min:1', 
+            'items' => 'required|array|min:1',
             'items.*.kode_produksi' => 'nullable|string|max:255',
         ]);
 
@@ -84,34 +87,35 @@ class PemeriksaanRetainController extends Controller
 
             DB::commit();
 
-            return redirect()->route('pemeriksaan_retain.index') 
-                             ->with('success', 'Data pemeriksaan retain berhasil disimpan.');
-
+            return redirect()->route('pemeriksaan_retain.index')
+                ->with('success', 'Data pemeriksaan retain berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error storing pemeriksaan retain: ' . $e->getMessage());
 
             return redirect()->back()
-                             ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
-                             ->withInput();
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
         }
     }
 
     public function show(PemeriksaanRetain $pemeriksaanRetain)
     {
-        $pemeriksaanRetain->load('items', 'creator', 'verifiedBy', 'updater'); 
+        $pemeriksaanRetain->load('items', 'creator', 'verifiedBy', 'updater');
         return view('pemeriksaan_retain.show', compact('pemeriksaanRetain'));
     }
 
     public function edit(PemeriksaanRetain $pemeriksaanRetain)
     {
+        $userPlant = Auth::user()->plant;
+        $produks = Produk::where('plant', $userPlant)->get();
         $pemeriksaanRetain->load('items');
-        return view('pemeriksaan_retain.edit', compact('pemeriksaanRetain'));
+        return view('pemeriksaan_retain.edit', compact('pemeriksaanRetain', 'produks'));
     }
 
     public function update(Request $request, PemeriksaanRetain $pemeriksaanRetain)
     {
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'hari' => 'required|string|max:100',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
@@ -133,7 +137,7 @@ class PemeriksaanRetainController extends Controller
 
             // Create ulang items
             foreach ($request->items as $itemData) {
-                 $itemPayload = [
+                $itemPayload = [
                     'kode_produksi'   => $itemData['kode_produksi'] ?? null,
                     'exp_date'        => $itemData['exp_date'] ?? null,
                     'varian'          => $itemData['varian'] ?? null,
@@ -158,8 +162,7 @@ class PemeriksaanRetainController extends Controller
             DB::commit();
 
             return redirect()->route('pemeriksaan_retain.index')
-                             ->with('success', 'Data pemeriksaan retain berhasil diperbarui.');
-
+                ->with('success', 'Data pemeriksaan retain berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating: ' . $e->getMessage());
@@ -173,7 +176,7 @@ class PemeriksaanRetainController extends Controller
             $pemeriksaanRetain->items()->delete(); // Hapus items dulu (soft delete)
             $pemeriksaanRetain->delete();
             return redirect()->route('pemeriksaan_retain.index')
-                             ->with('success', 'Data berhasil dihapus.');
+                ->with('success', 'Data berhasil dihapus.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal menghapus: ' . $e->getMessage());
         }
@@ -184,7 +187,7 @@ class PemeriksaanRetainController extends Controller
     public function showVerificationPage(Request $request)
     {
         $baseQuery = PemeriksaanRetain::with('creator', 'items', 'verifiedBy')
-                                ->latest('tanggal');
+            ->latest('tanggal');
 
         $baseQuery->when($request->start_date, fn($q, $d) => $q->where('tanggal', '>=', $d));
         $baseQuery->when($request->end_date, fn($q, $d) => $q->where('tanggal', '<=', $d));
@@ -215,12 +218,12 @@ class PemeriksaanRetainController extends Controller
             $pemeriksaanRetain->update([
                 'status_spv'  => $request->status_spv,
                 'catatan_spv' => $request->catatan_spv,
-                'verified_by' => Auth::user()->uuid, 
+                'verified_by' => Auth::user()->uuid,
                 'verified_at' => now(),
             ]);
 
             return redirect()->route('pemeriksaan_retain.index')
-                             ->with('success', 'Data berhasil diverifikasi.');
+                ->with('success', 'Data berhasil diverifikasi.');
         } catch (\Exception $e) {
             Log::error('Verifikasi Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal verifikasi.');
@@ -229,11 +232,13 @@ class PemeriksaanRetainController extends Controller
 
     public function editForUpdate(PemeriksaanRetain $pemeriksaanRetain)
     {
+        $userPlant = Auth::user()->plant;
+        $produks = Produk::where('plant', $userPlant)->get();
         // Load items agar muncul di form
         $pemeriksaanRetain->load('items');
 
         // Return ke view baru: pemeriksaan_retain.update
-        return view('pemeriksaan_retain.update', compact('pemeriksaanRetain'));
+        return view('pemeriksaan_retain.update', compact('pemeriksaanRetain', 'produks'));
     }
 
     public function exportPdf(Request $request)

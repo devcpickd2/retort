@@ -161,7 +161,7 @@ class SampelController extends Controller
 
         $sampel->update($updateData);
 
-        return redirect()->route('sampel.verification')
+        return redirect()->route('sampel.index')
         ->with('success', 'Pengambilan Sampel berhasil diperbarui.');
     }
 
@@ -189,7 +189,7 @@ class SampelController extends Controller
        ->paginate(10)
        ->appends($request->all());
 
-       return view('form.sampel.verification', compact('data', 'search', 'date'));
+       return view('form.sampel.index', compact('data', 'search', 'date'));
    }
 
    public function updateVerification(Request $request, $uuid)
@@ -208,7 +208,7 @@ class SampelController extends Controller
         'tgl_update_spv' => now(),
     ]);
 
-    return redirect()->route('sampel.verification')
+    return redirect()->route('sampel.index')
     ->with('success', 'Status Verifikasi Pengambilan Sampel berhasil diperbarui.');
 }
 
@@ -217,7 +217,7 @@ public function destroy($uuid)
     $sampel = Sampel::where('uuid', $uuid)->firstOrFail();
     $sampel->delete();
 
-    return redirect()->route('sampel.verification')
+    return redirect()->route('sampel.index')
     ->with('success', 'Data Pengambilan Sampel berhasil dihapus.');
 }
 

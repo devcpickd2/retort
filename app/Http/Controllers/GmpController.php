@@ -141,7 +141,7 @@ class GmpController extends Controller
                 'kalung' => $row['kalung'] ?? 0,
                 'cincin' => $row['cincin'] ?? 0,
                 'jam_tangan' => $row['jam_tangan'] ?? 0,
-                'peniti' => $row['peniti'] ?? 0,
+                'peniti' => $row['peniti'] ?? 0, 
                 'bros' => $row['bros'] ?? 0,
                 'payet' => $row['payet'] ?? 0,
                 'softlens' => $row['softlens'] ?? 0,
@@ -176,7 +176,6 @@ class GmpController extends Controller
     return redirect()->route('gmp.index')
     ->with('success', 'Data GMP berhasil disimpan.');
 }
-
 
 public function edit(string $uuid)
 {

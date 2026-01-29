@@ -197,7 +197,7 @@ class Release_packing_rteController extends Controller
 
         $release_packing_rte->update($data);
 
-        return redirect()->route('release_packing_rte.verification')->with('success', 'Data Release Packing RTE berhasil diperbarui');
+        return redirect()->route('release_packing_rte.index')->with('success', 'Data Release Packing RTE berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -223,7 +223,7 @@ class Release_packing_rteController extends Controller
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.release_packing_rte.verification', compact('data', 'search', 'date'));
+        return view('form.release_packing_rte.index', compact('data', 'search', 'date'));
     }
 
     public function updateVerification(Request $request, $uuid)
@@ -242,7 +242,7 @@ class Release_packing_rteController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('release_packing_rte.verification')
+        return redirect()->route('release_packing_rte.index')
         ->with('success', 'Status Verifikasi Data Release Packing RTE diperbarui.');
     }
 
@@ -251,7 +251,7 @@ class Release_packing_rteController extends Controller
         $release_packing_rte = Release_packing_rte::where('uuid', $uuid)->firstOrFail();
         $release_packing_rte->delete();
 
-        return redirect()->route('release_packing_rte.verification')
+        return redirect()->route('release_packing_rte.index')
         ->with('success', 'Data Release Packing RTE berhasil dihapus');
     }
 }
