@@ -75,7 +75,7 @@
                                     <tr>
                                         <td class="text-start fw-semibold">Waktu</td>
                                         <td><input type="time" name="waktu_mulai"
-                                                class="form-control form-control-sm text-center" required></td>
+                                                class="form-control form-control-sm text-center"></td>
                                         <td class="fw-bold">s/d</td>
                                         <td><input type="time" name="waktu_selesai"
                                                 class="form-control form-control-sm text-center"></td>
