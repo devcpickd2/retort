@@ -50,7 +50,7 @@
             <td width="30%">: {{ \Carbon\Carbon::parse($produk->date)->format('d-m-Y') }}</td>
             <td width="15%">Shift</td>
             <td width="15%">: {{ $produk->shift }}</td>
-            <td width="20%">Nama Produk : {{ $produk->nama_produk }}</td>
+            <td width="20%">Nama Varian : {{ $produk->nama_produk }}</td>
         </tr>
     </table>
 
