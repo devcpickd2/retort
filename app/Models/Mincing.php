@@ -41,16 +41,16 @@ class Mincing extends Model
     //relasi kode batch 
     public function stuffing()
     {
-        return $this->hasMany(stuffing::class);
+        return $this->hasMany(Stuffing::class);
     }
 
     public function pvdc()
     {
-        return $this->hasMany(pvdc::class);
+        return $this->hasMany(Pvdc::class);
     }
 
     public function wire()
     {
-        return $this->hasMany(wire::class);
+        return $this->hasMany(Wire::class);
     }
 }

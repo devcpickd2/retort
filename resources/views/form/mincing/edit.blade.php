@@ -7,7 +7,7 @@
         <div class="card-body">
             <h4 class="mb-4 fw-bold text-primary">
                 <i class="bi bi-pencil-square me-2"></i>
-                Edit Pemeriksaan Mincing - Emulsifying - Aging
+                Edit Pemeriksaan Mincing - Emulsifying - Aging (SPV)
             </h4>
 
             <form id="mincingForm" action="{{ route('mincing.edit_spv', $mincing->uuid) }}" method="POST">
@@ -105,8 +105,11 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tbodyNonPremix">
+                                    {{-- FIX: Cek array sebelum decode --}}
                                     @php
-                                        $nonPremix = json_decode($mincing->non_premix ?? '[]', true);
+                                        $nonPremix = is_array($mincing->non_premix) 
+                                            ? $mincing->non_premix 
+                                            : json_decode($mincing->non_premix ?? '[]', true);
                                     @endphp
 
                                     @if(!empty($nonPremix) && is_array($nonPremix))
@@ -169,8 +172,11 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tbodyPremix">
+                                    {{-- FIX: Cek array sebelum decode --}}
                                     @php
-                                        $premix = json_decode($mincing->premix ?? '[]', true);
+                                        $premix = is_array($mincing->premix) 
+                                            ? $mincing->premix 
+                                            : json_decode($mincing->premix ?? '[]', true);
                                     @endphp
 
                                     @if(!empty($premix) && is_array($premix))
@@ -211,7 +217,14 @@
                                         <td colspan="3" class="p-0">
                                             <table class="table table-borderless mb-0">
                                                 <tbody id="tbodySuhuGrinding">
-                                                    @forelse($suhuData as $key => $item)
+                                                    {{-- FIX: Gunakan variabel $suhuData yang dikirim controller, atau ambil dari model dengan cek array --}}
+                                                    @php
+                                                        $suhuDataLocal = $suhuData ?? (is_array($mincing->suhu_sebelum_grinding) 
+                                                            ? $mincing->suhu_sebelum_grinding 
+                                                            : json_decode($mincing->suhu_sebelum_grinding ?? '[]', true));
+                                                    @endphp
+                                                    
+                                                    @forelse($suhuDataLocal as $key => $item)
                                                     <tr>
                                                         <td style="width: 45%;">
                                                             <select name="suhu_grinding_input[{{$key}}][daging]" class="form-control form-select-sm">
@@ -261,7 +274,7 @@
                                         </td>
                                     </tr>
 
-                                    {{-- BARIS WAKTU MIXING PREMIX (PERSIS SEPERTI GAMBAR) --}}
+                                    {{-- BARIS WAKTU MIXING PREMIX --}}
                                     <tr>
                                         <td class="text-start fw-semibold bg-light">Waktu Mixing Premix (Menit)</td>
                                         <td style="width: 32%;">
@@ -386,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{{-- Validasi Kode Produksi (sama seperti create) --}}
+{{-- Validasi Kode Produksi --}}
 <script>
 $(function(){
     const kodeInput = $('#kode_produksi');
@@ -404,15 +417,6 @@ $(function(){
         }
         if (!/^[A-Z0-9]+$/.test(value)) {
             kodeError.text('Hanya huruf besar & angka').removeClass('d-none');
-            return false;
-        }
-        if (!/^[A-L]$/.test(value.charAt(1))) {
-            kodeError.text('Karakter ke-2 harus huruf bulan (A-L)').removeClass('d-none');
-            return false;
-        }
-        let hari = parseInt(value.substr(2,2), 10);
-        if (isNaN(hari) || hari < 1 || hari > 31) {
-            kodeError.text('Karakter ke-3 & ke-4 harus tanggal valid (01-31)').removeClass('d-none');
             return false;
         }
         return true;
@@ -436,9 +440,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const tbodyNon = document.getElementById('tbodyNonPremix');
     const tbodyPremix = document.getElementById('tbodyPremix');
 
-    // starting indices = jumlah existing rows (so new rows use next index)
-    let indexNon = {{ max( (int)count($nonPremix), 1 ) }};
-    let indexPremix = {{ max( (int)count($premix), 1 ) }};
+    // starting indices based on rendered data
+    let indexNon = {{ max( (isset($nonPremix) ? count($nonPremix) : 0), 1 ) }};
+    let indexPremix = {{ max( (isset($premix) ? count($premix) : 0), 1 ) }};
 
     // Tambah Non-Premix
     document.getElementById('tambahBarisNonPremix').addEventListener('click', function() {
@@ -492,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnTambahSuhu = document.getElementById('tambahBarisSuhu');
     
     // Gunakan jumlah baris yang dirender PHP sebagai indeks awal
-    let indexSuhu = tbodySuhu.querySelectorAll('tr').length;
+    let indexSuhu = tbodySuhu ? tbodySuhu.querySelectorAll('tr').length : 0;
 
     if (btnTambahSuhu) {
         btnTambahSuhu.addEventListener('click', function() {

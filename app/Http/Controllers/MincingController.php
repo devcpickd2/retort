@@ -364,7 +364,7 @@ public function edit_spv(Request $request, string $uuid)
     ];
     $mincing->update($data);
 
-    return redirect()->route('mincing.verification')->with('success', 'Data SPV berhasil diperbarui');
+    return redirect()->route('mincing.index')->with('success', 'Data berhasil diperbarui');
 }
 
 public function verification(Request $request)
@@ -390,7 +390,7 @@ public function verification(Request $request)
     ->paginate(10)
     ->appends($request->all());
 
-    return view('form.mincing.verification', compact('data', 'search', 'date'));
+    return view('form.mincing.index', compact('data', 'search', 'date'));
 }
 
 public function updateVerification(Request $request, $uuid)
@@ -409,7 +409,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv'  => now(),
     ]);
 
-    return redirect()->route('mincing.verification')
+    return redirect()->route('mincing.index')
     ->with('success', 'Status Verifikasi Pengecekan mincing berhasil diperbarui.');
 }
 
