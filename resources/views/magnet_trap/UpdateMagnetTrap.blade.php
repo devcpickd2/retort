@@ -87,7 +87,7 @@
                         
                         {{-- Field: Nama Produk --}}
                         <div class="mb-3">
-                            <label for="nama_produk" class="form-label">{{ __('Nama Produk') }}</label>
+                            <label for="nama_produk" class="form-label">{{ __('Nama Varian') }}</label>
                             
                             {{-- Cek apakah data sudah ada --}}
                             @php $isProdukFilled = !empty($checklistmagnettrap->nama_produk); @endphp
@@ -332,7 +332,7 @@
         $('.select2').select2({
             theme: "bootstrap-5",
             width: '100%', 
-            placeholder: "Ketik untuk mencari produk...",
+            placeholder: "Ketik untuk mencari varian...",
         });
 
         // --- 2. LOGIC KODE BATCH ---
