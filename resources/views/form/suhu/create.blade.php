@@ -35,7 +35,14 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Pukul</label>
-                                <input type="time" id="timeInput" name="pukul" class="form-control" step="3600" required>
+                                <input
+                                type="time"
+                                name="pukul"
+                                id="timeInput"
+                                class="form-control"
+                                step="3600"
+                                required
+                                onkeydown="return false">
                             </div>
                         </div>
                     </div>
@@ -129,13 +136,18 @@
     // ====== Set tanggal & shift otomatis ======
         const dateInput = document.getElementById("dateInput");
         const shiftInput = document.getElementById("shiftInput");
+        const timeInput = document.getElementById("timeInput");
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
         const dd = String(now.getDate()).padStart(2, '0');
         const hh = now.getHours();
+        let min = '00';
 
         dateInput.value = `${yyyy}-${mm}-${dd}`;
+        if (!timeInput.value) {
+            timeInput.value = `${hh}:${min}`;
+        }
         if (hh >= 7 && hh < 15) shiftInput.value = "1";
         else if (hh >= 15 && hh < 23) shiftInput.value = "2";
         else shiftInput.value = "3";
@@ -190,15 +202,7 @@
         });
     });
 </script>
-<script>
-    document.getElementById('timeInput').addEventListener('input', function() {
-        let val = this.value; 
-        if(val){
-            let jam = val.split(':')[0];
-            this.value = jam.padStart(2,'0') + ':00'; 
-        }
-    });
-</script>
+
 @endpush
 
 @endsection

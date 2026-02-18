@@ -253,7 +253,7 @@ public function edit_spv(Request $request, string $uuid)
         'cooking'          => json_encode($request->input('cooking', []), JSON_UNESCAPED_UNICODE),
     ]);
 
-    return redirect()->route('pemasakan_rte.verification')->with('success', 'Pengecekan Pemasakan RTE berhasil diperbarui');
+    return redirect()->route('pemasakan_rte.index')->with('success', 'Pengecekan Pemasakan RTE berhasil diperbarui');
 }
 
 public function verification(Request $request)
@@ -279,7 +279,7 @@ public function verification(Request $request)
     ->paginate(10)
     ->appends($request->all());
 
-    return view('form.pemasakan_rte.verification', compact('data', 'search', 'date'));
+    return view('form.pemasakan_rte.index', compact('data', 'search', 'date'));
 }
 
 public function updateVerification(Request $request, $uuid)
@@ -298,7 +298,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv'  => now(),
     ]);
 
-    return redirect()->route('pemasakan_rte.verification')
+    return redirect()->route('pemasakan_rte.index')
     ->with('success', 'Status Verifikasi Pengecekan Pemasakan RTE berhasil diperbarui.');
 }
 
@@ -307,7 +307,7 @@ public function destroy($uuid)
     $pemasakan_rte = Pemasakan_rte::where('uuid', $uuid)->firstOrFail();
     $pemasakan_rte->delete();
 
-    return redirect()->route('pemasakan_rte.verification')
+    return redirect()->route('pemasakan_rte.index')
     ->with('success', 'Pengecekan Pemasakan RTE berhasil dihapus');
 }
 }

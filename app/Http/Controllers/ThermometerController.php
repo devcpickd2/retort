@@ -156,7 +156,7 @@ class ThermometerController extends Controller
             'peneraan'         => $request->peneraan,
         ]);
 
-        return redirect()->route('thermometer.verification')
+        return redirect()->route('thermometer.index')
         ->with('success', 'Peneraan Thermometer berhasil diperbarui');
     }
 
@@ -182,7 +182,7 @@ class ThermometerController extends Controller
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.thermometer.verification', compact('data', 'search', 'date'));
+        return view('form.thermometer.index', compact('data', 'search', 'date'));
     }
 
     public function updateVerification(Request $request, $uuid)
@@ -201,7 +201,7 @@ class ThermometerController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('thermometer.verification')
+        return redirect()->route('thermometer.index')
         ->with('success', 'Status verifikasi Peneraan Thermometer berhasil diperbarui.');
     }
 
@@ -210,7 +210,7 @@ class ThermometerController extends Controller
         $thermometer = Thermometer::where('uuid', $uuid)->firstOrFail();
         $thermometer->delete();
 
-        return redirect()->route('thermometer.verification')
+        return redirect()->route('thermometer.index')
         ->with('success', '🗑️ Peneraan Thermometer berhasil dihapus.');
     }
 

@@ -200,7 +200,7 @@ class Retain_rteController extends Controller
 
         $retain_rte->update($data);
 
-        return redirect()->route('retain_rte.verification')->with('success', 'Data Pemeriksaan Sampel Retain RTE berhasil diperbarui');
+        return redirect()->route('retain_rte.index')->with('success', 'Data Pemeriksaan Sampel Retain RTE berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -226,7 +226,7 @@ class Retain_rteController extends Controller
        ->paginate(10)
        ->appends($request->all());
 
-       return view('form.retain_rte.verification', compact('data', 'search', 'date' ));
+       return view('form.retain_rte.index', compact('data', 'search', 'date' ));
    }
 
    public function updateVerification(Request $request, $uuid)
@@ -245,7 +245,7 @@ class Retain_rteController extends Controller
         'tgl_update_spv'  => now(),
     ]);
 
-    return redirect()->route('retain_rte.verification')
+    return redirect()->route('retain_rte.index')
     ->with('success', 'Status Verifikasi Pemeriksaan Sampel Retain RTE berhasil diperbarui.');
 }
 
@@ -254,7 +254,7 @@ public function destroy($uuid)
     $retain_rte = Retain_rte::where('uuid', $uuid)->firstOrFail();
     $retain_rte->delete();
 
-    return redirect()->route('retain_rte.verification')
+    return redirect()->route('retain_rte.index')
     ->with('success', 'Pemeriksaan Sampel Retain RTE berhasil dihapus');
 }
 }

@@ -88,7 +88,7 @@
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-save"></i> Update
                     </button>
-                    <a href="{{ route('sanitasi.verification') }}" class="btn btn-secondary">
+                    <a href="{{ route('sanitasi.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Kembali
                     </a>
                 </div>

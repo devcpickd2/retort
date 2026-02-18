@@ -100,7 +100,7 @@
                     <button class="btn btn-primary w-auto">
                         <i class="bi bi-save"></i> Update
                     </button>
-                    <a href="{{ route('thermometer.verification') }}" class="btn btn-secondary w-auto">
+                    <a href="{{ route('thermometer.index') }}" class="btn btn-secondary w-auto">
                         <i class="bi bi-arrow-left"></i> Batal
                     </a>
                 </div>

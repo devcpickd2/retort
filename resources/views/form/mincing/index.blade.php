@@ -73,7 +73,7 @@
                         </span>
                     </div>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
-                    value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
+                    value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Batch...">
                 </div>
             </div>
             <div class="col-md-3 align-self-end">
@@ -124,8 +124,8 @@
                         <tr>
                             <th>NO.</th>
                             <th>Date | Shift</th>
-                            <th>Nama Produk</th>
-                            <th>Kode Produksi</th>
+                            <th>Nama Varian</th>
+                            <th>Kode Batch</th>
                             <th>Hasil Pemeriksaan</th>
                             <th>QC</th>
                             <th>Produksi</th>
@@ -150,8 +150,16 @@
                                 </a>
 
                                 @php
-                                $nonPremixItems = json_decode($dep->non_premix ?? '[]', true);
-                                $premixItems    = json_decode($dep->premix ?? '[]', true);
+                                    $nonPremixItems = $dep->non_premix ?? [];
+                                    $premixItems    = $dep->premix ?? [];
+
+                                    // Opsional: Jaga-jaga jika ada data lama yang masih string (belum ter-cast sempurna)
+                                    if (is_string($nonPremixItems)) {
+                                        $nonPremixItems = json_decode($nonPremixItems, true);
+                                    }
+                                    if (is_string($premixItems)) {
+                                        $premixItems = json_decode($premixItems, true);
+                                    }
                                 @endphp
 
                                 <div class="modal fade" id="mincingModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="mincingModalLabel{{ $dep->uuid }}" aria-hidden="true">
@@ -166,7 +174,7 @@
                                                     <tbody>
                                                         {{-- KODE PRODUKSI --}}
                                                         <tr>
-                                                            <td class="text-left">Kode Produksi</td>
+                                                            <td class="text-left">Kode Batch</td>
                                                             <td colspan="5">{{ $dep->kode_produksi ?? '-' }}</td>
                                                         </tr>
 
@@ -225,7 +233,28 @@
                                                         {{-- SUHU & WAKTU --}}
                                                         <tr>
                                                             <td class="text-left">Suhu (Sebelum Grinding)</td>
-                                                            <td colspan="5">{{ $dep->suhu_sebelum_grinding ?? '-' }}</td>
+                                                            <td colspan="5">
+                                                                @php
+                                                                    $rawSuhu = $dep->suhu_sebelum_grinding;
+                                                                    // Decode jika string (kasus data legacy/error)
+                                                                    if(is_string($rawSuhu)) $rawSuhu = json_decode($rawSuhu, true);
+                                                                @endphp
+
+                                                                @if(!empty($rawSuhu) && is_array($rawSuhu))
+                                                                    <div class="d-flex flex-wrap gap-2">
+                                                                        @foreach($rawSuhu as $s)
+                                                                            <span class="badge bg-secondary text-white border">
+                                                                                {{ $s['daging'] ?? '?' }}: {{ $s['suhu'] ?? '-' }}°C
+                                                                            </span>
+                                                                        @endforeach
+                                                                    </div>
+                                                                @elseif(!empty($dep->daging))
+                                                                    {{-- Fallback Tampilan Lama --}}
+                                                                    {{ $dep->daging }}: {{ $dep->suhu_sebelum_grinding }}°C
+                                                                @else
+                                                                    -
+                                                                @endif
+                                                            </td>
                                                         </tr>
                                                         <tr>
                                                             <td class="text-left">Waktu Mixing Premix</td>

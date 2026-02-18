@@ -156,7 +156,7 @@ public function edit_spv(Request $request, string $uuid)
 
     $sanitasi->update($data);
 
-    return redirect()->route('sanitasi.verification')
+    return redirect()->route('sanitasi.index')
     ->with('success', 'Data QC berhasil diperbarui');
 }
 
@@ -183,7 +183,7 @@ public function verification(Request $request)
     ->paginate(10)
     ->appends($request->all());
 
-    return view('form.sanitasi.verification', compact('data', 'search', 'date'));
+    return view('form.sanitasi.index', compact('data', 'search', 'date'));
 }
 
 public function updateVerification(Request $request, $uuid)
@@ -202,7 +202,7 @@ public function updateVerification(Request $request, $uuid)
         'tgl_update_spv'  => now(),
     ]);
 
-    return redirect()->route('sanitasi.verification')
+    return redirect()->route('sanitasi.index')
     ->with('success', 'Status Verifikasi Pengecekan sanitasi berhasil diperbarui.');
 }
 
@@ -211,7 +211,7 @@ public function destroy($uuid)
     $sanitasi = Sanitasi::where('uuid', $uuid)->firstOrFail();
     $sanitasi->delete();
 
-    return redirect()->route('sanitasi.verification')
+    return redirect()->route('sanitasi.index')
     ->with('success', 'Pengecekan sanitasi berhasil dihapus');
 }
 

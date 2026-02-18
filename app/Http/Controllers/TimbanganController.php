@@ -165,7 +165,7 @@ class TimbanganController extends Controller
             'peneraan'         => json_encode($request->peneraan, JSON_UNESCAPED_UNICODE),
         ]);
 
-        return redirect()->route('timbangan.verification')
+        return redirect()->route('timbangan.index')
         ->with('success', 'Peneraan Timbangan berhasil diperbarui');
     }
 
@@ -191,7 +191,7 @@ class TimbanganController extends Controller
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.timbangan.verification', compact('data', 'search', 'date'));
+        return view('form.timbangan.index', compact('data', 'search', 'date'));
     }
 
     public function updateVerification(Request $request, $uuid)
@@ -210,7 +210,7 @@ class TimbanganController extends Controller
             'tgl_update_spv'  => now(),
         ]);
 
-        return redirect()->route('timbangan.verification')
+        return redirect()->route('timbangan.index')
         ->with('success', 'Status verifikasi peneraan timbangan berhasil diperbarui.');
     }
 
@@ -219,7 +219,7 @@ class TimbanganController extends Controller
         $timbangan = Timbangan::where('uuid', $uuid)->firstOrFail();
         $timbangan->delete();
 
-        return redirect()->route('timbangan.verification')
+        return redirect()->route('timbangan.index')
         ->with('success', '🗑️ Peneraan Timbangan berhasil dihapus.');
     }
 

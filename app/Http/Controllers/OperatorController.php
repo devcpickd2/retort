@@ -19,7 +19,8 @@ class OperatorController extends Controller
         $search = $request->input('search');
         $userPlantUuid = Auth::user()->plant; 
 
-        $operator = Operator::where('plant', $userPlantUuid)
+        $operator = Operator::with('dataPlant')
+        ->where('plant', $userPlantUuid)
         ->when($search, function($query, $search) {
             $query->where('nama_karyawan', 'like', "%{$search}%")
             ->orWhere('bagian', 'like', "%{$search}%");

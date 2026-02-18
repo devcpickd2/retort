@@ -7,7 +7,7 @@
         <div class="card-body">
             <h4 class="mb-4 fw-bold text-primary">
                 <i class="bi bi-pencil-square me-2"></i>
-                Edit Pemeriksaan Mincing - Emulsifying - Aging
+                Edit Pemeriksaan Mincing - Emulsifying - Aging (SPV)
             </h4>
 
             <form id="mincingForm" action="{{ route('mincing.edit_spv', $mincing->uuid) }}" method="POST">
@@ -38,7 +38,7 @@
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Nama Produk</label>
+                                <label class="form-label fw-semibold">Nama Varian</label>
                                 <select name="nama_produk" class="form-control selectpicker" data-live-search="true" required>
                                     <option value="">-- Pilih Produk --</option>
                                     @foreach($produks as $produk)
@@ -51,7 +51,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Kode Produksi</label>
+                                <label class="form-label fw-semibold">Kode Batch</label>
                                 <input type="text" name="kode_produksi" id="kode_produksi"
                                     class="form-control text-uppercase" maxlength="10"
                                     value="{{ old('kode_produksi', $mincing->kode_produksi) }}" required>
@@ -105,8 +105,11 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tbodyNonPremix">
+                                    {{-- FIX: Cek array sebelum decode --}}
                                     @php
-                                        $nonPremix = json_decode($mincing->non_premix ?? '[]', true);
+                                        $nonPremix = is_array($mincing->non_premix) 
+                                            ? $mincing->non_premix 
+                                            : json_decode($mincing->non_premix ?? '[]', true);
                                     @endphp
 
                                     @if(!empty($nonPremix) && is_array($nonPremix))
@@ -169,8 +172,11 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tbodyPremix">
+                                    {{-- FIX: Cek array sebelum decode --}}
                                     @php
-                                        $premix = json_decode($mincing->premix ?? '[]', true);
+                                        $premix = is_array($mincing->premix) 
+                                            ? $mincing->premix 
+                                            : json_decode($mincing->premix ?? '[]', true);
                                     @endphp
 
                                     @if(!empty($premix) && is_array($premix))
@@ -203,31 +209,81 @@
                         {{-- ===================== PROSES MIXING, GEL, EMULSI ===================== --}}
                         <div class="table-responsive mb-4">
                             {{-- Suhu sebelum grinding & mixing premix --}}
-                            <table class="table table-bordered text-center align-middle mb-4">
+                            <table class="table table-bordered align-middle mb-0">
                                 <tbody>
+                                    {{-- BARIS SUHU SEBELUM GRINDING --}}
                                     <tr>
-                                        <td class="text-start fw-semibold">Suhu (Sebelum Grinding)</td>
-                                        <td>
-                                            <select name="daging" class="form-control form-select-sm">
-                                                <option value="" disabled {{ empty(old('daging', $mincing->daging)) ? 'selected' : '' }}>Pilih Daging</option>
-                                                <option value="BEEF" {{ old('daging', $mincing->daging) == 'BEEF' ? 'selected' : '' }}>BEEF</option>
-                                                <option value="SBB" {{ old('daging', $mincing->daging) == 'SBB' ? 'selected' : '' }}>SBB</option>
-                                                <option value="SBL" {{ old('daging', $mincing->daging) == 'SBL' ? 'selected' : '' }}>SBL</option>
-                                                <option value="MDM" {{ old('daging', $mincing->daging) == 'MDM' ? 'selected' : '' }}>MDM</option>
-                                                <option value="CCM" {{ old('daging', $mincing->daging) == 'CCM' ? 'selected' : '' }}>CCM</option>
-                                            </select>
-                                        </td>
-                                        <td colspan="2">
-                                            <input type="number" name="suhu_sebelum_grinding" step="0.01" class="form-control form-control-sm text-center"
-                                                value="{{ old('suhu_sebelum_grinding', $mincing->suhu_sebelum_grinding) }}">
+                                        <td class="text-start fw-semibold bg-light" style="width: 25%;">Suhu (Sebelum Grinding)</td>
+                                        <td colspan="3" class="p-0">
+                                            <table class="table table-borderless mb-0">
+                                                <tbody id="tbodySuhuGrinding">
+                                                    {{-- FIX: Gunakan variabel $suhuData yang dikirim controller, atau ambil dari model dengan cek array --}}
+                                                    @php
+                                                        $suhuDataLocal = $suhuData ?? (is_array($mincing->suhu_sebelum_grinding) 
+                                                            ? $mincing->suhu_sebelum_grinding 
+                                                            : json_decode($mincing->suhu_sebelum_grinding ?? '[]', true));
+                                                    @endphp
+                                                    
+                                                    @forelse($suhuDataLocal as $key => $item)
+                                                    <tr>
+                                                        <td style="width: 45%;">
+                                                            <select name="suhu_grinding_input[{{$key}}][daging]" class="form-control form-select-sm">
+                                                                <option value="" disabled>Pilih Daging</option>
+                                                                <option value="BEEF" {{ ($item['daging'] ?? '') == 'BEEF' ? 'selected' : '' }}>BEEF</option>
+                                                                <option value="SBB" {{ ($item['daging'] ?? '') == 'SBB' ? 'selected' : '' }}>SBB</option>
+                                                                <option value="SBL" {{ ($item['daging'] ?? '') == 'SBL' ? 'selected' : '' }}>SBL</option>
+                                                                <option value="MDM" {{ ($item['daging'] ?? '') == 'MDM' ? 'selected' : '' }}>MDM</option>
+                                                                <option value="CCM" {{ ($item['daging'] ?? '') == 'CCM' ? 'selected' : '' }}>CCM</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="width: 45%;">
+                                                            <input type="number" name="suhu_grinding_input[{{$key}}][suhu]" value="{{ $item['suhu'] ?? '' }}" step="0.01" class="form-control form-control-sm text-center" placeholder="0.00">
+                                                        </td>
+                                                        <td style="width: 10%;">
+                                                            <button type="button" class="btn btn-sm btn-danger hapusBarisSuhu"><i class="bi bi-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                    @empty
+                                                    {{-- Baris default jika data kosong --}}
+                                                    <tr>
+                                                        <td style="width: 45%;">
+                                                            <select name="suhu_grinding_input[0][daging]" class="form-control form-select-sm">
+                                                                <option value="" selected disabled>Pilih Daging</option>
+                                                                <option value="BEEF">BEEF</option>
+                                                                <option value="SBB">SBB</option>
+                                                                <option value="SBL">SBL</option>
+                                                                <option value="MDM">MDM</option>
+                                                                <option value="CCM">CCM</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="width: 45%;">
+                                                            <input type="number" name="suhu_grinding_input[0][suhu]" step="0.01" class="form-control form-control-sm text-center" placeholder="0.00">
+                                                        </td>
+                                                        <td style="width: 10%;">
+                                                            <button type="button" class="btn btn-sm btn-danger hapusBarisSuhu"><i class="bi bi-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                            <div class="p-2 border-top bg-white">
+                                                <button type="button" class="btn btn-success btn-sm" id="tambahBarisSuhu">
+                                                    <i class="bi bi-plus-circle"></i> Tambah Daging
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
 
+                                    {{-- BARIS WAKTU MIXING PREMIX --}}
                                     <tr>
-                                        <td class="text-start fw-semibold">Waktu Mixing Premix (Menit)</td>
-                                        <td><input type="time" name="waktu_mixing_premix_awal" class="form-control form-control-sm text-center" value="{{ old('waktu_mixing_premix_awal', $mincing->waktu_mixing_premix_awal) }}"></td>
-                                        <td class="fw-bold">s/d</td>
-                                        <td><input type="time" name="waktu_mixing_premix_akhir" class="form-control form-control-sm text-center" value="{{ old('waktu_mixing_premix_akhir', $mincing->waktu_mixing_premix_akhir) }}"></td>
+                                        <td class="text-start fw-semibold bg-light">Waktu Mixing Premix (Menit)</td>
+                                        <td style="width: 32%;">
+                                            <input type="time" name="waktu_mixing_premix_awal" class="form-control form-control-sm text-center" value="{{ old('waktu_mixing_premix_awal', $mincing->waktu_mixing_premix_awal) }}">
+                                        </td>
+                                        <td class="fw-bold text-center" style="width: 6%;">s/d</td>
+                                        <td style="width: 37%;">
+                                            <input type="time" name="waktu_mixing_premix_akhir" class="form-control form-control-sm text-center" value="{{ old('waktu_mixing_premix_akhir', $mincing->waktu_mixing_premix_akhir) }}">
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -343,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{{-- Validasi Kode Produksi (sama seperti create) --}}
+{{-- Validasi Kode Produksi --}}
 <script>
 $(function(){
     const kodeInput = $('#kode_produksi');
@@ -356,20 +412,11 @@ $(function(){
         kodeError.text('').addClass('d-none');
 
         if (value.length !== 10) {
-            kodeError.text('Kode produksi harus 10 karakter').removeClass('d-none');
+            kodeError.text('Kode Batch harus 10 karakter').removeClass('d-none');
             return false;
         }
         if (!/^[A-Z0-9]+$/.test(value)) {
             kodeError.text('Hanya huruf besar & angka').removeClass('d-none');
-            return false;
-        }
-        if (!/^[A-L]$/.test(value.charAt(1))) {
-            kodeError.text('Karakter ke-2 harus huruf bulan (A-L)').removeClass('d-none');
-            return false;
-        }
-        let hari = parseInt(value.substr(2,2), 10);
-        if (isNaN(hari) || hari < 1 || hari > 31) {
-            kodeError.text('Karakter ke-3 & ke-4 harus tanggal valid (01-31)').removeClass('d-none');
             return false;
         }
         return true;
@@ -380,7 +427,7 @@ $(function(){
     form.on('submit', function(e){
         if (!validateKode()) {
             e.preventDefault();
-            alert('Kode produksi tidak valid! Periksa kembali.');
+            alert('Kode Batch tidak valid! Periksa kembali.');
             kodeInput.focus();
         }
     });
@@ -393,9 +440,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const tbodyNon = document.getElementById('tbodyNonPremix');
     const tbodyPremix = document.getElementById('tbodyPremix');
 
-    // starting indices = jumlah existing rows (so new rows use next index)
-    let indexNon = {{ max( (int)count($nonPremix), 1 ) }};
-    let indexPremix = {{ max( (int)count($premix), 1 ) }};
+    // starting indices based on rendered data
+    let indexNon = {{ max( (isset($nonPremix) ? count($nonPremix) : 0), 1 ) }};
+    let indexPremix = {{ max( (isset($premix) ? count($premix) : 0), 1 ) }};
 
     // Tambah Non-Premix
     document.getElementById('tambahBarisNonPremix').addEventListener('click', function() {
@@ -440,6 +487,54 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.closest('tr').remove();
         }
     });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tbodySuhu = document.getElementById('tbodySuhuGrinding');
+    const btnTambahSuhu = document.getElementById('tambahBarisSuhu');
+    
+    // Gunakan jumlah baris yang dirender PHP sebagai indeks awal
+    let indexSuhu = tbodySuhu ? tbodySuhu.querySelectorAll('tr').length : 0;
+
+    if (btnTambahSuhu) {
+        btnTambahSuhu.addEventListener('click', function() {
+            const row = `
+            <tr>
+                <td style="width: 45%;">
+                    <select name="suhu_grinding_input[${indexSuhu}][daging]" class="form-control form-select-sm">
+                        <option value="" selected disabled>Pilih Daging</option>
+                        <option value="BEEF">BEEF</option>
+                        <option value="SBB">SBB</option>
+                        <option value="SBL">SBL</option>
+                        <option value="MDM">MDM</option>
+                        <option value="CCM">CCM</option>
+                    </select>
+                </td>
+                <td style="width: 45%;">
+                    <input type="number" name="suhu_grinding_input[${indexSuhu}][suhu]" step="0.01" class="form-control form-control-sm text-center" placeholder="0.00">
+                </td>
+                <td style="width: 10%;">
+                    <button type="button" class="btn btn-sm btn-danger hapusBarisSuhu"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>`;
+            
+            tbodySuhu.insertAdjacentHTML('beforeend', row);
+            indexSuhu++;
+        });
+
+        // Event delegation untuk hapus
+        tbodySuhu.addEventListener('click', function(e) {
+            if (e.target.closest('.hapusBarisSuhu')) {
+                if (tbodySuhu.querySelectorAll('tr').length > 1) {
+                    e.target.closest('tr').remove();
+                } else {
+                    alert("Minimal harus ada satu input suhu.");
+                }
+            }
+        });
+    }
 });
 </script>
 

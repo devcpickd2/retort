@@ -14,20 +14,6 @@ use Throwable;
 class ApiController extends Controller
 {
 
-    private function _mapRole($roleName)
-    {
-        $mapping = [
-            'superadmin' => 0,
-            'admin' => 1,
-            'Manager' => 2,
-            'SPV QC' => 3,
-            'Forelady' => 4,
-            'Produksi' => 5,
-            'QC Inspector' => 6,
-        ];
-
-        return $mapping[$roleName] ?? null;
-    }
 
     public function syncUser(Request $request)
     {
@@ -61,7 +47,7 @@ class ApiController extends Controller
             );
 
             // Cek user existing
-            $existingUser = User::where('username', $user['username'])->first();
+            $existingUser = User::withTrashed()->where('username', $user['username'])->first();
 
             $userData = [
                 'uuid' => $user['uuid'] ?? Str::uuid(),
@@ -70,7 +56,6 @@ class ApiController extends Controller
                 'email' => $user['email'] ?? null,
                 'department' => $departemen->uuid,
                 'plant' => $plant->uuid,
-                'type_user' => $this->_mapRole($user['project_role']['role'] ?? null) ?? 0,
                 'activation' => $user['activation'] ?? 0,
             ];
 
@@ -79,9 +64,22 @@ class ApiController extends Controller
             }
 
             if ($existingUser) {
+                if ($existingUser->trashed()) {
+                    $existingUser->restore();
+                }
+
                 $existingUser->update($userData);
+
+                if (!empty($user['project_role']['role'])) {
+                    // Replace roles instead of adding new ones
+                    $existingUser->syncRoles([$user['project_role']['role']]);
+                }
             } else {
-                User::create($userData);
+                $newUser = User::create($userData);
+
+                if (!empty($user['project_role']['role'])) {
+                    $newUser->assignRole($user['project_role']['role']);
+                }
             }
 
             DB::commit();
@@ -105,21 +103,21 @@ class ApiController extends Controller
 
         DB::beginTransaction();
         try {
-            $plant = Plant::updateOrCreate(
-                ['uuid' => $plantData['uuid'] ?? Str::uuid()],
-                [
-                    'plant' => $plantData['plant'],
-                    'kode'  => $plantData['kode'] ?? strtoupper(substr($plantData['plant'], 0, 3)),
-                ]
-            );
 
-            if (!empty($plantData['departments']) && is_array($plantData['departments'])) {
-                foreach ($plantData['departments'] as $deptData) {
-                    Departemen::updateOrCreate(
-                        ['uuid' => $deptData['uuid'] ?? Str::uuid()],
-                        ['nama' => $deptData['department']]
-                    );
-                }
+            $plant = Plant::where('uuid', $plantData['uuid'])
+                ->orWhere('plant', 'LIKE', '%' . $plantData['uuid'] . '%')
+                ->first();
+
+            if($plant) {
+                $plant->update([
+                    'uuid' => $plantData['uuid'],
+                    'plant' => $plantData['plant']
+                ]);
+            } else {
+                $plant = Plant::create([
+                    'uuid' => $plantData['uuid'],
+                    'plant' => $plantData['plant']
+                ]);
             }
 
             DB::commit();

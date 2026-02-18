@@ -55,12 +55,12 @@
                      <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Reject</label>
-                            <input type="number" name="reject" id="reject" class="form-control">
+                            <input type="number" name="reject" id="reject" class="form-control" min="1">
                         </div>
 
                         <div class="col-md-6">
                             <label class="form-label">Release</label>
-                            <input type="number" name="release" id="release" class="form-control">
+                            <input type="number" name="release" id="release" class="form-control" min="1">
                         </div>
                     </div>
                 </div>

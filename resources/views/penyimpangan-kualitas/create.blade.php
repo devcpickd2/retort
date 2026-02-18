@@ -84,17 +84,15 @@
                                        value="{{ old('lot_kode') }}">
                             </div>
                              <div class="col-md-3">
-                                <label for="jumlah" class="form-label">Jumlah</label>
-                                <input type="text" name="jumlah" id="jumlah" class="form-control" 
-                                       placeholder="Contoh: 10 Karton"
-                                       value="{{ old('jumlah') }}">
+                                <label for="jumlah" class="form-label">Jumlah (Karton)</label>
+                                <input type="number" name="jumlah" id="jumlah" class="form-control" value="{{ old('jumlah') }}">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- CARD 3: HASIL & PENYELESAIAN (TEXTAREA) --}}
-                <div class="card mb-4">
+                <div class="card mb-4"> 
                     <div class="card-header">
                         <strong><i class="bi bi-card-text"></i> Keterangan dan Penyelesaian</strong>
                     </div>

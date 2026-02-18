@@ -43,7 +43,7 @@
                         <i class="bi bi-search text-muted"></i>
                     </span>
                     <input type="text" name="search" id="search" class="form-control border-start-0"
-                    value="{{ request('search') }}" placeholder="Cari Nama Produk / Kode Produksi...">
+                    value="{{ request('search') }}" placeholder="Cari Nama Varian / Kode Batch...">
                 </div>
             </form>
 
@@ -70,8 +70,8 @@
                         <tr>
                             <th>NO.</th>
                             <th>Date | Shift</th>
-                            <th>Nama Produk</th>
-                            <th>Kode Produksi</th>
+                            <th>Nama Varian</th>
+                            <th>Kode Batch</th>
                             <th>Hasil Pemeriksaan</th>
                             <th>QC</th>
                             <th>Produksi</th>
@@ -116,7 +116,7 @@
                                                     <tbody>
                                                         {{-- KODE PRODUKSI --}}
                                                         <tr>
-                                                            <td class="text-left">Kode Produksi</td>
+                                                            <td class="text-left">Kode Batch</td>
                                                             <td colspan="5">{{ $dep->kode_produksi ?? '-' }}</td>
                                                         </tr>
 

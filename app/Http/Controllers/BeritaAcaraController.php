@@ -49,8 +49,8 @@ class BeritaAcaraController extends Controller
         // 4. Sorting & Pagination
         // Menggunakan withQueryString() agar filter tidak hilang saat pindah halaman
         $beritaAcaras = $query->latest()
-                            ->paginate(15)
-                            ->withQueryString();
+        ->paginate(15)
+        ->withQueryString();
 
         return view('berita-acara.index', compact('beritaAcaras'));
     }
@@ -68,25 +68,53 @@ class BeritaAcaraController extends Controller
     public function store(Request $request)
     {
         // Validasi bisa ditambahkan di sini
-        $validatedData = $request->all(); // Sebaiknya divalidasi
+        // $validatedData = $request->all(); 
+      $validatedData = $request->validate(
+        [
+            'nomor' => [
+                'required',
+                Rule::unique('berita_acaras', 'nomor')
+            ],
+
+            'nama_barang' => 'required|string',
+            'jumlah_barang' => 'required|integer',
+            'supplier' => 'required|string',
+
+            'tanggal_kedatangan' => 'required|date',
+
+            'no_surat_jalan' => 'nullable|string',
+            'dd_po' => 'nullable|string',
+            'tanggal_keputusan' => 'nullable|date',
+
+            'uraian_masalah' => 'required|string',
+
+            'analisa_penyebab' => 'nullable|string',
+            'tindak_lanjut_perbaikan' => 'nullable|string',
+            'lampiran' => 'nullable|string',
+        ],
+        [
+            'nomor.required' => 'Nomor berita acara wajib diisi.',
+            'nomor.unique'   => 'Nomor berita acara sudah pernah digunakan.',
+        ]
+    );
 
         // Menambahkan created_by (sesuai foreign key 'uuid' di tabel users)
-        $validatedData['created_by'] = Auth::user()->uuid;
+      $validatedData['created_by'] = Auth::user()->uuid;
 
         // Handle checkbox (jika tidak dicentang, value-nya null)
-        $checkboxes = [
-            'keputusan_pengembalian', 'keputusan_potongan_harga', 'keputusan_sortir',
-            'keputusan_penukaran_barang', 'keputusan_penggantian_biaya'
-        ];
-        foreach ($checkboxes as $cb) {
-            $validatedData[$cb] = $request->has($cb);
-        }
-
-        BeritaAcara::create($validatedData);
-
-        return redirect()->route('berita-acara.index')
-                         ->with('success', 'Berita Acara berhasil dibuat.');
+      $checkboxes = [
+        'keputusan_pengembalian', 'keputusan_potongan_harga', 'keputusan_sortir',
+        'keputusan_penukaran_barang', 'keputusan_penggantian_biaya'
+    ];
+    foreach ($checkboxes as $cb) {
+        $validatedData[$cb] = $request->has($cb);
     }
+
+    BeritaAcara::create($validatedData);
+
+    return redirect()->route('berita-acara.index')
+    ->with('success', 'Berita Acara berhasil dibuat.');
+}
 
     /**
      * Menampilkan detail data.
@@ -107,24 +135,59 @@ class BeritaAcaraController extends Controller
     /**
      * Update data.
      */
+
     public function update(Request $request, BeritaAcara $beritaAcara)
     {
-        $validatedData = $request->all(); // Sebaiknya divalidasi
+        $validatedData = $request->validate(
+            [
+                'nomor' => [
+                    'required',
+                    Rule::unique('berita_acaras', 'nomor')
+                    ->ignore($beritaAcara->id)
+                ],
 
-        // Handle checkbox
+                'nama_barang' => 'required|string',
+                'jumlah_barang' => 'required|integer',
+                'supplier' => 'required|string',
+
+                'tanggal_kedatangan' => 'required|date',
+
+                'no_surat_jalan' => 'nullable|string',
+                'dd_po' => 'nullable|string',
+                'tanggal_keputusan' => 'nullable|date',
+
+                'uraian_masalah' => 'required|string',
+
+                'analisa_penyebab' => 'nullable|string',
+                'tindak_lanjut_perbaikan' => 'nullable|string',
+                'lampiran' => 'nullable|string',
+            ],
+            [
+                'nomor.required' => 'Nomor berita acara wajib diisi.',
+                'nomor.unique'   => 'Nomor berita acara sudah pernah digunakan.',
+            ]
+        );
+
+    // Handle checkbox
         $checkboxes = [
-            'keputusan_pengembalian', 'keputusan_potongan_harga', 'keputusan_sortir',
-            'keputusan_penukaran_barang', 'keputusan_penggantian_biaya'
+            'keputusan_pengembalian',
+            'keputusan_potongan_harga',
+            'keputusan_sortir',
+            'keputusan_penukaran_barang',
+            'keputusan_penggantian_biaya',
         ];
+
         foreach ($checkboxes as $cb) {
             $validatedData[$cb] = $request->has($cb);
         }
 
         $beritaAcara->update($validatedData);
 
-        return redirect()->route('berita-acara.index')
-                         ->with('success', 'Berita Acara berhasil diperbarui.');
+        return redirect()
+        ->route('berita-acara.index')
+        ->with('success', 'Berita Acara berhasil diperbarui.');
     }
+
 
     /**
      * Menghapus data (Soft Delete).
@@ -133,7 +196,7 @@ class BeritaAcaraController extends Controller
     {
         $beritaAcara->delete();
         return redirect()->route('berita-acara.index')
-                         ->with('success', 'Berita Acara berhasil dihapus.');
+        ->with('success', 'Berita Acara berhasil dihapus.');
     }
 
     // --- METODE VERIFIKASI (SESUAI CONTOH ANDA) ---
@@ -159,14 +222,14 @@ class BeritaAcaraController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nomor', 'like', "%{$search}%")
-                    ->orWhere('supplier', 'like', "%{$search}%")
-                    ->orWhere('nama_barang', 'like', "%{$search}%");
+                ->orWhere('supplier', 'like', "%{$search}%")
+                ->orWhere('nama_barang', 'like', "%{$search}%");
             });
         }
 
         $beritaAcaras = $query->with('creator')
-            ->paginate(15)
-            ->appends($request->query());
+        ->paginate(15)
+        ->appends($request->query());
 
         return view('berita-acara.verification-spv', compact('beritaAcaras'));
     }

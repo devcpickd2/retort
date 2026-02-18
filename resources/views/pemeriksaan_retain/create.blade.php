@@ -15,37 +15,46 @@
         background-color: #f8f9fa;
         font-family: 'Inter', sans-serif;
     }
+
     /* Kustomisasi label */
     .form-label {
         font-weight: 600;
         color: #495057;
     }
+
     /* Kustomisasi input, select, dan textarea */
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
         border-radius: 8px;
     }
-    
+
     /* Memastikan Select2 sesuai dengan tinggi Bootstrap */
     .select2-container--bootstrap-5 .select2-selection {
         border-radius: 8px !important;
-        min-height: calc(2.25rem + 2px); /* Match Bootstrap's input height */
+        min-height: calc(2.25rem + 2px);
+        /* Match Bootstrap's input height */
         padding: .375rem .75rem;
     }
+
     .select2-container--bootstrap-5.select2-container--focus .select2-selection,
     .select2-container--bootstrap-5.select2-container--open .select2-selection {
         border-color: #86b7fe;
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
-    
+
     /* Style untuk item dinamis */
     .dynamic-item-card {
         background-color: #fdfdfd;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     /* Style untuk checkbox temuan */
     .temuan-group .form-check-inline {
         margin-right: 1.5rem;
+    }
+
+    .select2-container {
+        width: 100% !important;
     }
 </style>
 @endpush
@@ -61,16 +70,16 @@
 
             {{-- Tampilkan error jika ada --}}
             @if ($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Whoops! Ada beberapa masalah dengan input Anda:</strong>
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="alert alert-danger">
+                <strong>Whoops! Ada beberapa masalah dengan input Anda:</strong>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
             @endif
-            
+
             <form action="{{ route('pemeriksaan_retain.store') }}" method="POST">
                 @csrf
 
@@ -86,7 +95,7 @@
                                 <input type="date" class="form-control @error('tanggal') is-invalid @enderror" id="tanggal" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required>
                                 @error('tanggal') <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span> @enderror
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <label for="hari" class="form-label">Hari</label>
                                 <input type="text" class="form-control @error('hari') is-invalid @enderror" id="hari" name="hari" value="{{ old('hari') }}" required readonly>
@@ -123,7 +132,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 {{-- Tombol Aksi --}}
                 <div class="d-flex justify-content-between mt-4">
                     <button type="submit" class="btn btn-success btn-lg"><i class="bi bi-save"></i> Simpan Data</button>
@@ -145,7 +154,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        
+
         // --- LOGIKA UNTUK HARI & TANGGAL (Dari form asli Anda) ---
         const tanggalInput = document.getElementById('tanggal');
         const hariInput = document.getElementById('hari');
@@ -155,7 +164,9 @@
             if (tanggalValue) {
                 const parts = tanggalValue.split('-');
                 const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
-                const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+                const dayName = dateObj.toLocaleDateString('id-ID', {
+                    weekday: 'long'
+                });
                 hariInput.value = dayName;
             } else {
                 hariInput.value = '';
@@ -176,19 +187,19 @@
          */
         function renderDetailForm(data = null) {
             const i = detailIndex;
-            
+
             // Siapkan nilai default atau dari 'old' data
             const kode_produksi = data?.kode_produksi || '';
             const exp_date = data?.exp_date || '';
             const varian = data?.varian || '';
             const panjang = data?.panjang || '';
             const diameter = data?.diameter || '';
-            
+
             const rasa_val = data?.sensori_rasa || '';
             const warna_val = data?.sensori_warna || '';
             const aroma_val = data?.sensori_aroma || '';
             const texture_val = data?.sensori_texture || '';
-            
+
             const jamur_val = data?.temuan_jamur || false;
             const lendir_val = data?.temuan_lendir || false;
             const pinehole_val = data?.temuan_pinehole || false;
@@ -200,8 +211,8 @@
             const mikro_val = data?.lab_mikro || '';
 
             const newDetail = document.createElement('div');
-            newDetail.classList.add('dynamic-item-card', 'border', 'p-3', 'mb-3', 'rounded'); 
-            
+            newDetail.classList.add('dynamic-item-card', 'border', 'p-3', 'mb-3', 'rounded');
+
             newDetail.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Item #${i + 1}</h5>
@@ -211,15 +222,29 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Kode Produksi</label>
-                        <input type="text" name="items[${i}][kode_produksi]" class="form-control" value="${kode_produksi}">
-                    </div>
+                        <input type="text" name="items[${i}][kode_produksi]" id="kode_produksi" maxlength="10" class="form-control" value="${kode_produksi}">
+                        <small id="kodeError" class="text-danger d-none"></small>
+                    </div>                                
                     <div class="col-md-3">
                         <label class="form-label">Exp Date</label>
                         <input type="date" name="items[${i}][exp_date]" class="form-control" value="${exp_date}">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Varian</label>
-                        <input type="text" name="items[${i}][varian]" class="form-control" value="${varian}">
+                       <select
+    name="items[${i}][varian]"
+    class="form-select select2-dynamic"
+    data-placeholder="Pilih varian...">
+
+    <option value=""></option>
+    @foreach($produks as $produk)
+        <option value="{{ $produk->nama_produk }}"
+            ${varian === '{{ $produk->nama_produk }}' ? 'selected' : ''}>
+            {{ $produk->nama_produk }}
+        </option>
+    @endforeach
+</select>
+
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Panjang (cm)</label>
@@ -233,39 +258,42 @@
 
                 <hr>
                 
-                <h6>Sensori</h6>
+               <h6>Sensori</h6>
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Rasa</label>
                         <select name="items[${i}][sensori_rasa]" class="form-select select2-dynamic">
-                            <option value="" ${rasa_val == '' ? 'selected' : ''}>Pilih...</option>
+                            <option value="">Pilih...</option>
                             <option value="1" ${rasa_val == '1' ? 'selected' : ''}>1</option>
                             <option value="2" ${rasa_val == '2' ? 'selected' : ''}>2</option>
                             <option value="3" ${rasa_val == '3' ? 'selected' : ''}>3</option>
                         </select>
                     </div>
+
                     <div class="col-md-3">
                         <label class="form-label">Warna</label>
                         <select name="items[${i}][sensori_warna]" class="form-select select2-dynamic">
-                            <option value="" ${warna_val == '' ? 'selected' : ''}>Pilih...</option>
+                            <option value="">Pilih...</option>
                             <option value="1" ${warna_val == '1' ? 'selected' : ''}>1</option>
                             <option value="2" ${warna_val == '2' ? 'selected' : ''}>2</option>
                             <option value="3" ${warna_val == '3' ? 'selected' : ''}>3</option>
                         </select>
                     </div>
+
                     <div class="col-md-3">
                         <label class="form-label">Aroma</label>
                         <select name="items[${i}][sensori_aroma]" class="form-select select2-dynamic">
-                            <option value="" ${aroma_val == '' ? 'selected' : ''}>Pilih...</option>
+                            <option value="">Pilih...</option>
                             <option value="1" ${aroma_val == '1' ? 'selected' : ''}>1</option>
                             <option value="2" ${aroma_val == '2' ? 'selected' : ''}>2</option>
                             <option value="3" ${aroma_val == '3' ? 'selected' : ''}>3</option>
                         </select>
                     </div>
+
                     <div class="col-md-3">
                         <label class="form-label">Texture</label>
                         <select name="items[${i}][sensori_texture]" class="form-select select2-dynamic">
-                            <option value="" ${texture_val == '' ? 'selected' : ''}>Pilih...</option>
+                            <option value="">Pilih...</option>
                             <option value="1" ${texture_val == '1' ? 'selected' : ''}>1</option>
                             <option value="2" ${texture_val == '2' ? 'selected' : ''}>2</option>
                             <option value="3" ${texture_val == '3' ? 'selected' : ''}>3</option>
@@ -306,28 +334,35 @@
                 <h6>Parameter Lab</h6>
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">Kadar Garam</label>
-                        <input type="text" name="items[${i}][lab_garam]" class="form-control" placeholder="cth: 5%" value="${garam_val}">
+                        <label class="form-label">Kadar Garam (%)</label>
+                        <input type="number" step="0.1" name="items[${i}][lab_garam]" class="form-control" value="${garam_val}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Kadar Air</label>
-                        <input type="text" name="items[${i}][lab_air]" class="form-control" placeholder="cth: 60%" value="${air_val}">
+                        <label class="form-label">Kadar Air (%)</label>
+                        <input type="number" step="0.1" name="items[${i}][lab_air]" class="form-control" value="${air_val}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Mikro</label>
-                        <input type="text" name="items[${i}][lab_mikro]" class="form-control" placeholder="cth: <10 cfu" value="${mikro_val}">
+                        <label class="form-label">Mikro (<10 cfu)</label>
+                        <input type="number" step="0.1" name="items[${i}][lab_mikro]" class="form-control" value="${mikro_val}">
                     </div>
                 </div>
             `;
 
             container.appendChild(newDetail);
-            
+
             // Inisialisasi Select2 pada elemen yang baru ditambahkan
+            // $(newDetail).find('.select2-dynamic').select2({
+            //     theme: "bootstrap-5",
+            //     placeholder: "Pilih...",
+            //     allowClear: true,
+            //     dropdownAutoWidth: true
+            // });
+
             $(newDetail).find('.select2-dynamic').select2({
                 theme: "bootstrap-5",
                 placeholder: "Pilih...",
                 allowClear: true,
-                dropdownAutoWidth: true
+                width: '100%'
             });
 
             detailIndex++;
@@ -335,7 +370,7 @@
 
         // --- Event Listener untuk Tombol "Tambah Item" ---
         addBtn.addEventListener('click', () => renderDetailForm(null));
-        
+
         // --- Event Listener untuk Tombol Hapus ---
         container.addEventListener('click', function(e) {
             // Logika Tombol Hapus
@@ -360,6 +395,53 @@
             renderDetailForm(null);
         }
 
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        // Validasi kode produksi
+        const kodeInput = $('#kode_produksi');
+        const kodeError = $('#kodeError');
+        const form = $('#retainForm');
+
+        function validateKode() {
+            let value = kodeInput.val().toUpperCase().replace(/\s+/g, '');
+            kodeInput.val(value);
+            kodeError.text('').addClass('d-none');
+
+            if (value.length !== 10) {
+                kodeError.text('Kode produksi harus terdiri dari 10 karakter').removeClass('d-none');
+                return false;
+            }
+
+            if (!/^[A-Z0-9]+$/.test(value)) {
+                kodeError.text('Kode produksi hanya boleh huruf besar dan angka').removeClass('d-none');
+                return false;
+            }
+
+            if (!/^[A-L]$/.test(value.charAt(1))) {
+                kodeError.text('Karakter ke-2 harus huruf bulan (A-L)').removeClass('d-none');
+                return false;
+            }
+
+            let hari = parseInt(value.substr(2, 2), 10);
+            if (isNaN(hari) || hari < 1 || hari > 31) {
+                kodeError.text('Karakter ke-3 dan ke-4 harus tanggal valid (01-31)').removeClass('d-none');
+                return false;
+            }
+
+            return true;
+        }
+
+        kodeInput.on('input', validateKode);
+
+        form.on('submit', function(e) {
+            if (!validateKode()) {
+                e.preventDefault();
+                alert('Kode produksi tidak valid! Periksa kembali sebelum menyimpan.');
+                kodeInput.focus();
+            }
+        });
     });
 </script>
 @endpush

@@ -10,7 +10,7 @@ class Traceability extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $table = 'traceabilities';
+    protected $table = 'traceabilities'; 
 
     protected $primaryKey = 'uuid';  
 

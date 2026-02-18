@@ -18,6 +18,7 @@ class ProdukController extends Controller
     {
         $search = $request->input('search');
         $userPlantUuid = Auth::user()->plant; // ambil UUID plant user login
+        $produk = Produk::with('dataPlant');
 
         $produk = Produk::where('plant', $userPlantUuid)
         ->when($search, function($query, $search) {

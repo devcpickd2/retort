@@ -91,13 +91,13 @@
                                     <input type="month" name="analisa[{{ $i }}][bulan]" class="form-control form-control-sm">
                                 </td>
                                 <td>
-                                    <input type="number" name="analisa[{{ $i }}][fisik]" class="form-control form-control-sm fisik" step="0.1">
+                                    <input type="number" name="analisa[{{ $i }}][fisik]" class="form-control form-control-sm fisik" min="1">
                                 </td>
                                 <td>
-                                    <input type="number" name="analisa[{{ $i }}][aroma]" class="form-control form-control-sm aroma" step="0.1">
+                                    <input type="number" name="analisa[{{ $i }}][aroma]" class="form-control form-control-sm aroma" min="1">
                                 </td>
                                 <td>
-                                    <input type="number" name="analisa[{{ $i }}][rasa]" class="form-control form-control-sm rasa" step="0.1">
+                                    <input type="number" name="analisa[{{ $i }}][rasa]" class="form-control form-control-sm rasa" min="1">
                                 </td>
                                 <td>
                                     <input type="number" name="analisa[{{ $i }}][rata_score]" class="form-control form-control-sm rata_score" step="0.1" readonly>
