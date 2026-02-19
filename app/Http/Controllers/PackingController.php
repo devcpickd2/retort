@@ -139,7 +139,7 @@ class PackingController extends Controller
         ]);
 
         return redirect()->route('packing.index')
-        ->with('success', 'Pemeriksaan Proses Packing berhasil disimpan');
+        ->with('success', 'Pemeriksaan Proses Cartoning berhasil disimpan');
     }
 
     public function update(string $uuid)
@@ -234,7 +234,7 @@ class PackingController extends Controller
         ]);
 
         return redirect()->route('packing.index')
-        ->with('success', 'Pemeriksaan Proses Packing berhasil diperbarui');
+        ->with('success', 'Pemeriksaan Proses Cartoning berhasil diperbarui');
     }
 
     public function edit(string $uuid)
@@ -326,7 +326,7 @@ class PackingController extends Controller
         ]);
 
         return redirect()->route('packing.index')
-        ->with('success', 'Pemeriksaan Proses Packing berhasil diperbarui');
+        ->with('success', 'Pemeriksaan Proses Cartoning berhasil diperbarui');
     }
 
     public function verification(Request $request)
@@ -371,7 +371,7 @@ class PackingController extends Controller
         ]);
 
         return redirect()->route('packing.index')
-        ->with('success', 'Status Verifikasi Pemeriksaan Proses Packing berhasil diperbarui.');
+        ->with('success', 'Status Verifikasi Pemeriksaan Proses Cartoning berhasil diperbarui.');
     }
 
     public function destroy($uuid)
@@ -392,7 +392,7 @@ class PackingController extends Controller
         $packing->delete();
 
         return redirect()->route('packing.verification')
-        ->with('success', 'Pemeriksaan Proses Packing berhasil dihapus');
+        ->with('success', 'Pemeriksaan Proses Cartoning berhasil dihapus');
     }
 
     public function exportPdf(Request $request)
@@ -428,8 +428,8 @@ class PackingController extends Controller
         // Set document information
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetAuthor('Your Name/Company');
-        $pdf->SetTitle('Pemeriksaan Proses Packing');
-        $pdf->SetSubject('Pemeriksaan Proses Packing');
+        $pdf->SetTitle('Pemeriksaan Proses Cartoning');
+        $pdf->SetSubject('Pemeriksaan Proses Cartoning');
 
         $pdf->SetPrintHeader(false);
         $pdf->SetPrintFooter(false);
