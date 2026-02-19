@@ -18,7 +18,7 @@
     @endif
 
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
-        <h2 class="h4">Pemeriksaan Proses Packing</h2>
+        <h2 class="h4">Pemeriksaan Proses Cartoning</h2>
         <div class="btn-group" role="group">
             @can('can access add button')
             <a href="{{ route('packing.create') }}" class="btn btn-success">
@@ -153,7 +153,7 @@
                                             <div class="modal-content">
                                                 <div class="modal-header bg-info text-white">
                                                     <h5 class="modal-title" id="packingModalLabel{{ $dep->uuid }}">
-                                                        Detail Pemeriksaan Proses Packing
+                                                        Detail Pemeriksaan Proses Cartoning
                                                     </h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>

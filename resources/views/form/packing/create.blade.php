@@ -6,7 +6,7 @@
         <div class="card-body">
 
             <h4 class="mb-4">
-                <i class="bi bi-plus-circle"></i> Form Input Pemeriksaan Proses Packing
+                <i class="bi bi-plus-circle"></i> Form Input Pemeriksaan Proses Cartoning
             </h4>
             
             {{-- ===================== 1. GLOBAL ERROR ALERT ===================== --}}
