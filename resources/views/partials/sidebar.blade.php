@@ -31,7 +31,7 @@ $type_user = auth()->user()->type_user;
     request()->routeIs('operator.*') || request()->routeIs('engineer.*') || request()->routeIs('mesin.*') ||
     request()->routeIs('supplier.*') || request()->routeIs('supplier_rm.*') || request()->routeIs('koordinator.*') ||
     request()->routeIs('list_chamber.*') || request()->routeIs('area_hygiene.*') || request()->routeIs('area_suhu.*') ||
-    request()->routeIs('area_sanitasi.*') || request()->routeIs('list_form.*');
+    request()->routeIs('area_sanitasi.*')|| request()->routeIs('raw-material.*') || request()->routeIs('list_form.*');
     @endphp
     <li class="nav-item {{ $masterActive ? 'active' : '' }}">
         <a class="nav-link {{ $masterActive ? '' : 'collapsed' }}" href="#" data-bs-toggle="collapse"
@@ -51,6 +51,8 @@ $type_user = auth()->user()->type_user;
                     href="{{ route('plant.index') }}">Plant</a>
                     <a class="collapse-item {{ request()->routeIs('produk.*') ? 'active' : '' }}"
                         href="{{ route('produk.index') }}">List Produk</a>
+                        <a class="collapse-item {{ request()->routeIs('raw-material.*') ? 'active' : '' }}" 
+                            href="{{ route('raw-material.index') }}">List Bahan Baku</a>
                         <a class="collapse-item {{ request()->routeIs('mesin.*') ? 'active' : '' }}"
                             href="{{ route('mesin.index') }}">List Mesin</a>
                             <a class="collapse-item {{ request()->routeIs('supplier.*') ? 'active' : '' }}"

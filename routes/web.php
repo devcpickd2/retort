@@ -62,7 +62,8 @@ use App\Http\Controllers\{
     TraceabilityController,
     RecallController,
     PermissionController,
-    RoleController
+    RoleController,
+    MasterRawMaterialController
 };
 
 Route::get('/', function () {
@@ -689,3 +690,6 @@ Route::put('/sanitasi/verification/{uuid}', [SanitasiController::class, 'updateV
     ->name('sanitasi.verification.update');
 Route::get('/sanitasi/export-pdf', [SanitasiController::class, 'exportPdf'])->name('sanitasi.exportPdf');
 Route::delete('/sanitasi/{uuid}', [SanitasiController::class, 'destroy'])->name('sanitasi.destroy');
+Route::middleware(['auth'])->group(function () {
+    Route::resource('raw-material', MasterRawMaterialController::class);
+});
