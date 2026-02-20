@@ -14,7 +14,7 @@ class Master_Raw_Material extends Model
     protected $keyType = 'int';
     public $incrementing = true;
 
-    protected $fillable = ['nama_bahan_baku', 'plant_uuid', 'created_by', 'deleted_by'];
+    protected $fillable = ['nama_bahan_baku', 'plant_uuid', 'created_by', 'deleted_by', 'kode_internal', 'satuan'];
 
     public function getRouteKeyName() {
         return 'uuid';

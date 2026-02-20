@@ -5,7 +5,9 @@ $type_user = auth()->user()->type_user;
 <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard') }}">
-        <div class="sidebar-brand-icon rotate-n-15"><i class="fas fa-laugh-wink"></i></div>
+    <div class="sidebar-brand-icon rotate-n-15">
+        <i class="fas fa-hotdog text-white fs-3"></i>
+    </div>
         <div class="sidebar-brand-text mx-3">E-Retort</div>
     </a>
 
@@ -449,15 +451,60 @@ $type_user = auth()->user()->type_user;
 
 
                     <style>
-                        /* --- Sidebar Base --- */
-                        #accordionSidebar {
-                            background: linear-gradient(180deg, #b30000, #660000);
-                        }
+                    /* --- Kustomisasi Sidebar Menjadi Merah Cerah & Elegan --- */
+                    #accordionSidebar {
+                        /* Menggunakan !important untuk menimpa warna bawaan template tanpa mengubah HTML */
+                        background: linear-gradient(180deg, #d32f2f 0%, #9e0202 100%) !important;
+                        box-shadow: 2px 0 10px rgba(0,0,0,0.2) !important;
+                    }
 
-                        .sidebar .nav-item .collapse .collapse-inner .collapse-item {
-                            white-space: unset !important;
-                        }
-                        .sidebar .nav-item .collapse .collapse-inner .collapse-item.active{color: #aa1910;}
+                    /* Efek Hover bergeser pada menu utama */
+                    #accordionSidebar .nav-item .nav-link {
+                        transition: all 0.3s ease;
+                    }
+                    #accordionSidebar .nav-item .nav-link:hover {
+                        background-color: rgba(255, 255, 255, 0.1) !important;
+                        transform: translateX(5px);
+                    }
+
+                    /* Penanda menu utama sedang aktif */
+                    #accordionSidebar .nav-item.active .nav-link {
+                        font-weight: bold;
+                        background-color: rgba(255, 255, 255, 0.2) !important;
+                        border-left: 4px solid #fff;
+                    }
+
+                    /* Styling Box Dropdown Submenu */
+                    #accordionSidebar .collapse-inner {
+                        background-color: #ffffff !important;
+                        border-radius: 8px !important;
+                        box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important;
+                        padding: 0.5rem !important;
+                    }
+
+                    /* Styling text Submenu */
+                    #accordionSidebar .collapse-inner .collapse-item {
+                        white-space: unset !important;
+                        transition: all 0.2s ease;
+                        border-radius: 4px;
+                        margin-bottom: 2px;
+                        color: #444 !important; /* Warna text abu gelap agar jelas */
+                    }
+
+                    /* Hover submenu (Warna merah muda) */
+                    #accordionSidebar .collapse-inner .collapse-item:hover {
+                        background-color: #f8d7da !important; 
+                        color: #9e0202 !important;
+                        transform: translateX(3px);
+                    }
+
+                    /* Submenu aktif (Warna merah tegas) */
+                    #accordionSidebar .collapse-inner .collapse-item.active {
+                        background-color: #ffe6e6 !important;
+                        color: #d32f2f !important;
+                        font-weight: bold;
+                        border-left: 3px solid #d32f2f;
+                    }
                     </style>
                     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
                     <script>

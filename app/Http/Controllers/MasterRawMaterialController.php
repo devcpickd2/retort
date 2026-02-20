@@ -32,11 +32,17 @@ class MasterRawMaterialController extends Controller
     }
 
     public function store(Request $request) {
-        $request->validate(['nama_bahan_baku' => 'required|string|max:255']);
+        $request->validate([
+            'nama_bahan_baku' => 'required|string|max:255',
+            'kode_internal'   => 'nullable|string|max:255', // Bisa diubah 'required' jika wajib diisi
+            'satuan'          => 'required|in:kg,gr,liter,sak' // Validasi dropdown
+        ]);
 
         Master_Raw_Material::create([
             'nama_bahan_baku' => $request->nama_bahan_baku,
-            'plant_uuid'      => Auth::user()->plant, // AMBIL DARI KOLOM 'plant' DI TABEL USERS
+            'kode_internal'   => $request->kode_internal,
+            'satuan'          => $request->satuan,
+            'plant_uuid'      => Auth::user()->plant, 
             'created_by'      => Auth::user()->uuid,
         ]);
 
@@ -52,19 +58,22 @@ class MasterRawMaterialController extends Controller
 
         return view('form.master_raw_material.edit', compact('raw_material'));
     }
+    
     public function update(Request $request, Master_Raw_Material $raw_material) {
-        // Validasi input
         $request->validate([
-            'nama_bahan_baku' => 'required|string|max:255'
+            'nama_bahan_baku' => 'required|string|max:255',
+            'kode_internal'   => 'nullable|string|max:255',
+            'satuan'          => 'required|in:kg,gr,liter,sak'
         ]);
 
-        // Layer Keamanan: Pastikan data yang diupdate adalah milik plant user yang login
         if ($raw_material->plant_uuid !== Auth::user()->plant) {
             abort(403, 'Anda tidak memiliki akses untuk mengubah data ini.');
         }
 
         $raw_material->update([
-            'nama_bahan_baku' => $request->nama_bahan_baku
+            'nama_bahan_baku' => $request->nama_bahan_baku,
+            'kode_internal'   => $request->kode_internal,
+            'satuan'          => $request->satuan,
         ]);
 
         return redirect()->route('raw-material.index')->with('success', 'Data berhasil diupdate');
