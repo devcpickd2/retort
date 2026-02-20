@@ -317,7 +317,7 @@
                 {{-- TOMBOL --}}
                 <div class="d-flex justify-content-between mt-3">
                     <button type="submit" class="btn btn-success"><i class="bi bi-save"></i> Simpan</button>
-                    <a href="{{ route('washing.verification') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    <a href="{{ route('washing.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
                 </div>
             </form>
 

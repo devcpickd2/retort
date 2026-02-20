@@ -129,7 +129,7 @@
                 {{-- Tombol --}}
                 <div class="d-flex justify-content-between mt-3">
                     <button class="btn btn-success w-auto"><i class="bi bi-save"></i> Update</button>
-                    <a href="{{ route('wire.verification') }}" class="btn btn-secondary w-auto"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    <a href="{{ route('wire.index') }}" class="btn btn-secondary w-auto"><i class="bi bi-arrow-left"></i> Kembali</a>
                 </div>
 
             </form>

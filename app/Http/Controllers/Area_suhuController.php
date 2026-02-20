@@ -38,25 +38,20 @@ class Area_suhuController extends Controller
     {
         $request->validate([
             'area' => 'required|string',
-            'standar_min' => 'required|numeric',
-            'standar_max' => 'required|numeric|gte:standar_min',
+            'standar' => 'required|string'
         ]);
 
-        $user = Auth::user();
+        $user = Auth::user(); 
 
         Area_suhu::create([
-            'username'     => $user->username,
-            'plant'        => $user->plant,
-            'area'         => $request->area,
-            'standar_min'  => $request->standar_min,
-            'standar_max'  => $request->standar_max,
+            'username' => $user->username,  
+            'plant' => $user->plant,       
+            'area' => $request->area,
+            'standar' => $request->standar
         ]);
 
-        return redirect()
-            ->route('area_suhu.index')
-            ->with('success', 'Area Suhu berhasil ditambahkan');
+        return redirect()->route('area_suhu.index')->with('success', 'Area Hygiene berhasil ditambahkan');
     }
-
 
     public function edit($uuid)
     {

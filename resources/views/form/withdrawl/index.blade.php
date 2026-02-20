@@ -26,6 +26,11 @@
                     <i class="bi bi-plus-circle"></i> Tambah
                 </a>
                 @endcan
+                @can('can access recycle')
+                <a href="{{ route('withdrawl.recyclebin') }}" class="btn btn-secondary">
+                    <i class="bi bi-trash"></i> Recycle Bin
+                </a>
+                @endcan
             </div>
 
             {{-- Filter dan Live Search --}}

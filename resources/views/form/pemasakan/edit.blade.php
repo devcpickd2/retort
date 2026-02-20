@@ -70,7 +70,10 @@
                                 <label class="form-label">Kode Produksi</label>
                                 <input type="text" name="kode_produksi" id="kode_produksi"
                                 class="form-control" maxlength="50"
-                                value="{{ old('kode_produksi', $pemasakan->kode_produksi) }}" required>
+                                value="{{ old('kode_produksi', is_array($pemasakan->kode_produksi)
+                                ? implode('/', $pemasakan->kode_produksi)
+                                : $pemasakan->kode_produksi) }}"
+                                required>
                                 <small class="text-muted">Pisahkan dengan tanda <strong>/</strong></small><br>
                                 <small id="kodeError" class="text-danger d-none"></small>
                             </div>
@@ -96,7 +99,10 @@
                                 <small class="text-danger">Standar: 28 tray</small>
                                 <input type="text" name="jumlah_tray" id="jumlah_tray"
                                 class="form-control" required
-                                value="{{ old('jumlah_tray', $pemasakan->jumlah_tray) }}">
+                                value="{{ old('jumlah_tray', is_array($pemasakan->jumlah_tray)
+                                ? implode('/', $pemasakan->jumlah_tray)
+                                : $pemasakan->jumlah_tray) }}"
+                                >
                                 <small class="text-muted">Pisahkan dengan tanda <strong>+</strong></small><br>
                                 <small id="trayTotal" class="text-success fw-bold"></small><br>
                             </div>
@@ -543,7 +549,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-save"></i> Update
                 </button>
-                <a href="{{ route('pemasakan.verification') }}" class="btn btn-secondary">
+                <a href="{{ route('pemasakan.index') }}" class="btn btn-secondary">
                     <i class="bi bi-arrow-left"></i> Batal
                 </a>
             </div>

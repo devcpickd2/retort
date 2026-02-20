@@ -184,7 +184,7 @@
                 {{-- TOMBOL --}}
                 <div class="d-flex justify-content-between mt-3">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Update</button>
-                    <a href="{{ route('prepacking.verification') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    <a href="{{ route('prepacking.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
                 </div>
             </form>
 

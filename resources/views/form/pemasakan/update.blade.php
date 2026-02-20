@@ -65,9 +65,28 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Kode Produksi</label>
-                                <input type="text" name="kode_produksi" class="form-control" maxlength="50"
-                                value="{{ old('kode_produksi', $pemasakan->kode_produksi) }}" 
+                                @php
+                                $kodeProduksi = old('kode_produksi');
+
+                                if (!$kodeProduksi) {
+                                    if (is_array($pemasakan->kode_produksi)) {
+                                        $kodeProduksi = $pemasakan->kode_produksi;
+                                    } elseif (is_string($pemasakan->kode_produksi)) {
+                                        $kodeProduksi = explode('/', $pemasakan->kode_produksi);
+                                    } else {
+                                        $kodeProduksi = [];
+                                    }
+                                }
+                                @endphp
+
+                                @foreach($kodeProduksi as $i => $kp)
+                                <input type="text" 
+                                name="kode_produksi[]" 
+                                class="form-control mb-2"
+                                value="{{ $kp }}"
                                 {{ $pemasakan->kode_produksi ? 'readonly' : '' }}>
+                                @endforeach
+
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Berat Produk (gram)</label>
@@ -87,9 +106,29 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Jumlah Tray</label>
-                                <input type="text" name="jumlah_tray" class="form-control" 
-                                value="{{ old('jumlah_tray', $pemasakan->jumlah_tray) }}" 
+                                @php
+                                $jumlahTray = old('jumlah_tray');
+
+                                if (!$jumlahTray) {
+                                    if (is_array($pemasakan->jumlah_tray)) {
+                                        $jumlahTray = $pemasakan->jumlah_tray;
+                                    } elseif (is_string($pemasakan->jumlah_tray)) {
+                                        $jumlahTray = explode('/', $pemasakan->jumlah_tray);
+                                    } else {
+                                        $jumlahTray = [];
+                                    }
+                                }
+                                @endphp
+
+
+                                @foreach($jumlahTray as $jt)
+                                <input type="text"
+                                name="jumlah_tray[]"
+                                class="form-control mb-2"
+                                value="{{ $jt }}"
                                 {{ $pemasakan->jumlah_tray ? 'readonly' : '' }}>
+                                @endforeach
+
                             </div>
                         </div>
                     </div>

@@ -71,11 +71,11 @@
 
                     <div class="card-body">
 
-                        <div class="alert alert-danger py-2 px-3 mb-4" style="font-size: 0.9rem;">
+                        <!-- <div class="alert alert-danger py-2 px-3 mb-4" style="font-size: 0.9rem;">
                             <i class="bi bi-info-circle"></i>
                             <strong>Catatan:</strong>
                             <i class="bi bi-check-circle text-success"></i> Centang = <b>OK</b>, Kosong = <b>Tidak OK</b>.
-                        </div>
+                        </div> -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Waktu</label>

@@ -294,7 +294,7 @@
                     <button type="submit" class="btn btn-success px-4">
                         <i class="bi bi-save"></i> Update
                     </button>
-                    <a href="{{ route('mincing.verification') }}" class="btn btn-secondary px-4">
+                    <a href="{{ route('mincing.index') }}" class="btn btn-secondary px-4">
                         <i class="bi bi-arrow-left"></i> Batal
                     </a>
                 </div>

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid py-0">
-    
+
     {{-- Alert --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -17,7 +17,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
-            
+
     {{-- HEADER: Menggunakan Versi Anda (Ada Export PDF) --}}
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
         <h2 class="h4">Pemeriksaan Proses Sampling Finish Good</h2>
@@ -27,10 +27,17 @@
                 <i class="bi bi-plus-circle"></i> Tambah
             </a>
             @endcan
+            @can('can access export')
             {{-- Tombol Export PDF --}}
             <button type="button" class="btn btn-danger" id="exportPdfBtn">
                 <i class="bi bi-file-earmark-pdf"></i> Export PDF
             </button>
+            @endcan
+            @can('can access recycle')
+            <a href="{{ route('sampling_fg.recyclebin') }}" class="btn btn-secondary">
+                <i class="bi bi-trash"></i> Recycle Bin
+            </a>
+            @endcan
         </div>
     </div>
 
@@ -102,7 +109,7 @@
             });
 
 
-    
+
             date.addEventListener('change', () => form.submit());
             if(shift) shift.addEventListener('change', () => form.submit());
 
@@ -159,7 +166,7 @@
                             <td class="text-center">{{ $no++ }}</td>
                             <td class="text-center">{{ \Carbon\Carbon::parse($dep->date)->format('d-m-Y') }} | {{ $dep->shift }}</td>
                             <td class="text-center">{{ $dep->palet }}</td>
-                            <td>{{ $dep->nama_produk }}</td>
+                            <td class="text-center">{{ $dep->nama_produk }}</td>
                             <td class="text-center">{{ $dep->kode_produksi }}</td>
                             <td class="text-center">{{ \Carbon\Carbon::parse($dep->exp_date)->format('d-m-Y') }}</td>
                             <td class="text-center">{{ \Carbon\Carbon::parse($dep->pukul)->format('H:i') }}</td>

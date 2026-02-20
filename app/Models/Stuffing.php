@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Stuffing extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $table = 'stuffings';
 
@@ -28,4 +29,6 @@ class Stuffing extends Model
     {
         return $this->belongsTo(Mincing::class, 'kode_produksi', 'uuid');
     }
+
+    protected $dates = ['deleted_at'];
 }

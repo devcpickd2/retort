@@ -73,7 +73,7 @@
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-save"></i> Update
                     </button>
-                    <a href="{{ route('pemusnahan.verification') }}" class="btn btn-secondary">
+                    <a href="{{ route('pemusnahan.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Kembali
                     </a>
                 </div>

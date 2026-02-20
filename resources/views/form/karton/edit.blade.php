@@ -166,7 +166,7 @@
                     <button type="submit" id="submitBtn" class="btn btn-success">
                         <i class="bi bi-save"></i> Simpan
                     </button>
-                    <a href="{{ route('karton.verification') }}" class="btn btn-secondary">
+                    <a href="{{ route('karton.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Kembali
                     </a>
                 </div>

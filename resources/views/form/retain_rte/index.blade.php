@@ -14,13 +14,20 @@
         <h2 class="h4">Data Pemeriksaan Sampel Retain RTE</h2>
         <div class="btn-group" role="group">
             @can('can access add button')
-                <a href="{{ route('retain_rte.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
-                </a>
+            <a href="{{ route('retain_rte.create') }}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Tambah
+            </a>
             @endcan
+            @can('can access export')
             <button type="button" class="btn btn-danger" id="exportPdfBtn">
                 <i class="bi bi-file-earmark-pdf"></i> Export PDF
             </button>
+            @endcan
+            @can('can access recycle')
+            <a href="{{ route('retain_rte.recyclebin') }}" class="btn btn-secondary">
+                <i class="bi bi-trash"></i> Recycle Bin
+            </a>
+            @endcan
         </div>
     </div>
 
@@ -224,30 +231,30 @@
                                 </td>
                                 <td class="text-center align-middle">
                                     @can('can access verification button')
-                                        <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
-                                            <i class="bi bi-shield-check me-1"></i> Verifikasi
-                                        </button>
+                                    <button type="button" class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#verifyModal{{ $dep->uuid }}">
+                                        <i class="bi bi-shield-check me-1"></i> Verifikasi
+                                    </button>
                                     @endcan
                                     @can('can access edit button')
-                                        <a href="{{ route('retain_rte.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
-                                            <i class="bi bi-pencil-square"></i> Edit
-                                        </a>
+                                    <a href="{{ route('retain_rte.edit.form', $dep->uuid) }}" class="btn btn-warning btn-sm me-1">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
                                     @endcan
                                     @can('can access update button')
-                                        <a href="{{ route('retain_rte.update.form', $dep->uuid) }}" class="btn btn-info btn-sm me-1">
-                                            <i class="bi bi-pencil"></i> Update
-                                        </a>
+                                    <a href="{{ route('retain_rte.update.form', $dep->uuid) }}" class="btn btn-info btn-sm me-1">
+                                        <i class="bi bi-pencil"></i> Update
+                                    </a>
                                     @endcan
                                     @can('can access delete button')
-                                        <form action="{{ route('retain_rte.destroy', $dep->uuid) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Yakin ingin menghapus?')">
-                                                <i class="bi bi-trash"></i> Hapus
-                                            </button>
-                                        </form>
-                                    @endcan
+                                    <form action="{{ route('retain_rte.destroy', $dep->uuid) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Yakin ingin menghapus?')">
+                                        <i class="bi bi-trash"></i> Hapus
+                                    </button>
+                                </form>
+                                @endcan
                                 <div class="modal fade" id="verifyModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="verifyModalLabel{{ $dep->uuid }}" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-md">
                                         <form action="{{ route('retain_rte.verification.update', $dep->uuid) }}" method="POST">

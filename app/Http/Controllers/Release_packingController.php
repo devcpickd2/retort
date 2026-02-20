@@ -179,7 +179,7 @@ class Release_packingController extends Controller
         ->paginate(10)
         ->appends($request->all());
 
-        return view('form.release_packing.verification', compact('data', 'search', 'date'));
+        return view('form.release_packing.index', compact('data', 'search', 'date'));
     }
 
     public function updateVerification(Request $request, $uuid)
@@ -206,9 +206,32 @@ class Release_packingController extends Controller
     {
         $release_packing = Release_packing::where('uuid', $uuid)->firstOrFail();
         $release_packing->delete();
+        return redirect()->route('release_packing.index')->with('success', 'Release_packing berhasil dihapus');
+    }
 
-        return redirect()->route('release_packing.verification')
-        ->with('success', 'Data Release Packing berhasil dihapus');
+    public function recyclebin()
+    {
+        $release_packing = Release_packing::onlyTrashed()
+        ->orderBy('deleted_at', 'desc')
+        ->paginate(10);
+
+        return view('form.release_packing.recyclebin', compact('release_packing'));
+    }
+    public function restore($uuid)
+    {
+        $release_packing = Release_packing::onlyTrashed()->where('uuid', $uuid)->firstOrFail();
+        $release_packing->restore();
+
+        return redirect()->route('release_packing.recyclebin')
+        ->with('success', 'Data berhasil direstore.');
+    }
+    public function deletePermanent($uuid)
+    {
+        $release_packing = Release_packing::onlyTrashed()->where('uuid', $uuid)->firstOrFail();
+        $release_packing->forceDelete();
+
+        return redirect()->route('release_packing.recyclebin')
+        ->with('success', 'Data berhasil dihapus permanen.');
     }
 
     public function exportPdf(Request $request)
@@ -218,16 +241,16 @@ class Release_packingController extends Controller
         $userPlant    = Auth::user()->plant;
 
         $release_packings = Release_packing::query()
-            ->where('plant', $userPlant)
-            ->when($date, function ($query) use ($date) {
-                $query->whereDate('date', $date);
-            })
-            ->when($jenis_kemasan, function ($query) use ($jenis_kemasan) {
-                $query->where('jenis_kemasan', $jenis_kemasan);
-            })
-            ->orderBy('date', 'asc')
-            ->orderBy('created_at', 'asc')
-            ->get();
+        ->where('plant', $userPlant)
+        ->when($date, function ($query) use ($date) {
+            $query->whereDate('date', $date);
+        })
+        ->when($jenis_kemasan, function ($query) use ($jenis_kemasan) {
+            $query->where('jenis_kemasan', $jenis_kemasan);
+        })
+        ->orderBy('date', 'asc')
+        ->orderBy('created_at', 'asc')
+        ->get();
 
         // Clear any previous output buffers to prevent "TCPDF ERROR: Some data has already been output"
         if (ob_get_length()) {

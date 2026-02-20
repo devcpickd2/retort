@@ -10,38 +10,38 @@ use TCPDF;
 
 class SanitasiController extends Controller 
 {
-   public function index(Request $request)
-    {
-       $search    = $request->input('search');
-       $date      = $request->input('date');
-       $shift     = $request->input('shift');
-       $userPlant  = Auth::user()->plant;
+ public function index(Request $request)
+ {
+     $search    = $request->input('search');
+     $date      = $request->input('date');
+     $shift     = $request->input('shift');
+     $userPlant  = Auth::user()->plant;
 
-       $data = Sanitasi::query()
-       ->where('plant', $userPlant)
-       ->when($search, function ($query) use ($search) {
+     $data = Sanitasi::query()
+     ->where('plant', $userPlant)
+     ->when($search, function ($query) use ($search) {
         $query->where(function ($q) use ($search) {
             $q->where('username', 'like', "%{$search}%")
             ->orWhere('area', 'like', "%{$search}%");
         });
     })
-       ->when($date, function ($query) use ($date) {
+     ->when($date, function ($query) use ($date) {
         $query->whereDate('date', $date);
     })
-       ->when($shift, function ($query) use ($shift) {
+     ->when($shift, function ($query) use ($shift) {
         $query->where('shift', $shift);
     })
-       ->orderBy('date', 'desc')
-       ->orderBy('shift', 'desc')
-       ->orderBy('created_at', 'desc')
-       ->paginate(10)
-       ->appends($request->all());
+     ->orderBy('date', 'desc')
+     ->orderBy('shift', 'desc')
+     ->orderBy('created_at', 'desc')
+     ->paginate(10)
+     ->appends($request->all());
 
-       return view('form.sanitasi.index', compact('data', 'search', 'date', 'shift'));
-   }
+     return view('form.sanitasi.index', compact('data', 'search', 'date', 'shift'));
+ }
 
-   public function create()
-   {
+ public function create()
+ {
     $userPlant = Auth::user()->plant;
     $areas = Area_sanitasi::where('plant', $userPlant)->get();
 
@@ -125,14 +125,14 @@ public function update_qc(Request $request, string $uuid)
 
 public function edit(string $uuid)
 {
-   $sanitasi = Sanitasi::where('uuid', $uuid)->firstOrFail();
-   $userPlant = Auth::user()->plant;
-   $areas = Area_sanitasi::where('plant', $userPlant)->get();
-   $sanitasiData = !empty($sanitasi->pemeriksaan)
-   ? json_decode($sanitasi->pemeriksaan, true)
-   : [];
+ $sanitasi = Sanitasi::where('uuid', $uuid)->firstOrFail();
+ $userPlant = Auth::user()->plant;
+ $areas = Area_sanitasi::where('plant', $userPlant)->get();
+ $sanitasiData = !empty($sanitasi->pemeriksaan)
+ ? json_decode($sanitasi->pemeriksaan, true)
+ : [];
 
-   return view('form.sanitasi.edit', compact('sanitasi', 'sanitasiData', 'areas'));
+ return view('form.sanitasi.edit', compact('sanitasi', 'sanitasiData', 'areas'));
 }
 
 public function edit_spv(Request $request, string $uuid)
@@ -210,9 +210,32 @@ public function destroy($uuid)
 {
     $sanitasi = Sanitasi::where('uuid', $uuid)->firstOrFail();
     $sanitasi->delete();
+    return redirect()->route('sanitasi.index')->with('success', 'Kontrol Sanitasi berhasil dihapus');
+}
 
-    return redirect()->route('sanitasi.index')
-    ->with('success', 'Pengecekan sanitasi berhasil dihapus');
+public function recyclebin()
+{
+    $sanitasi = Sanitasi::onlyTrashed()
+    ->orderBy('deleted_at', 'desc')
+    ->paginate(10);
+
+    return view('form.sanitasi.recyclebin', compact('sanitasi'));
+}
+public function restore($uuid)
+{
+    $sanitasi = Sanitasi::onlyTrashed()->where('uuid', $uuid)->firstOrFail();
+    $sanitasi->restore();
+
+    return redirect()->route('sanitasi.recyclebin')
+    ->with('success', 'Data berhasil direstore.');
+}
+public function deletePermanent($uuid)
+{
+    $sanitasi = Sanitasi::onlyTrashed()->where('uuid', $uuid)->firstOrFail();
+    $sanitasi->forceDelete();
+
+    return redirect()->route('sanitasi.recyclebin')
+    ->with('success', 'Data berhasil dihapus permanen.');
 }
 
 public function exportPdf(Request $request)
@@ -222,17 +245,17 @@ public function exportPdf(Request $request)
     $userPlant = Auth::user()->plant;
 
     $sanitasies = Sanitasi::query()
-        ->where('plant', $userPlant)
-        ->when($date, function ($query) use ($date) {
-            $query->whereDate('date', $date);
-        })
-        ->when($shift, function ($query) use ($shift) {
-            $query->where('shift', $shift);
-        })
-        ->orderBy('date', 'asc')
-        ->orderBy('shift', 'asc')
-        ->orderBy('created_at', 'asc')
-        ->get();
+    ->where('plant', $userPlant)
+    ->when($date, function ($query) use ($date) {
+        $query->whereDate('date', $date);
+    })
+    ->when($shift, function ($query) use ($shift) {
+        $query->where('shift', $shift);
+    })
+    ->orderBy('date', 'asc')
+    ->orderBy('shift', 'asc')
+    ->orderBy('created_at', 'asc')
+    ->get();
 
     // Clear any previous output buffers to prevent "TCPDF ERROR: Some data has already been output"
     if (ob_get_length()) {

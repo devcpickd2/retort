@@ -206,7 +206,7 @@
                         <i class="bi bi-save"></i> Update
                     </button>
 
-                    <a href="{{ route('packing.verification') }}" class="btn btn-secondary">
+                    <a href="{{ route('packing.index') }}" class="btn btn-secondary">
                         <i class="bi bi-arrow-left"></i> Kembali
                     </a>
                 </div>

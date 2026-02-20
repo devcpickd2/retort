@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid py-0">
-    
+
     {{-- Alert --}}
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -19,7 +19,7 @@
     @endif
 
     
-            
+
     {{-- HEADER: Menggunakan Versi Anda (Ada Export PDF) --}}
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
         <h2 class="h4"> Pemeriksaan Washing - Drying</h2>
@@ -29,10 +29,17 @@
                 <i class="bi bi-plus-circle"></i> Tambah
             </a>
             @endcan
+            @can('can access export')
             {{-- Tombol Export PDF --}}
             <button type="button" class="btn btn-danger" id="exportPdfBtn">
                 <i class="bi bi-file-earmark-pdf"></i> Export PDF
             </button>
+            @endcan
+            @can('can access recycle')
+            <a href="{{ route('washing.recyclebin') }}" class="btn btn-secondary">
+                <i class="bi bi-trash"></i> Recycle Bin
+            </a>
+            @endcan
         </div>
     </div>
 
@@ -84,14 +91,7 @@
                 <!-- <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button> -->
                 <a href="{{ route('washing.index') }}" class="btn btn-primary mb-2"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
             </div>
-        </div>
-        
-
-        
-
-        
-        
-        
+        </div>  
     </form>
 
     {{-- SCRIPT: Versi Anda (PDF & Shift Handler) --}}
@@ -158,10 +158,10 @@
                             {{-- KOLOM PEMERIKSAAN (Menggunakan Modal Detail Versi Server yang Lengkap) --}}
                             <td class="text-center align-middle">
                                 <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#detailModal{{ $dep->uuid }}" 
-                                   class="text-primary fw-bold text-decoration-none" style="cursor: pointer;">Result</a>
+                                 class="text-primary fw-bold text-decoration-none" style="cursor: pointer;">Result</a>
 
-                                {{-- Modal Detail (Washing, PC Kleer, Pottasium, Speed) --}}
-                                <div class="modal fade" id="detailModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="detailModalLabel{{ $dep->uuid }}" aria-hidden="true">
+                                 {{-- Modal Detail (Washing, PC Kleer, Pottasium, Speed) --}}
+                                 <div class="modal fade" id="detailModal{{ $dep->uuid }}" tabindex="-1" aria-labelledby="detailModalLabel{{ $dep->uuid }}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
                                         <div class="modal-content">
                                             <div class="modal-header bg-primary text-white">
@@ -255,10 +255,10 @@
                                 <span class="fw-bold text-success">Verified</span>
                                 @elseif ($dep->status_spv == 2)
                                 <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#revisionModal{{ $dep->uuid }}" 
-                                   class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
-                                
-                                {{-- Modal Revisi --}}
-                                <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-hidden="true">
+                                 class="text-danger fw-bold text-decoration-none" style="cursor: pointer;">Revision</a>
+
+                                 {{-- Modal Revisi --}}
+                                 <div class="modal fade" id="revisionModal{{ $dep->uuid }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
                                             <div class="modal-header bg-danger text-white">
@@ -316,38 +316,38 @@
                                             @csrf @method('PUT')
                                             
                                             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-white" 
-                                                 style="background: linear-gradient(145deg, #7a1f12, #9E3419); box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
-                                                
-                                                <div class="modal-header border-bottom border-light-subtle p-4" style="border-bottom-width: 3px !important;">
-                                                    <h5 class="modal-title fw-bolder fs-3 text-uppercase" id="verifyModalLabel{{ $dep->uuid }}" style="color: #00ffc4;">
-                                                        <i class="bi bi-gear-fill me-2"></i> VERIFICATION
-                                                    </h5>
-                                                    <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
+                                            style="background: linear-gradient(145deg, #7a1f12, #9E3419); box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
 
-                                                <div class="modal-body p-5">
-                                                    <p class="text-light mb-4 fs-6">
-                                                        Pastikan data yang akan diverifikasi di check dengan teliti terlebih dahulu.
-                                                    </p>
-                                                    <div class="row g-4">
-                                                        <div class="col-md-12">
-                                                            <label for="status_spv_{{ $dep->uuid }}" class="form-label fw-bold mb-2 text-center d-block" style="color: #FFE5DE; font-size: 0.95rem;">
-                                                                Pilih Status Verifikasi
-                                                            </label>
+                                            <div class="modal-header border-bottom border-light-subtle p-4" style="border-bottom-width: 3px !important;">
+                                                <h5 class="modal-title fw-bolder fs-3 text-uppercase" id="verifyModalLabel{{ $dep->uuid }}" style="color: #00ffc4;">
+                                                    <i class="bi bi-gear-fill me-2"></i> VERIFICATION
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
 
-                                                            <select name="status_spv" id="status_spv_{{ $dep->uuid }}" class="form-select form-select-lg fw-bold text-center mx-auto" 
-                                                                style="background: linear-gradient(135deg, #fff1f0, #ffe5de); border: 2px solid #dc3545; border-radius: 12px; color: #dc3545; height: 55px; font-size: 1.1rem; box-shadow: 0 6px 12px rgba(0,0,0,0.1); width: 85%; transition: all 0.3s ease;" required>
-                                                                <option value="1" {{ $dep->status_spv == 1 ? 'selected' : '' }} style="color: #198754; font-weight: 600;">✅ Verified (Disetujui)</option>
-                                                                <option value="2" {{ $dep->status_spv == 2 ? 'selected' : '' }} style="color: #dc3545; font-weight: 600;">❌ Revision (Perlu Perbaikan)</option>
-                                                            </select>
-                                                        </div>
+                                            <div class="modal-body p-5">
+                                                <p class="text-light mb-4 fs-6">
+                                                    Pastikan data yang akan diverifikasi di check dengan teliti terlebih dahulu.
+                                                </p>
+                                                <div class="row g-4">
+                                                    <div class="col-md-12">
+                                                        <label for="status_spv_{{ $dep->uuid }}" class="form-label fw-bold mb-2 text-center d-block" style="color: #FFE5DE; font-size: 0.95rem;">
+                                                            Pilih Status Verifikasi
+                                                        </label>
 
-                                                        <div class="col-md-12 mt-3">
-                                                            <label for="catatan_spv_{{ $dep->uuid }}" class="form-label fw-bold text-light mb-2">
-                                                                Catatan Tambahan (Opsional)
-                                                            </label>
-                                                            <textarea name="catatan_spv" id="catatan_spv_{{ $dep->uuid }}" rows="4" class="form-control text-dark border-0 shadow-none" 
-                                                                placeholder="Masukkan catatan, misalnya alasan revisi..." style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
+                                                        <select name="status_spv" id="status_spv_{{ $dep->uuid }}" class="form-select form-select-lg fw-bold text-center mx-auto" 
+                                                            style="background: linear-gradient(135deg, #fff1f0, #ffe5de); border: 2px solid #dc3545; border-radius: 12px; color: #dc3545; height: 55px; font-size: 1.1rem; box-shadow: 0 6px 12px rgba(0,0,0,0.1); width: 85%; transition: all 0.3s ease;" required>
+                                                            <option value="1" {{ $dep->status_spv == 1 ? 'selected' : '' }} style="color: #198754; font-weight: 600;">✅ Verified (Disetujui)</option>
+                                                            <option value="2" {{ $dep->status_spv == 2 ? 'selected' : '' }} style="color: #dc3545; font-weight: 600;">❌ Revision (Perlu Perbaikan)</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="col-md-12 mt-3">
+                                                        <label for="catatan_spv_{{ $dep->uuid }}" class="form-label fw-bold text-light mb-2">
+                                                            Catatan Tambahan (Opsional)
+                                                        </label>
+                                                        <textarea name="catatan_spv" id="catatan_spv_{{ $dep->uuid }}" rows="4" class="form-control text-dark border-0 shadow-none" 
+                                                            placeholder="Masukkan catatan, misalnya alasan revisi..." style="background-color: #FFE5DE; height: 120px;">{{ $dep->catatan_spv }}</textarea>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -23,7 +23,7 @@
             {{-- Search Form --}}
             <form method="GET" class="mb-3 d-flex justify-content-end">
                 <input type="text" name="search" value="{{ request('search') }}" class="form-control me-2"
-                    placeholder="Cari area..." style="width: 250px;">
+                placeholder="Cari area..." style="width: 250px;">
                 <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
             </form>
 
@@ -46,15 +46,7 @@
                         <td class="text-center align-middle">{{ $no++ }}</td>
                         <td class="align-middle">{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}</td>
                         <td class="align-middle">{{ $dep->area }}</td>
-                        <td class="text-center align-middle">
-                            <span class="badge bg-success">
-                                Min {{ $dep->standar_min }} °C
-                            </span>
-                            -
-                            <span class="badge bg-success">
-                                Max {{ $dep->standar_max }} °C
-                            </span>
-                        </td>
+                        <td class="text-center align-middle">{{ $dep->standar }}</td>
 
                         <td class="text-center align-middle">
                             <a href="{{ route('area_suhu.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1"
@@ -65,26 +57,26 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Yakin ingin menghapus?')" title="Hapus">
-                                    <i class="bi bi-trash"></i> Hapus
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="text-center">Belum ada data area.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                onclick="return confirm('Yakin ingin menghapus?')" title="Hapus">
+                                <i class="bi bi-trash"></i> Hapus
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center">Belum ada data area.</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
 
-            {{-- Pagination --}}
-            <div class="d-flex justify-content-end mt-3">
-                {{ $area_suhu->withQueryString()->links('pagination::bootstrap-5') }}
-            </div>
+        {{-- Pagination --}}
+        <div class="d-flex justify-content-end mt-3">
+            {{ $area_suhu->withQueryString()->links('pagination::bootstrap-5') }}
         </div>
     </div>
+</div>
 </div>
 
 {{-- Auto-hide alert --}}

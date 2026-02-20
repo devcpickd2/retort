@@ -18,6 +18,9 @@
             <a href="{{ route('area_hygiene.create') }}" class="btn btn-success">
                 <i class="bi bi-plus-circle"></i> Tambah
             </a>
+            <a href="{{ route('area_hygiene.recyclebin') }}" class="btn btn-secondary btn-sm">
+                <i class="bi bi-trash"></i> Recycle Bin
+            </a>
         </div>
 
         {{-- Search Form --}}
