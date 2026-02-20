@@ -67,21 +67,19 @@ class MagnetTrapController extends Controller
 
     public function create()
     {
+        // Ganti 'magnet_trap.create' jika nama file view Anda berbeda
         $userPlant = Auth::user()->plant;
-
         $produks = Produk::where('plant', $userPlant)
-        ->orderBy('nama_produk', 'asc')
-        ->get();
-
+                         ->orderBy('nama_produk', 'asc')
+                         ->get();
         $operators = Operator::where('bagian', 'Operator')
-        ->orderBy('nama_karyawan', 'asc')
-        ->get();
-
+                             ->where('plant', $userPlant)
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
         $engineers = Operator::where('bagian', 'Engineer')
-        ->orderBy('nama_karyawan', 'asc')
-        ->get();
-
-        return view('magnet_trap.CreateMagnetTrap', compact('produks', 'operators', 'engineers'));
+                         ->where('plant', $userPlant)
+                         ->orderBy('nama_karyawan', 'asc')->get();
+        return view('magnet_trap.CreateMagnetTrap ', compact('produks', 'operators', 'engineers'));
     }
 
 
@@ -153,28 +151,23 @@ class MagnetTrapController extends Controller
 
     public function edit(MagnetTrapModel $checklistmagnettrap)
     {
-        $userPlant = Auth::user()->plant;
+        $userPlant = Auth::user()->plant; 
 
         $produks = Produk::where('plant', $userPlant)
-        ->orderBy('nama_produk', 'asc')
-        ->get();
-
+                         ->orderBy('nama_produk', 'asc')
+                         ->get();
         $operators = Operator::where('bagian', 'Operator')
-        ->orderBy('nama_karyawan', 'asc')
-        ->get();
-
+                             ->where('plant', $userPlant)
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
         $engineers = Operator::where('bagian', 'Engineer')
-        ->orderBy('nama_karyawan', 'asc')
-        ->get();
-
+                         ->where('plant', $userPlant)
+                         ->orderBy('nama_karyawan', 'asc')->get();
+                         
         $mincings = Mincing::where('uuid', $userPlant)
         ->orderBy('kode_produksi', 'asc')
         ->get();
-
-        return view(
-            'magnet_trap.EditMagnetTrap',
-            compact('checklistmagnettrap', 'produks', 'operators', 'engineers', 'mincings')
-        );
+        return view('magnet_trap.EditMagnetTrap', compact('checklistmagnettrap', 'produks', 'operators', 'engineers', 'mincings'));
     }
 
     /**
@@ -258,7 +251,9 @@ class MagnetTrapController extends Controller
     {
         // 1. Mulai query builder
         $query = MagnetTrapModel::query();
-
+        if (Auth::check() && !empty(Auth::user()->plant)) {
+            $query->where('plant_uuid', Auth::user()->plant);
+        }
         // 2. Terapkan filter pencarian jika ada
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
@@ -329,12 +324,18 @@ class MagnetTrapController extends Controller
     public function showUpdateForm(MagnetTrapModel $checklistmagnettrap)
     {
         // Ambil data produk (sama seperti di method edit biasa)
-        $produks = Produk::orderBy('nama_produk', 'asc')->get();
+        $userPlant = Auth::user()->plant; 
+
+        $produks = Produk::where('plant', $userPlant)
+                         ->orderBy('nama_produk', 'asc')
+                         ->get();
         $operators = Operator::where('bagian', 'Operator')
-        ->orderBy('nama_karyawan', 'asc')
-        ->get();
+                             ->where('plant', $userPlant)
+                             ->orderBy('nama_karyawan', 'asc')
+                             ->get();
         $engineers = Operator::where('bagian', 'Engineer')
-        ->orderBy('nama_karyawan', 'asc')->get();
+                         ->where('plant', $userPlant)
+                         ->orderBy('nama_karyawan', 'asc')->get();
         // Bedanya DISINI: Arahkan ke view 'UpdateMagnetTrap'
         return view('magnet_trap.UpdateMagnetTrap', compact('checklistmagnettrap', 'produks', 'operators', 'engineers'));
     }
@@ -342,15 +343,17 @@ class MagnetTrapController extends Controller
     public function searchBatchMincing(Request $request)
     {
         $search = $request->get('q');
+        $userPlant = Auth::user()->plant;
 
         // Pastikan ada input pencarian
         if($search){
             // Ambil data dari tabel 'mincings' kolom 'kode_produksi'
             // Mengambil 10 data teratas yang mirip agar query ringan
             $data = DB::table('mincings')
-            ->where('kode_produksi', 'like', '%' . $search . '%')
-            ->limit(10)
-            ->pluck('kode_produksi');
+                        ->where('plant', $userPlant)
+                        ->where('kode_produksi', 'like', '%' . $search . '%')
+                        ->limit(10)
+                        ->pluck('kode_produksi');
 
             return response()->json($data);
         }

@@ -11,4 +11,9 @@ class Operator extends Model
     use HasFactory, HasUuid;
     
     protected $fillable = ['nama_karyawan', 'bagian', 'username', 'plant', 'uuid'];
+
+    public function dataPlant()
+    {
+        return $this->belongsTo(Plant::class, 'plant', 'uuid');
+    }
 }

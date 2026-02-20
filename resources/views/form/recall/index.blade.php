@@ -20,17 +20,23 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3><i class="bi bi-list-check"></i> Recall</h3>
-                @can('can access add button')
-                <a href="{{ route('recall.create') }}" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Tambah
-                </a>
-                @endcan
-                @can('can access recycle')
-                <a href="{{ route('recall.recyclebin') }}" class="btn btn-secondary">
-                    <i class="bi bi-trash"></i> Recycle Bin
-                </a>
-                @endcan
+                <h3 class="mb-0">
+                    <i class="bi bi-list-check"></i> Recall
+                </h3>
+
+                <div class="d-flex gap-2">
+                    @can('can access add button')
+                    <a href="{{ route('recall.create') }}" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Tambah
+                    </a>
+                    @endcan
+
+                    @can('can access recycle')
+                    <a href="{{ route('recall.recyclebin') }}" class="btn btn-secondary">
+                        <i class="bi bi-trash"></i> Recycle Bin
+                    </a>
+                    @endcan
+                </div>
             </div>
 
             {{-- Filter dan Live Search --}}
@@ -71,7 +77,7 @@
 
             {{-- Tambahkan table-responsive agar tabel tidak keluar border --}}
             <div class="table-responsive">
-             <table class="table table-striped table-bordered align-middle table-hover">
+               <table class="table table-striped table-bordered align-middle table-hover">
                 <thead class="table-primary text-center">
                     <tr>
                         <th rowspan="2">NO.</th>
@@ -118,8 +124,8 @@
                         <td class="text-center align-middle">{{ $dep->tindak_lanjut }}</td>
                         <td class="text-center align-middle">{{ $dep->username }}</td>
                         <td class="text-center align-middle">
-                           @can('can access edit button')
-                           <a href="{{ route('recall.edit', $dep->uuid) }}" class="btn btn-warning btn-sm">
+                         @can('can access edit button')
+                         <a href="{{ route('recall.edit', $dep->uuid) }}" class="btn btn-warning btn-sm">
                             <i class="bi bi-pencil"></i> Edit
                         </a>
                         @endcan

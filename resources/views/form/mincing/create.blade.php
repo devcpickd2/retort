@@ -37,7 +37,7 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Nama Produk</label>
+                                <label class="form-label fw-semibold">Nama Varian</label>
                                 <select name="nama_produk" class="form-control selectpicker" data-live-search="true"
                                     required>
                                     <option value="">-- Pilih Produk --</option>
@@ -47,7 +47,7 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Kode Produksi</label>
+                                <label class="form-label fw-semibold">Kode Batch</label>
                                 <input type="text" name="kode_produksi" id="kode_produksi" class="form-control"
                                     maxlength="10" required>
                                 <small id="kodeError" class="text-danger d-none"></small>
@@ -75,7 +75,7 @@
                                     <tr>
                                         <td class="text-start fw-semibold">Waktu</td>
                                         <td><input type="time" name="waktu_mulai"
-                                                class="form-control form-control-sm text-center" required></td>
+                                                class="form-control form-control-sm text-center"></td>
                                         <td class="fw-bold">s/d</td>
                                         <td><input type="time" name="waktu_selesai"
                                                 class="form-control form-control-sm text-center"></td>
@@ -164,33 +164,60 @@
                         {{-- PROSES MIXING & EMULSI --}}
                         <div class="table-responsive">
                             {{-- Suhu Sebelum Grinding --}}
-                            <table class="table table-bordered text-center align-middle mb-4">
+                            <table class="table table-bordered align-middle mb-0">
                                 <tbody>
+                                    {{-- BARIS SUHU SEBELUM GRINDING --}}
                                     <tr>
-                                        <td class="text-start fw-semibold">Suhu (Sebelum Grinding)</td>
-                                        <td>
-                                            <select name="daging" class="form-control form-select-sm">
-                                                <option value="" selected disabled>Pilih Daging</option>
-                                                <option value="BEEF">BEEF</option>
-                                                <option value="SBB">SBB</option>
-                                                <option value="SBL">SBL</option>
-                                                <option value="MDM">MDM</option>
-                                                <option value="CCM">CCM</option>
-                                            </select>
+                                        <td class="text-start fw-semibold bg-light" style="width: 25%;">Suhu (Sebelum Grinding)</td>
+                                        <td colspan="3" class="p-0">
+                                            {{-- Tabel anak untuk input dinamis agar tidak merusak lebar kolom utama --}}
+                                            <table class="table table-borderless mb-0">
+                                                <tbody id="tbodySuhuGrinding">
+                                                    <tr>
+                                                        <td style="width: 45%;">
+                                                            <select name="suhu_grinding_input[0][daging]" class="form-control form-select-sm">
+                                                                <option value="" selected disabled>Pilih Daging</option>
+                                                                <option value="BEEF">BEEF</option>
+                                                                <option value="SBB">SBB</option>
+                                                                <option value="SBL">SBL</option>
+                                                                <option value="MDM">MDM</option>
+                                                                <option value="CCM">CCM</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="width: 45%;">
+                                                            <input type="number" name="suhu_grinding_input[0][suhu]" step="0.01" class="form-control form-control-sm text-center" placeholder="0.00">
+                                                        </td>
+                                                        <td style="width: 10%;">
+                                                            <button type="button" class="btn btn-sm btn-danger hapusBarisSuhu">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            {{-- Tombol tambah diletakkan di bawah baris input --}}
+                                            <div class="p-2 border-top bg-white">
+                                                <button type="button" class="btn btn-success btn-sm" id="tambahBarisSuhu">
+                                                    <i class="bi bi-plus-circle"></i> Tambah Daging
+                                                </button>
+                                            </div>
                                         </td>
-                                        <td colspan="2"><input type="number" name="suhu_sebelum_grinding" step="0.01"
-                                                class="form-control form-control-sm text-center"></td>
                                     </tr>
+
+                                    {{-- BARIS WAKTU MIXING PREMIX (PERSIS SEPERTI GAMBAR) --}}
                                     <tr>
-                                        <td class="text-start fw-semibold">Waktu Mixing Premix (Menit)</td>
-                                        <td><input type="time" name="waktu_mixing_premix_awal"
-                                                class="form-control form-control-sm text-center"></td>
-                                        <td class="fw-bold">s/d</td>
-                                        <td><input type="time" name="waktu_mixing_premix_akhir"
-                                                class="form-control form-control-sm text-center"></td>
+                                        <td class="text-start fw-semibold bg-light">Waktu Mixing Premix (Menit)</td>
+                                        <td style="width: 32%;">
+                                            <input type="time" name="waktu_mixing_premix_awal" class="form-control form-control-sm text-center">
+                                        </td>
+                                        <td class="fw-bold text-center" style="width: 6%;">s/d</td>
+                                        <td style="width: 37%;">
+                                            <input type="time" name="waktu_mixing_premix_akhir" class="form-control form-control-sm text-center">
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
+
 
                             {{-- GEL --}}
                             <table class="table table-bordered text-center align-middle mb-4">
@@ -318,7 +345,7 @@
             kodeError.text('').addClass('d-none');
 
             if (value.length !== 10) {
-                kodeError.text('Kode produksi harus 10 karakter').removeClass('d-none');
+                kodeError.text('Kode Batch harus 10 karakter').removeClass('d-none');
                 return false;
             }
             if (!/^[A-Z0-9]+$/.test(value)) {
@@ -341,7 +368,7 @@
         form.on('submit', function(e) {
             if (!validateKode()) {
                 e.preventDefault();
-                alert('Kode produksi tidak valid! Periksa kembali.');
+                alert('Kode Batch tidak valid! Periksa kembali.');
                 kodeInput.focus();
             }
         });
@@ -390,6 +417,94 @@
 
         tbodyPremix.addEventListener('click', e => {
             if (e.target.closest('.hapusBarisPremix')) e.target.closest('tr').remove();
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. Definisi Element ---
+        const tbodyNon = document.getElementById('tbodyNonPremix');
+        const tbodyPremix = document.getElementById('tbodyPremix');
+        const tbodySuhu = document.getElementById('tbodySuhuGrinding');
+
+        // --- 2. Inisialisasi Index ---
+        let indexNonPremix = tbodyNon ? tbodyNon.querySelectorAll('tr').length : 0;
+        let indexPremix = tbodyPremix ? tbodyPremix.querySelectorAll('tr').length : 0;
+        let indexSuhu = tbodySuhu ? tbodySuhu.querySelectorAll('tr').length : 0;
+
+        // --- 3. Logic Non Premix ---
+        const btnTambahNon = document.getElementById('tambahBarisNonPremix');
+        if(btnTambahNon) {
+            btnTambahNon.addEventListener('click', () => {
+                const row = `<tr>
+                    <td><input type="text" name="non_premix[${indexNonPremix}][nama_bahan]" class="form-control form-control-sm text-center"></td>
+                    <td><input type="text" name="non_premix[${indexNonPremix}][kode_bahan]" class="form-control form-control-sm text-center"></td>
+                    <td><input type="number" name="non_premix[${indexNonPremix}][suhu_bahan]" step="0.01" class="form-control form-control-sm text-center"></td>
+                    <td><input type="number" name="non_premix[${indexNonPremix}][ph_bahan]" step="0.01" class="form-control form-control-sm text-center"></td>
+                    <td><input type="number" name="non_premix[${indexNonPremix}][berat_bahan]" step="0.01" class="form-control form-control-sm text-center"></td>
+                    <td><input type="checkbox" name="non_premix[${indexNonPremix}][sensori]" value="Oke" class="form-check-input"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm hapusBaris"><i class="bi bi-trash"></i></button></td>
+                </tr>`;
+                tbodyNon.insertAdjacentHTML('beforeend', row);
+                indexNonPremix++;
+            });
+        }
+
+        // --- 4. Logic Premix ---
+        const btnTambahPremix = document.getElementById('tambahBarisPremix');
+        if(btnTambahPremix) {
+            btnTambahPremix.addEventListener('click', () => {
+                const row = `<tr>
+                    <td><input type="text" name="premix[${indexPremix}][nama_premix]" class="form-control form-control-sm text-center"></td>
+                    <td><input type="text" name="premix[${indexPremix}][kode_premix]" class="form-control form-control-sm text-center"></td>
+                    <td><input type="number" name="premix[${indexPremix}][berat_premix]" step="0.01" class="form-control form-control-sm text-center"></td>
+                    <td><input type="checkbox" name="premix[${indexPremix}][sensori_premix]" value="Oke" class="form-check-input"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm hapusBarisPremix"><i class="bi bi-trash"></i></button></td>
+                </tr>`;
+                tbodyPremix.insertAdjacentHTML('beforeend', row);
+                indexPremix++;
+            });
+        }
+
+        // --- 5. Logic Suhu Grinding ---
+        const btnTambahSuhu = document.getElementById('tambahBarisSuhu');
+        if (btnTambahSuhu) {
+            btnTambahSuhu.addEventListener('click', function() {
+                const row = `<tr>
+                    <td style="width: 45%;">
+                        <select name="suhu_grinding_input[${indexSuhu}][daging]" class="form-control form-select-sm">
+                            <option value="" selected disabled>Pilih Daging</option>
+                            <option value="BEEF">BEEF</option>
+                            <option value="SBB">SBB</option>
+                            <option value="SBL">SBL</option>
+                            <option value="MDM">MDM</option>
+                            <option value="CCM">CCM</option>
+                        </select>
+                    </td>
+                    <td style="width: 45%;">
+                        <input type="number" name="suhu_grinding_input[${indexSuhu}][suhu]" step="0.01" class="form-control form-control-sm text-center" placeholder="0.00">
+                    </td>
+                    <td style="width: 10%;">
+                        <button type="button" class="btn btn-sm btn-danger hapusBarisSuhu"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>`;
+                tbodySuhu.insertAdjacentHTML('beforeend', row);
+                indexSuhu++;
+            });
+        }
+
+        // --- 6. Event Delegation untuk Hapus ---
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.hapusBaris')) e.target.closest('tr').remove();
+            if (e.target.closest('.hapusBarisPremix')) e.target.closest('tr').remove();
+            if (e.target.closest('.hapusBarisSuhu')) {
+                if (tbodySuhu.querySelectorAll('tr').length > 1) {
+                    e.target.closest('tr').remove();
+                } else {
+                    alert("Minimal harus ada satu input suhu.");
+                }
+            }
         });
     });
 </script>

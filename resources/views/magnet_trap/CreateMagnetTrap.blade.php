@@ -107,7 +107,7 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="nama_produk" class="form-label">{{ __('Nama Produk') }}</label>
+                            <label for="nama_produk" class="form-label">{{ __('Nama Varian') }}</label>
 
                             {{-- PERBAIKAN: class "form-select" bisa konflik dengan Select2 di beberapa kasus,
                             tapi dengan theme bootstrap-5 biasanya aman.
@@ -264,7 +264,7 @@
         $('.select2').select2({
             theme: "bootstrap-5", 
             width: '100%', 
-            placeholder: "Ketik untuk mencari produk...",
+            placeholder: "Ketik untuk mencari varian...",
             allowClear: true
         });
     
@@ -278,7 +278,7 @@
 
     $('select[name="nama_produk"]').on('change', function (e) {
         let namaProduk = $(this).val();
-        console.log("Selected produk:", namaProduk);
+        console.log("Selected Varian:", namaProduk);
         if (!namaProduk) {
             batchSelect.innerHTML = '<option value="">Pilih Varian Terlebih Dahulu</option>';
             batchSelect.disabled = true;

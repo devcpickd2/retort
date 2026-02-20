@@ -101,21 +101,21 @@ class ApiController extends Controller
 
         DB::beginTransaction();
         try {
-            $plant = Plant::updateOrCreate(
-                ['uuid' => $plantData['uuid'] ?? Str::uuid()],
-                [
-                    'plant' => $plantData['plant'],
-                    'kode'  => $plantData['kode'] ?? strtoupper(substr($plantData['plant'], 0, 3)),
-                ]
-            );
 
-            if (!empty($plantData['departments']) && is_array($plantData['departments'])) {
-                foreach ($plantData['departments'] as $deptData) {
-                    Departemen::updateOrCreate(
-                        ['uuid' => $deptData['uuid'] ?? Str::uuid()],
-                        ['nama' => $deptData['department']]
-                    );
-                }
+            $plant = Plant::where('uuid', $plantData['uuid'])
+                ->orWhere('plant', 'LIKE', '%' . $plantData['uuid'] . '%')
+                ->first();
+
+            if($plant) {
+                $plant->update([
+                    'uuid' => $plantData['uuid'],
+                    'plant' => $plantData['plant']
+                ]);
+            } else {
+                $plant = Plant::create([
+                    'uuid' => $plantData['uuid'],
+                    'plant' => $plantData['plant']
+                ]);
             }
 
             DB::commit();

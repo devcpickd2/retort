@@ -915,6 +915,7 @@ Route::resource('penyimpangan-kualitas', PenyimpanganKualitasController::class)-
     'withdrawl' => WithdrawlController::class,
     'recall' => RecallController::class,
     'klorin' => KlorinController::class,
+    'labelisasi_pvdc' => Labelisasi_pvdcController::class,
 ];
 
 foreach ($recycleModules as $prefix => $controller) {

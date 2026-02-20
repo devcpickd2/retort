@@ -33,6 +33,7 @@
                         <th style="width: 20%;">Date</th>
                         <th>Nama Karyawan</th>
                         <th>Bagian</th>
+                        <th>Plant</th>
                         <th style="width: 20%;">Action</th>
                     </tr>
                 </thead>
@@ -46,6 +47,7 @@
                         <td class="align-middle">{{ \Carbon\Carbon::parse($dep->created_at)->format('d-m-Y H:i') }}</td>
                         <td class="align-middle">{{ $dep->nama_karyawan }}</td>
                         <td class="align-middle">{{ $dep->bagian }}</td>
+                        <td class="align-middle">{{ $dep->dataPlant->plant ?? 'Plant Tidak Ditemukan' }}</td>
                         <td class="text-center align-middle">
                             <a href="{{ route('operator.edit', $dep->uuid) }}" class="btn btn-warning btn-sm me-1" title="Edit">
                                 <i class="bi bi-pencil"></i> Edit

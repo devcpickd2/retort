@@ -6,7 +6,7 @@
         <div class="card-body">
 
             <h4 class="mb-4">
-                <i class="bi bi-pencil-square"></i> Edit Pemeriksaan Proses Packing
+                <i class="bi bi-pencil-square"></i> Edit Pemeriksaan Proses Cartoning
             </h4>
 
             <form id="pvdcForm" action="{{ route('packing.edit_spv', $packing->uuid) }}" method="POST" enctype="multipart/form-packing">

@@ -53,7 +53,7 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="mb-1">Cari Nama Produk</div>
+                <div class="mb-1">Cari Nama Varian</div>
                 <div class="input-group mb-2">
                     <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-search text-muted"></i>
@@ -91,7 +91,7 @@
                     <thead class="table-secondary text-center">
                         <tr>
                             <th>NO.</th>
-                            <th>Nama Produk</th>
+                            <th>Nama Varian</th>
                             <th>Kode Batch</th>
                             <th>Tanggal | Pukul</th>
                             <th>Jml Temuan</th>

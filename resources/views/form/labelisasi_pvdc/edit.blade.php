@@ -122,7 +122,7 @@
                 {{-- TOMBOL SIMPAN --}}
                 <div class="d-flex justify-content-between mt-3">
                     <button type="button" id="saveBtn" class="btn btn-success"><i class="bi bi-save"></i> Simpan</button>
-                    <a href="{{ route('labelisasi_pvdc.verification') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
+                    <a href="{{ route('labelisasi_pvdc.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Kembali</a>
                 </div>
             </form>
 

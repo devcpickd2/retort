@@ -74,7 +74,7 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="nama_produk" class="form-label">{{ __('Nama Produk') }}</label>
+                            <label for="nama_produk" class="form-label">{{ __('Nama Varian') }}</label>
                             
                             {{-- Dropdown Select2 --}}
                             <select class="form-select select2 @error('nama_produk') is-invalid @enderror" id="nama_produk" name="nama_produk" required>
@@ -236,7 +236,7 @@
         $('.select2').select2({
             theme: "bootstrap-5",
             width: '100%', 
-            placeholder: "Ketik untuk mencari produk...",
+            placeholder: "Ketik untuk mencari varian...",
         });
 
         // --- 2. BARU: Logic untuk Kode Batch ---
